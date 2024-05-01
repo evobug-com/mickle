@@ -1,0 +1,95 @@
+namespace Siocom.Talk.Client;
+
+enum UserPresence : ubyte
+{
+  unknown,
+  online,
+  offline,
+  away,
+  busy,
+  invisible,
+}
+
+table Server {
+    id: string;
+    name: string;
+}
+
+table User {
+    id: string;
+    display_name: string;
+    first_name: string;
+    last_name: string;
+    status: string;
+    created_at: int;
+    last_seen: int;
+    avatar: string;
+    presence: UserPresence;
+}
+
+table Channel {
+    id: string;
+    name: string;
+    description: string;
+    created_at: int;
+}
+
+table Relation {
+    id: string;
+    in: string;
+    out: string;
+}
+
+table Message {
+    id: string;
+    user: string;
+    content: string;
+    created_at: int;
+}
+
+table Welcome {
+   servers: [Server];
+   server_users: [Relation];
+   server_channels: [Relation];
+   channels: [Channel];
+   channel_users: [Relation];
+   users: [User];
+   roles: [Role];
+   user_roles: [Relation];
+   messages: [Message];
+   channel_messages: [Relation];
+}
+
+table Role {
+    id: string;
+    name: string;
+}
+
+table LoginRequest { username: string; password: string; token: string; }
+table LoginReplySuccess { token: string (required); user: User (required); server: Server (required); }
+table LoginReplyFailure { error: string; }
+
+table NewMessageRequest { channel: string; content: string; }
+table NewMessageReplySuccess { message: Message; channel_message: Relation; }
+table NewMessageReplyFailure { error: string; }
+
+table UserPresenceChangeReply { user_id: string; status: string; }
+
+union ClientMessage {
+    LoginRequest,
+    LoginReplySuccess,
+    LoginReplyFailure,
+
+    NewMessageRequest,
+    NewMessageReplySuccess,
+    NewMessageReplyFailure,
+
+    Welcome,
+    UserPresenceChangeReply,
+}
+
+table MessageWrapper {
+    message: ClientMessage;
+}
+
+root_type MessageWrapper;

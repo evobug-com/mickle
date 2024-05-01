@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package proto.src.talk.v1;
+
+/*
+  Client are the messages that the client sends to the server
+  Server are the messages that the server sends to the client
+ */
