@@ -309,7 +309,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             leading: UserAvatar(presence: UserPresence.fromString(users[index].presence), imageUrl: users[index].avatar,),
                                             // User with status
                                             title: Text(users[index].displayName ?? "<No name>"),
-                                            subtitle: Text(users[index].status ?? "<No status>"),
+                                            subtitle: users[index].status != null ? Text(users[index].status!) : null,
                                             // trailing message icon
                                             trailing: const IconButton(
                                               icon: Icon(Icons.message),
