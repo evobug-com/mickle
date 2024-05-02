@@ -29,6 +29,7 @@ class ChannelMessageState extends State<ChannelMessage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
@@ -52,13 +53,13 @@ class ChannelMessageState extends State<ChannelMessage> {
                   children: [
                     Row(
                       children: [
-                        Text(widget.user?.displayName ?? '<user not found>'),
+                        Text(widget.user?.displayName ?? '<user not found>', style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold),),
                         const SizedBox(width: 8),
-                        if(widget.message.createdAt != null) Text(DateFormat('HH:mm:ss').format(DateTime.parse(widget.message.createdAt))),
-                        if (widget.message.createdAt == null) Text(widget.message.createdAt ?? '<No time>'),
+                        if(widget.message.createdAt != null) Text(DateFormat('HH:mm:ss').format(DateTime.parse(widget.message.createdAt)), style: TextStyle(color: colorScheme.onSurface, fontStyle: FontStyle.italic)),
+                        if (widget.message.createdAt == null) Text(widget.message.createdAt ?? '<No time>', style: TextStyle(color: colorScheme.onSurface, fontStyle: FontStyle.italic)),
                       ],
                     ),
-                    Text(widget.message.content ?? '<No message>'),
+                    Text(widget.message.content ?? '<No message>', style: TextStyle(color: colorScheme.onSurface)),
                   ],
                 ),
               ),

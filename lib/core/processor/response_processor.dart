@@ -92,7 +92,7 @@ processResponse(Connection connection, Uint8List data) async {
         if(user != null) {
           user.presence = updatePresence.presence;
           user.onUpdated();
-          print("[ResponseProcessor] User presence updated: ${user.displayName} to ${user.status}");
+          print("[ResponseProcessor] User presence updated: ${user.displayName} to ${user.presence}");
         }
         break;
       case "Message":
