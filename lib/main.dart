@@ -11,6 +11,7 @@ import 'package:talk/core/storage/secure_storage.dart';
 import 'package:talk/screens/home_screen.dart';
 import 'package:talk/screens/login_screen.dart';
 import 'package:talk/ui/lost_connection_bar.dart';
+import 'package:talk/ui/scheme.dart';
 
 import 'core/connection/session_manager.dart';
 import 'core/debug/console.dart';
@@ -83,22 +84,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'TALK 2024 Demo',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.light().copyWith(extensions: <ThemeExtension<dynamic>>[
-        const MyTheme(
-          sidebarSurface: Color(0xFFE0E0E0),
-        )
-      ]),
-      darkTheme: ThemeData.dark().copyWith(
-        extensions: <ThemeExtension<dynamic>>[
-          const MyTheme(
-            sidebarSurface: Color(0xFF303030),
-          )
-        ],
-        listTileTheme: const ListTileThemeData(
-          selectedColor: Colors.white,
-          selectedTileColor: Color(0xFF424242),
-        ),
-      ),
+      theme: const MaterialTheme(TextTheme()).light(),
+      darkTheme: const MaterialTheme(TextTheme()).dark(),
       routerConfig: _router,
       themeMode: ThemeMode.dark,
     );

@@ -56,7 +56,7 @@ class ListStream<T> {
     return _items.values.firstWhereOrNull((element) => param0(element));
   }
 
-  get(String id) {
+  T? get(String id) {
     return _items[id];
   }
 }

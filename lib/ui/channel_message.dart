@@ -8,7 +8,7 @@ import 'package:talk/ui/user_avatar.dart';
 // It will support editing and deleting messages
 class ChannelMessage extends StatefulWidget {
   final models.Message message;
-  final models.User user;
+  final models.User? user;
   final void Function()? onEdit;
   final void Function()? onDelete;
 
@@ -44,7 +44,7 @@ class ChannelMessageState extends State<ChannelMessage> {
             Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              UserAvatar(presence: null, imageUrl: widget.user.avatar),
+              UserAvatar(imageUrl: widget.user?.avatar),
               const SizedBox(width: 8),
               Expanded(
                 child: Column(
@@ -52,7 +52,7 @@ class ChannelMessageState extends State<ChannelMessage> {
                   children: [
                     Row(
                       children: [
-                        Text(widget.user.displayName ?? '<No name>'),
+                        Text(widget.user?.displayName ?? '<user not found>'),
                         const SizedBox(width: 8),
                         if(widget.message.createdAt != null) Text(DateFormat('HH:mm:ss').format(DateTime.parse(widget.message.createdAt))),
                         if (widget.message.createdAt == null) Text(widget.message.createdAt ?? '<No time>'),

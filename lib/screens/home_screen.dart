@@ -168,13 +168,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                       final message = messages[index];
                                       final user = database.users.get("User:${message.user}");
 
-                                      if (user == null) {
-                                        return const Text('Unable to decode message (no user found)');
-                                      }
-
                                       return ChannelMessage(
                                         message: message,
-                                        user: user!,
+                                        user: user,
                                         onEdit: null,
                                         onDelete: null,
                                       );
@@ -187,22 +183,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                 }
                               },
                             ),
-                            // child: ListView.builder(
-                            //   itemCount: 100,
-                            //   itemBuilder: (context, index) {
-                            //     return ListTile(
-                            //       title: Text('Message $index'),
-                            //     );
-                            //   },
-                            // ),
                           ),
                           const Divider(height: 1),
                           TextField(
                             controller: _chatTextController,
                             focusNode: _chatTextFocus,
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: 'Message',
+                            decoration: InputDecoration(
+                              border: UnderlineInputBorder(),
+                              labelText: 'Message #${
+                                _selectedChannelController.currentChannel?.name
+                              }',
                             ),
                             onSubmitted: (value) {
                               if(value.isEmpty) {
@@ -448,7 +438,7 @@ class SidebarBox extends StatelessWidget {
     return Material(
       child: Ink(
         decoration: BoxDecoration(
-          color: Theme.of(context).extension<MyTheme>()?.sidebarSurface,
+          color: Theme.of(context).colorScheme.onInverseSurface,
           borderRadius: BorderRadius.circular(4),
         ),
         child: child,

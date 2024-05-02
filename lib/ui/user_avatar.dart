@@ -22,7 +22,7 @@ class UserAvatar extends StatelessWidget {
   final String? imageUrl;
   final UserPresence? presence;
   
-  const UserAvatar({super.key, this.imageUrl, required this.presence});
+  const UserAvatar({super.key, this.imageUrl, this.presence});
 
 
   @override
