@@ -257,7 +257,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: <Widget>[
                                     Text(session.user!.displayName ?? "<No name>"),
-                                    Text(session.user!.status ?? "<No status>"),
+                                    if(session.user!.status != null) ...[
+                                      Text(session.user!.status!),
+                                    ],
                                   ],
 
                                 ),
@@ -302,7 +304,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                       return ListenableBuilder(
                                         listenable: users[index],
                                         builder: (context, widget) {
-                                          print("Rebuilding user ${users[index].displayName} - status ${users[index].presence}");
                                           return ListTile(
                                             // contentPadding: EdgeInsets.fromLTRB(4,0,4,0),
                                             // Avatar leading
