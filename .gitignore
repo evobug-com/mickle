@@ -2,6 +2,7 @@
 target/
 debug/
 release/
+keylog.txt
 
 # Miscellaneous
 *.class
