@@ -9,8 +9,8 @@ import 'package:talk/ui/user_avatar.dart';
 class ChannelMessage extends StatefulWidget {
   final models.Message message;
   final models.User user;
-  final void Function() onEdit;
-  final void Function() onDelete;
+  final void Function()? onEdit;
+  final void Function()? onDelete;
 
   const ChannelMessage({
     super.key,

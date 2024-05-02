@@ -175,12 +175,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                       return ChannelMessage(
                                         message: message,
                                         user: user!,
-                                        onEdit: () {
-                                          print('Edit message');
-                                        },
-                                        onDelete: () {
-                                          print('Delete message');
-                                        },
+                                        onEdit: null,
+                                        onDelete: null,
                                       );
                                     },
                                   );
