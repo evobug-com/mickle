@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:talk/core/models/models.dart' as models;
 import 'package:talk/ui/user_avatar.dart';
 
@@ -52,7 +53,9 @@ class ChannelMessageState extends State<ChannelMessage> {
                     Row(
                       children: [
                         Text(widget.user.displayName ?? '<No name>'),
-                        Text(widget.message.createdAt ?? '<No time>'),
+                        const SizedBox(width: 8),
+                        if(widget.message.createdAt != null) Text(DateFormat('HH:mm:ss').format(DateTime.parse(widget.message.createdAt))),
+                        if (widget.message.createdAt == null) Text(widget.message.createdAt ?? '<No time>'),
                       ],
                     ),
                     Text(widget.message.content ?? '<No message>'),

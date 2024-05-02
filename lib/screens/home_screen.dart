@@ -248,13 +248,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         builder: (context, child) {
                           return Row(
                             children: <Widget>[
-                              UserAvatar(presence: null, imageUrl: session.user?.avatar,),
+                              UserAvatar(presence: UserPresence.fromString(session.user?.presence), imageUrl: session.user?.avatar,),
                               const SizedBox(width: 8.0),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: <Widget>[
-                                    Text(session.user!.displayName ?? "<No name>"),
+                                    // Bold text
+                                    Text(session.user!.displayName ?? "<No name>", style: const TextStyle(fontWeight: FontWeight.bold)),
                                     if(session.user!.status != null) ...[
                                       Text(session.user!.status!),
                                     ],
