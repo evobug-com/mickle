@@ -13,10 +13,9 @@ import 'package:talk/screens/login_screen.dart';
 import 'package:talk/ui/lost_connection_bar.dart';
 import 'package:talk/ui/scheme.dart';
 
-import 'core/connection/session_manager.dart';
 import 'core/debug/console.dart';
+import 'core/notifiers/theme_controller.dart';
 import 'core/storage/storage.dart';
-import 'core/theme.dart';
 
 Future<void> main() async {
   // This is required so ObjectBox can get the application directory
@@ -26,6 +25,12 @@ Future<void> main() async {
   // Initialize the storage
   await SecureStorage.init();
   await Storage.init();
+
+  // Load the theme from storage
+  final theme = await Storage().read('theme');
+  if(theme != null) {
+    ThemeController().setTheme(ThemeController().themes.firstWhere((element) => element.name == theme).theme);
+  }
 
   runApp(const MyApp());
 }
@@ -44,15 +49,21 @@ Widget _wrapApp(BuildContext context, Widget child) {
   // Add connection status bar (overlay second)
   // Add the child
 
-  return Scaffold(
-    body: Stack(
-      alignment: Alignment.topCenter,
-      children: [
-        child,
-        const LostConnectionBarWidget(),
-        const Console(),
-      ],
-    )
+  return ListenableBuilder(
+    listenable: ThemeController(),
+    builder: (context, c) {
+      return Scaffold(
+        backgroundColor: ThemeController().theme.colorScheme.surface,
+        body: Stack(
+          alignment: Alignment.topCenter,
+          children: [
+            child,
+            const LostConnectionBarWidget(),
+            const Console(),
+          ],
+        )
+      );
+    }
   );
 }
 
@@ -81,13 +92,16 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'TALK 2024 Demo',
-      debugShowCheckedModeBanner: false,
-      theme: const MaterialTheme(TextTheme()).light(),
-      darkTheme: const MaterialTheme(TextTheme()).dark(),
-      routerConfig: _router,
-      themeMode: ThemeMode.dark,
+    return ListenableBuilder(
+      listenable: ThemeController(),
+      builder: (context, child) {
+        return MaterialApp.router(
+          title: 'TALK 2024 Demo',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeController().theme,
+          routerConfig: _router
+        );
+      }
     );
   }
 }
