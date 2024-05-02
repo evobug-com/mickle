@@ -248,9 +248,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         builder: (context, child) {
                           return Row(
                             children: <Widget>[
-                              const CircleAvatar(
-                                child: Text('A'),
-                              ),
+                              UserAvatar(presence: null, imageUrl: session.user?.avatar,),
                               const SizedBox(width: 8.0),
                               Expanded(
                                 child: Column(
