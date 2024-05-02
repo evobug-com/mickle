@@ -56,6 +56,7 @@ class GenericRoomListState extends State<GenericRoomList> {
 
               return ListTile(
                 title: Text(widget.titleBuilder(index)),
+                leading: Icon(Icons.tag),
                 selected: roomId == widget.controller.currentChannel?.id,
                 // Show badge in trailing
                 // trailing: roomId == widget.controller.selectedRoomId
