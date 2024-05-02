@@ -6,12 +6,12 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:talk/core/audio/audio_manager.dart';
 import 'package:talk/core/notifiers/current_connection.dart';
 import 'package:talk/core/storage/secure_storage.dart';
 import 'package:talk/screens/home_screen.dart';
 import 'package:talk/screens/login_screen.dart';
 import 'package:talk/ui/lost_connection_bar.dart';
-import 'package:talk/ui/scheme.dart';
 
 import 'core/debug/console.dart';
 import 'core/notifiers/theme_controller.dart';
@@ -30,6 +30,11 @@ Future<void> main() async {
   final theme = await Storage().read('theme');
   if(theme != null) {
     ThemeController().setTheme(ThemeController().themes.firstWhere((element) => element.name == theme).theme);
+  }
+
+  final masterVolume = await Storage().read('masterVolume');
+  if(masterVolume != null) {
+    AudioManager().masterVolume.value = double.parse(masterVolume);
   }
 
   runApp(const MyApp());

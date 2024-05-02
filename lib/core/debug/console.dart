@@ -105,6 +105,7 @@ class ConsoleState extends State<Console> {
                                                 value: audioManager.masterVolume.value,
                                                 onChanged: (value) {
                                                   audioManager.masterVolume.value = value;
+                                                  Storage().write("masterVolume", value.toString());
                                                 },
                                                 max: 1.0,
                                                 min: 0.0,
