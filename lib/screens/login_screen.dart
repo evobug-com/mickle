@@ -12,6 +12,7 @@ import 'package:talk/core/connection/session_manager.dart';
 import 'package:talk/core/notifiers/current_connection.dart';
 import 'package:talk/core/theme.dart';
 
+import '../core/notifiers/theme_controller.dart';
 import '../core/storage/secure_storage.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -121,7 +122,7 @@ class LoginScreenState extends State<LoginScreen> {
                decoration: BoxDecoration(
                  border: Border.all(),
                  borderRadius: BorderRadius.circular(8),
-                 color: Theme.of(context).extension<MyTheme>()!.sidebarSurface,
+                 color: ThemeController().theme.colorScheme.inverseSurface,
                ),
                padding: const EdgeInsets.all(16),
                child: Column(
