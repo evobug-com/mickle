@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:talk/core/connection/reconnect_manager.dart';
 import 'connection.dart';
 
 class SessionManager extends ChangeNotifier {
@@ -7,14 +8,14 @@ class SessionManager extends ChangeNotifier {
   SessionManager._internal();
   Map<String, Connection> sessions = {};
 
-  Connection addSession(String serverAddress, String username, String password, Function(dynamic) onError, Function() onLogin) {
+  Connection addSession({required String serverAddress, String? username, String? password, String? token, required Function(dynamic) onError, required Function() onSuccess}) {
     if(sessions.containsKey(serverAddress)) {
       return sessions[serverAddress]!;
     }
 
-    final connection = Connection(serverAddress: serverAddress, onError: onError, onLogin: onLogin);
+    final connection = Connection(serverAddress: serverAddress, onError: onError, onLogin: onSuccess);
     sessions[serverAddress] = connection;
-    connection.connect(username: username, password: password);
+    connection.connect(username: username, password: password, token: token);
 
     notifyListeners();
 
@@ -27,7 +28,10 @@ class SessionManager extends ChangeNotifier {
     }
 
     final connection = sessions.remove(serverAddress);
-    connection!.disconnect();
+    if(connection != null) {
+      ReconnectManager().removeConnection(connection);
+      connection.disconnect();
+    }
 
     notifyListeners();
     return connection;

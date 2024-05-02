@@ -42,6 +42,7 @@ class AudioManager {
   static void playSingleShot(String category, Source source) async {
     AudioManager audioManager = AudioManager();
     final player = CategorizedAudioPlayer(category);
+    await player.setVolume(audioManager._masterVolume.value);
     await player.setReleaseMode(ReleaseMode.release);
     audioManager._players.add(player);
     player.onPlayerComplete.listen((_) {

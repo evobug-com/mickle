@@ -23,7 +23,7 @@ String constructSerializeFunction(String className, List<String> fields) {
       ${fields.map((field) {
     final parts = field.split(' ');
     final fieldName = parts[1];
-    final fieldType = parts[0];
+    String fieldType = parts[0];
 
     // if array (List) then call addArrayWKey
     if(fieldType.startsWith('List')) {
@@ -31,7 +31,12 @@ String constructSerializeFunction(String className, List<String> fields) {
     }
 
     // if String or Int then call addTypeWKey
-    if (fieldType == 'String' || fieldType == 'int') {
+    if (fieldType.startsWith("String") || fieldType.startsWith("int")) {
+      if(fieldType.endsWith("?")) {
+        fieldType = fieldType.substring(0, fieldType.length - 1);
+        return 'if($fieldName != null) { builder.add${fieldType[0].toUpperCase()}${fieldType.substring(1)}WKey("${snakeToCamel(fieldName)}", $fieldName!); } else { builder.addNullWKey("${snakeToCamel(fieldName)}"); }';
+      }
+
       return 'builder.add${fieldType[0].toUpperCase()}${fieldType.substring(1)}WKey("${snakeToCamel(fieldName)}", $fieldName);';
     }
 

@@ -6,6 +6,11 @@ extension FlexBufferExt on flex_buffers.Builder {
     addString(value);
   }
 
+  addNullWKey(String key) {
+    addKey(key);
+    addNull();
+  }
+
   addIntWKey(String key, int value) {
     addKey(key);
     addInt(value);

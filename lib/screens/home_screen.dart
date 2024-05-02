@@ -1,4 +1,5 @@
 // This is the main content of the app. It will do layout (sidebar, content placement)
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:talk/core/notifiers/current_connection.dart';
@@ -45,6 +46,11 @@ class _HomeScreenState extends State<HomeScreen> {
     _chatTextFocus.dispose();
     _chatScrollController.dispose();
     super.dispose();
+  }
+
+  getMessagesForChannel(String channelId) {
+    final database = Database(CurrentSession().connection!.serverId!);
+    return database.messages.items.where((message) => database.channelMessages.output(message.id) == channelId).toList(growable: false);
   }
 
   @override
@@ -119,6 +125,8 @@ class _HomeScreenState extends State<HomeScreen> {
               listenable: _selectedChannelController,
               builder: (context, child) {
 
+                print("Rebuilding chat screen with channel ${_selectedChannelController.currentChannel?.id}");
+
                 if(_selectedChannelController.currentChannel == null) {
                   return const Expanded(
                     child: Center(
@@ -137,11 +145,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           ChannelHeader(channel: _selectedChannelController.currentChannel!),
                           Expanded(
                             child: StreamBuilder(
-                              stream: database.messages.stream,
-                              initialData: database.messages.items,
-                              // .watchMessages(_selectedChannelController.currentChannel!),
+                              key: ValueKey(_selectedChannelController.currentChannel!.id),
+                              stream: database.messages.stream.where((message) => database.channelMessages.output(message.id) == _selectedChannelController.currentChannel!.id),
+                              initialData: getMessagesForChannel(_selectedChannelController.currentChannel!.id!),
                               builder: (context, snapshot) {
-
+                                print("Current channel: ${_selectedChannelController.currentChannel!.id}");
                                 if(scrollAtBottom) {
                                   WidgetsBinding.instance!.addPostFrameCallback((_) {
                                     if(_chatScrollController.hasClients) {
@@ -150,8 +158,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                   });
                                 }
 
+                                final messages = getMessagesForChannel(_selectedChannelController.currentChannel!.id!);
+
                                 if (snapshot.hasData) {
-                                  final messages = snapshot.data as List<models.Message>;
                                   return ListView.builder(
                                     controller: _chatScrollController,
                                     itemCount: messages.length,
@@ -200,6 +209,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               labelText: 'Message',
                             ),
                             onSubmitted: (value) {
+                              if(value.isEmpty) {
+                                return;
+                              }
+
                               session.connection!.send(
                                 request.Message(
                                   channelId: _selectedChannelController.currentChannel!.id!,
@@ -293,7 +306,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           return ListTile(
                                             // contentPadding: EdgeInsets.fromLTRB(4,0,4,0),
                                             // Avatar leading
-                                            leading: UserAvatar(presence: UserPresence.fromString(users[index].presence)),
+                                            leading: UserAvatar(presence: UserPresence.fromString(users[index].presence), imageUrl: users[index].avatar,),
                                             // User with status
                                             title: Text(users[index].displayName ?? "<No name>"),
                                             subtitle: Text(users[index].status ?? "<No status>"),

@@ -1,15 +1,18 @@
 // Login screen will be a simple form with email and password fields.
 
 import 'dart:async';
-import 'dart:io';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:talk/core/connection/connection.dart';
+import 'package:talk/core/connection/reconnect_manager.dart';
 import 'package:talk/core/connection/session_manager.dart';
 import 'package:talk/core/notifiers/current_connection.dart';
 import 'package:talk/core/theme.dart';
+
+import '../core/storage/secure_storage.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,12 +21,59 @@ class LoginScreen extends StatefulWidget {
   LoginScreenState createState() => LoginScreenState();
 }
 
+class ConnectionByToken {
+
+}
+
 class LoginScreenState extends State<LoginScreen> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final ValueNotifier<String?> errorMessage = ValueNotifier<String?>(null);
   Connection? _connectingTo;
+
+
+  @override
+  initState() {
+    super.initState();
+
+    Future(() async {
+      // Get servers
+      String? jsonServers = await SecureStorage().read("servers");
+      jsonServers ??= "[]";
+
+      // Parse json data
+      final servers = jsonDecode(jsonServers) as List<dynamic>;
+      print("servers: $servers");
+      if(servers.isNotEmpty) {
+        // Get all servers and try to open a connection
+        for(final server in servers) {
+          final token = await SecureStorage().read("$server.token");
+          final host = await SecureStorage().read("$server.host");
+          if(token != null && host != null) {
+            Completer<bool> completer = Completer<bool>();
+            final connection = SessionManager().addSession(
+                serverAddress: host,
+                token: token,
+                onError: (error) {
+                  // Toast error
+                  // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Unable to connect to server: $host")));
+                  completer.completeError(error);
+                },
+                onSuccess: () {
+                  // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Connected to: $host")));
+                  completer.complete(true);
+                  context.go('/');
+                }
+            );
+            connection.serverId = server;
+            CurrentSession().connection = connection;
+            await completer.future;
+          }
+        }
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -145,12 +195,21 @@ class LoginScreenState extends State<LoginScreen> {
                          onPressed: () {
                            if (_formKey.currentState!.validate()) {
                             setState(() {
-                              _connectingTo = SessionManager().addSession("localhost", usernameController.text, passwordController.text, (error) {
-                                errorMessage.value = error;
-                              }, () {
-                                CurrentSession().connection = _connectingTo;
-                                context.go('/');
-                              });
+                              // Disable all reconnections
+                              ReconnectManager().removeAll();
+                              errorMessage.value = null;
+                              _connectingTo = SessionManager().addSession(
+                                serverAddress: "vps.sionzee.cz",
+                                username: usernameController.text,
+                                password: passwordController.text,
+                                onError: (error) {
+                                  errorMessage.value = error;
+                                },
+                                onSuccess: () {
+                                  CurrentSession().connection = _connectingTo;
+                                  context.go('/');
+                                }
+                              );
                             });
                            }
                          },

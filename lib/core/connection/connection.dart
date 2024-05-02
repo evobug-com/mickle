@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:talk/core/connection/reconnect_manager.dart';
 import 'package:talk/core/connection/session_manager.dart';
 import '../listener_list.dart';
 import '../models/models.dart';
@@ -15,6 +16,7 @@ enum ConnState {
   connecting,
   connected,
   disconnected,
+  scheduledReconnect,
 }
 
 class Connection extends ChangeNotifier {
@@ -30,6 +32,9 @@ class Connection extends ChangeNotifier {
   dynamic _user;
   dynamic serverId;
   dynamic userId;
+  bool loggedIn = false;
+  List<Future<void> Function()> processingBuffer = [];
+  Future<void>? processingFuture;
 
   Connection({required this.serverAddress, required this.onError, required this.onLogin});
 
@@ -47,13 +52,14 @@ class Connection extends ChangeNotifier {
 
   User? get user => _user;
 
-  void connect({String? username, String? password}) {
+  void connect({String? username, String? password, String? token}) {
+    print("Connecting to $serverAddress");
     state = ConnState.connecting;
 
     final log = File('keylog.txt');
     SecureSocket.connect(
       serverAddress,
-      443,
+      55000,
       context: SecurityContext.defaultContext, keyLog: (line) => log.writeAsStringSync(line, mode: FileMode.append),
       onBadCertificate: (certificate) {
         print("Bad certificate: $certificate");
@@ -62,9 +68,18 @@ class Connection extends ChangeNotifier {
     ).then((value) {
       connection = value;
       state = ConnState.connected;
-      _onOpenConnection(username: username, password: password);
+      _onOpenConnection(username: username, password: password, token: token);
     }, onError: (error) {
+      print("Error: $error");
       state = ConnState.disconnected;
+      if(username != null || password != null) {
+        // If we were trying to login, we don't want to reconnect
+        // We cannot hold the credentials in memory
+        onError(error.toString());
+        SessionManager().removeSession(serverAddress);
+        return;
+      }
+      ReconnectManager().onConnectionLost(this);
     });
   }
 
@@ -81,12 +96,6 @@ class Connection extends ChangeNotifier {
     print("Connection closed.");
     state = ConnState.disconnected;
     connection!.close();
-  }
-
-  void scheduleReconnect() {
-    Timer(Duration(seconds: 5), () {
-      reconnect();
-    });
   }
 
   void send(Uint8List data) {
@@ -113,7 +122,17 @@ class Connection extends ChangeNotifier {
 
   bool get authenticated => _authenticated;
 
-  void _onOpenConnection({String? username, String? password}) {
+  void _processNextInBuffer() {
+    if(processingBuffer.isNotEmpty) {
+      processingFuture = processingBuffer.removeAt(0)();
+      processingFuture!.then((_) {
+        processingFuture = null;
+        _processNextInBuffer();
+      });
+    }
+  }
+
+  void _onOpenConnection({String? username, String? password, String? token}) {
     if(connection == null) {
       print("Called _onOpenConnection with null connection");
       return;
@@ -141,7 +160,18 @@ class Connection extends ChangeNotifier {
       if (expectedLength != null && bytesBuilder.length >= expectedLength!) {
         // If we have received enough bytes for the expected length, process the message
         var completeMessage = bytesBuilder.toBytes().sublist(0, expectedLength);
-        processResponse(this, Uint8List.fromList(completeMessage));
+
+        if(processingFuture != null) {
+          processingBuffer.add(() {
+            return processResponse(this, Uint8List.fromList(completeMessage));
+          });
+        } else {
+          processingFuture = processResponse(this, Uint8List.fromList(completeMessage));
+          processingFuture!.then((_) {
+            processingFuture = null;
+            _processNextInBuffer();
+          });
+        }
 
         // Remove the processed message from the buffer and reset for the next message
         var remaining = bytesBuilder.toBytes().sublist(expectedLength!);
@@ -157,16 +187,19 @@ class Connection extends ChangeNotifier {
       onError(error);
     }, cancelOnError: true, onDone: () {
       print("Connection done.");
+      state = ConnState.disconnected;
+      ReconnectManager().onConnectionLost(this);
     });
 
-    _login(username: username, password: password);
+    _login(username: username, password: password, token: token);
   }
 
-  void _login({String? username, String? password}) {
+  void _login({String? username, String? password, String? token}) {
 
     final login = request.Login(
-      username: username!,
-      password: password!,
+      username: username,
+      password: password,
+      token: token,
     );
 
     send(login.serialize());

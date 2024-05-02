@@ -1,14 +1,20 @@
 // ignore_for_file: sized_box_for_whitespace
 
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:talk/core/notifiers/current_connection.dart';
+import 'package:talk/core/storage/secure_storage.dart';
 import 'package:talk/screens/home_screen.dart';
 import 'package:talk/screens/login_screen.dart';
 import 'package:talk/ui/lost_connection_bar.dart';
 
+import 'core/connection/session_manager.dart';
 import 'core/debug/console.dart';
+import 'core/storage/storage.dart';
 import 'core/theme.dart';
 
 Future<void> main() async {
@@ -16,10 +22,14 @@ Future<void> main() async {
   // to store the database in.
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialize the storage
+  await SecureStorage.init();
+  await Storage.init();
+
   runApp(const MyApp());
 }
 
-String? _redirect(BuildContext context, GoRouterState state) {
+FutureOr<String?> _redirect(BuildContext context, GoRouterState state) async {
   final session = CurrentSession();
   if(session.connection == null) {
     return '/login';
@@ -35,6 +45,7 @@ Widget _wrapApp(BuildContext context, Widget child) {
 
   return Scaffold(
     body: Stack(
+      alignment: Alignment.topCenter,
       children: [
         child,
         const LostConnectionBarWidget(),

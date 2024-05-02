@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:talk/core/models/models.dart' as models;
+import 'package:talk/ui/user_avatar.dart';
 
 // This component will render a message in a room
 // The message will have Avatar, name, time and message
@@ -42,9 +43,7 @@ class ChannelMessageState extends State<ChannelMessage> {
             Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                backgroundImage: widget.user.avatar != null ? NetworkImage(widget.user.avatar!) : null,
-              ),
+              UserAvatar(presence: null, imageUrl: widget.user.avatar),
               const SizedBox(width: 8),
               Expanded(
                 child: Column(

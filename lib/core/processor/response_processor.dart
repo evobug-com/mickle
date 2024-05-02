@@ -1,11 +1,17 @@
+import 'dart:convert';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flat_buffers/flex_buffers.dart' as flex_buffers;
 import 'package:talk/core/audio/audio_manager.dart';
+import 'package:talk/core/connection/reconnect_manager.dart';
 import 'package:talk/core/database.dart';
+import 'package:talk/core/storage/secure_storage.dart';
 import 'dart:typed_data';
 import "../network/response.dart" as response;
 
 import 'package:talk/core/connection/connection.dart';
+
+import '../storage/storage.dart';
 
 processResponse(Connection connection, Uint8List data) async {
   try {
@@ -23,8 +29,33 @@ processResponse(Connection connection, Uint8List data) async {
           connection.disconnect();
           print("Error: ${login.error}");
         } else {
+          // Write json data to storage of current servers
+          String? jsonServers = await SecureStorage().read("servers");
+          if(jsonServers == null) {
+            jsonServers = "[]";
+          }
+
+          // Parse json data
+          final servers = jsonDecode(jsonServers);
+
+          // Add server to list if not already present
+          if(!servers.contains(login.serverId)) {
+            servers.add(login.serverId);
+            await SecureStorage().write("servers", jsonEncode(servers));
+          }
+
+          // Save servers
+          await Storage().write("servers", jsonEncode(servers));
+
+
+          await SecureStorage().write("${login.serverId}.token", login.token!);
+          await SecureStorage().write("${login.serverId}.userId", login.userId!);
+          await SecureStorage().write("${login.serverId}.host", connection.serverAddress);
+
           connection.userId = login.userId;
           connection.serverId = login.serverId;
+          connection.loggedIn = true;
+          ReconnectManager().removeConnection(connection);
           connection.onLogin();
           print("Logged in as ${login.userId} on server ${login.serverId}");
         }
@@ -37,15 +68,21 @@ processResponse(Connection connection, Uint8List data) async {
         db.servers.addItems(loginWelcome.servers);
         db.channels.addItems(loginWelcome.channels);
         db.roles.addItems(loginWelcome.roles);
-        db.serverUsers.addItems(loginWelcome.serverUsers);
-        db.roleUsers.addItems(loginWelcome.roleUsers);
-        db.channelUsers.addItems(loginWelcome.channelUsers);
+        db.serverUsers.addRelations(loginWelcome.serverUsers);
+        db.roleUsers.addRelations(loginWelcome.roleUsers);
+        db.channelUsers.addRelations(loginWelcome.channelUsers);
         db.permissions.addItems(loginWelcome.permissions);
         db.messages.addItems(loginWelcome.messages);
-        db.channelMessages.addItems(loginWelcome.channelMessages);
+        db.channelMessages.addRelations(loginWelcome.channelMessages);
 
-        connection.server = db.servers.firstWhere((element) => element.id == connection.serverId);
-        connection.user = db.users.firstWhere((element) => element.id == connection.userId);
+        connection.server = db.servers.firstWhereOrNull((element) => element.id == connection.serverId);
+        if(connection.server == null) {
+          print("[ResponseProcessor] Server not found: ${connection.serverId}");
+        }
+        connection.user = db.users.firstWhereOrNull((element) => element.id == connection.userId);
+        if(connection.user == null) {
+          print("[ResponseProcessor] User not found: ${connection.userId}");
+        }
         connection.onLoginWelcome();
         break;
       case "UpdatePresence":
@@ -66,7 +103,7 @@ processResponse(Connection connection, Uint8List data) async {
         } else {
           final db = Database(connection.serverId);
           db.messages.addItem(message.message!);
-          db.channelMessages.addItem(message.relation!);
+          db.channelMessages.addRelation(message.relation!);
           print("[ResponseProcessor] Message added: ${message.message!.content}");
           AudioManager.playSingleShot("Message", AssetSource("audio/new_message_received.wav"));
         }

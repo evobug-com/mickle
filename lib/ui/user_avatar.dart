@@ -20,7 +20,7 @@ Color _getColor(UserPresence status) {
 
 class UserAvatar extends StatelessWidget {
   final String? imageUrl;
-  final UserPresence presence;
+  final UserPresence? presence;
   
   const UserAvatar({super.key, this.imageUrl, required this.presence});
 
@@ -32,8 +32,10 @@ class UserAvatar extends StatelessWidget {
         CircleAvatar(
           radius: 20,
           backgroundImage: imageUrl != null ? NetworkImage(imageUrl!) : null,
+          backgroundColor: Colors.transparent,
 
         ),
+        if (presence != null)
         Positioned(
           bottom: 0,
           right: 0,
@@ -41,7 +43,7 @@ class UserAvatar extends StatelessWidget {
             width: 15,
             height: 15,
             decoration: BoxDecoration(
-              color: _getColor(presence),
+              color: _getColor(presence!),
               shape: BoxShape.circle,
             )
           )
