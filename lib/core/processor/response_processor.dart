@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flat_buffers/flex_buffers.dart' as flex_buffers;
@@ -8,6 +10,7 @@ import 'package:talk/core/database.dart';
 import 'package:talk/core/storage/secure_storage.dart';
 import 'dart:typed_data';
 import "../network/response.dart" as response;
+import "../network/request.dart" as request;
 
 import 'package:talk/core/connection/connection.dart';
 
@@ -18,7 +21,6 @@ processResponse(Connection connection, Uint8List data) async {
     final reference = flex_buffers.Reference.fromBuffer(data.buffer);
     final key = reference.mapKeyIterable.first;
     final value = reference.mapValueIterable.first;
-    print("[ResponseProcessor] Processing response (json): ${reference.json}");
 
     switch (key) {
       case "Login":
@@ -59,6 +61,14 @@ processResponse(Connection connection, Uint8List data) async {
           connection.onLogin();
           print("Logged in as ${login.userId} on server ${login.serverId}");
         }
+        break;
+      case "Ping":
+        // print("[ResponseProcessor] $key response: $value");
+        // Add jitter and reply with pong
+        final duration = Duration(milliseconds: 100 + Random().nextInt(3000));
+        Future.delayed(duration).then((value) {
+          connection.send(request.Pong().serialize());
+        });
         break;
       case "LoginWelcome":
         print("[ResponseProcessor] $key response: $value");
@@ -114,6 +124,7 @@ processResponse(Connection connection, Uint8List data) async {
         break;
       default:
         print("[ResponseProcessor] Unknown response type: $key");
+        print("[ResponseProcessor] response (json): ${reference.json}");
     }
   } catch (e) {
     print("[ResponseProcessor] Error processing response: $e");

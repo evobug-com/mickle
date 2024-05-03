@@ -200,6 +200,7 @@ class LoginScreenState extends State<LoginScreen> {
                               errorMessage.value = null;
                               _connectingTo = SessionManager().addSession(
                                 serverAddress: "vps.sionzee.cz",
+                                // serverAddress: "localhost",
                                 username: usernameController.text,
                                 password: passwordController.text,
                                 onError: (error) {

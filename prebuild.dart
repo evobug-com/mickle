@@ -13,7 +13,7 @@ String constructSerializeFunction(String className, List<String> fields) {
   // Fields are mapped to addTypeWKey("fieldName", fieldName)
 
   // Fields prepend request_id: u16
-  fields.insert(0, 'int requestId');
+  // fields.insert(0, 'int requestId');
 
   return '''
   serialize() {
@@ -118,7 +118,7 @@ String generateRequest() {
     print('Class Name: $className');
 
     // Fields are: field_name: field_type
-    List<String> fields = match.group(2)!.split(',').map((field) => field.trim()).where((element) => element.isNotEmpty && element != "request_id: u16").toList();
+    List<String> fields = match.group(2)!.split(',').map((field) => field.trim()).where((element) => element.isNotEmpty).toList();
 
     print ('Fields: $fields');
     // Remap the field types and convert to camelCase
@@ -133,9 +133,10 @@ String generateRequest() {
     generatedCode += '''
 class $className extends Request {
 
-  ${fields.join(';\n  ')};
+  ${fields.isNotEmpty ? '${fields.join(';\n  ')};' : ''}
   
-  $className({${fields.map((e)
+  $className(${
+    fields.isNotEmpty ? '''{${fields.map((e)
     {
       final parts = e.split(' ');
       final fieldType = parts[0];
@@ -144,7 +145,8 @@ class $className extends Request {
       // If not optional, then add required keyword
       return '${isOptional ? '' : 'required'} this.$fieldName';
 
-    }).join(', ')}});
+    }).join(', ')}}''' : ''
+    });
   
   ${constructSerializeFunction(className, fields)}
 }
@@ -182,10 +184,6 @@ String generateResponse() {
 
     // Fields are: field_name: field_type
     List<String> fields = match.group(2)!.split(',').map((field) => field.trim()).where((element) => element.isNotEmpty && !element.startsWith("//")).toList();
-    if (fields.isEmpty) {
-      return;
-    }
-
     print('Class Name: $className');
 
     print ('Fields: $fields');
@@ -201,7 +199,7 @@ String generateResponse() {
     generatedCode += '''
 class $className {
 
-  ${fields.map((element) {
+  ${fields.isNotEmpty ? '''${fields.map((element) {
       final parts = element.split(' ');
       String fieldType = parts[0];
       final fieldName = parts[1];
@@ -209,13 +207,13 @@ class $className {
         fieldType = "late $fieldType";
       }
       return '$fieldType $fieldName';
-    }).join(';\n  ')};
+    }).join(';\n  ')};''' : ''}
   
   $className();
   
   factory $className.fromReference(flex_buffers.Reference data) {
     return $className()
-      ${fields.map((e)
+      ${fields.isNotEmpty ? '''${fields.map((e)
     {
       final parts = e.split(' ');
       final fieldType = parts[0].replaceAll("?", "");
@@ -237,7 +235,7 @@ class $className {
       }
 
       return '..$fieldName = data["${snakeToCamel(fieldName)}"].${fieldType[0].toLowerCase()}${fieldType.substring(1)}Value${parts[0].endsWith("?") ? '' : '!'}';
-    }).join('\n      ')};
+    }).join('\n      ')};''' : ';'}
   }
 }
 ''';

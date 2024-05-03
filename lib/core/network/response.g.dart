@@ -19,6 +19,17 @@ class Login {
       ..serverId = data["serverId"].stringValue;
   }
 }
+class Ping {
+
+  
+  
+  Ping();
+  
+  factory Ping.fromReference(flex_buffers.Reference data) {
+    return Ping()
+      ;
+  }
+}
 class LoginWelcome {
 
   late List<models.Server> servers;

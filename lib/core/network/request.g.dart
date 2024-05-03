@@ -2,11 +2,12 @@ part of 'request.dart';
 
 class Login extends Request {
 
+  int requestId;
   String? username;
   String? password;
   String? token;
   
-  Login({ this.username,  this.password,  this.token});
+  Login({required this.requestId,  this.username,  this.password,  this.token});
   
     serialize() {
     final builder = flex_buffers.Builder();
@@ -22,12 +23,30 @@ class Login extends Request {
   } 
 
 }
+class Pong extends Request {
+
+  
+  
+  Pong();
+  
+    serialize() {
+    final builder = flex_buffers.Builder();
+   
+    builder.addMapWKey("Pong", () {
+      
+    });
+    
+    return builder.finish(); 
+  } 
+
+}
 class Message extends Request {
 
+  int requestId;
   String channelId;
   String message;
   
-  Message({required this.channelId, required this.message});
+  Message({required this.requestId, required this.channelId, required this.message});
   
     serialize() {
     final builder = flex_buffers.Builder();

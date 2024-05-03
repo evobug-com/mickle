@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:talk/core/connection/reconnect_manager.dart';
 import 'package:talk/core/connection/session_manager.dart';
+import 'package:talk/core/network/utils.dart';
 import '../listener_list.dart';
 import '../models/models.dart';
 import "../network/request.dart" as request;
@@ -197,6 +198,7 @@ class Connection extends ChangeNotifier {
   void _login({String? username, String? password, String? token}) {
 
     final login = request.Login(
+      requestId: getNewRequestId(),
       username: username,
       password: password,
       token: token,

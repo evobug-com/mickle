@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:talk/core/network/utils.dart';
 import 'package:talk/core/notifiers/current_connection.dart';
 import 'package:talk/ui/user_avatar.dart';
 import 'package:talk/core/network/request.dart' as request;
@@ -146,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           initialData: database.channels.items,
                           builder: (context, snapshot) {
                             if (snapshot.hasData) {
-                              final rooms = snapshot.data as List<Channel>;
+                              final rooms = database.channels.items;
                               return ChannelList(
                                 controller: _selectedChannelController,
                                 channels: rooms,
@@ -264,6 +265,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                               session.connection!.send(
                                 request.Message(
+                                  requestId: getNewRequestId(),
                                   channelId: _selectedChannelController.currentChannel!.id!,
                                   message: value,
                                 ).serialize(),
@@ -346,7 +348,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     );
                                   }
 
-                                  List<User> users = snapshot.data as List<User>;
+                                  List<User> users = database.users.items;
 
                                   return ListView.builder(
                                     itemCount: users.length,
