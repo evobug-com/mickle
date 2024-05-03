@@ -1,38 +1,54 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:talk/ui/scheme.dart';
 
 class ThemeController extends ChangeNotifier {
-  static final ThemeController _instance = ThemeController._();
+  ThemeData _currentTheme = const MaterialTheme(TextTheme()).light();
+  String _currentThemeName = "Light";
+  ThemeData get currentTheme => _currentTheme;
+  String get currentThemeName => _currentThemeName;
 
-  factory ThemeController() => _instance;
+  ThemeController({ThemeData? theme}) {
+    if(theme != null) {
+      _currentTheme = theme;
+      _currentThemeName = themes.firstWhere((element) => element.value == theme).name;
 
-  ThemeController._();
-
-  ThemeData _theme = MaterialTheme(TextTheme()).light();
-
-  ThemeData get theme => _theme;
+      print("Theme set to $_currentThemeName");
+    }
+  }
 
   void setTheme(ThemeData theme) {
-    _theme = theme;
+    _currentTheme = theme;
+    _currentThemeName = themes.firstWhere((element) => element.value == theme).name;
     notifyListeners();
   }
 
-  final themes = [
-    ThemeItem("Light", MaterialTheme(TextTheme()).light()),
-    ThemeItem("Light High Contrast", MaterialTheme(TextTheme()).lightHighContrast()),
-    ThemeItem("Light Medium Contrast", MaterialTheme(TextTheme()).lightMediumContrast()),
-    ThemeItem("Dark", MaterialTheme(TextTheme()).dark()),
-    ThemeItem("Dark High Contrast", MaterialTheme(TextTheme()).darkHighContrast()),
-    ThemeItem("Dark Medium Contrast", MaterialTheme(TextTheme()).darkMediumContrast()),
+  static final themes = [
+    ThemeItem("Light", MaterialTheme(ThemeData.fallback(useMaterial3: true).textTheme).light()),
+    ThemeItem("Light High Contrast", MaterialTheme(ThemeData.fallback(useMaterial3: true).textTheme).lightHighContrast()),
+    ThemeItem("Light Medium Contrast", MaterialTheme(ThemeData.fallback(useMaterial3: true).textTheme).lightMediumContrast()),
+    ThemeItem("Dark", MaterialTheme(ThemeData.fallback(useMaterial3: true).textTheme).dark()),
+    ThemeItem("Dark High Contrast", MaterialTheme(ThemeData.fallback(useMaterial3: true).textTheme).darkHighContrast()),
+    ThemeItem("Dark Medium Contrast", MaterialTheme(ThemeData.fallback(useMaterial3: true).textTheme).darkMediumContrast()),
   ];
-}
 
+  static ColorScheme scheme(BuildContext context, {bool listen = true}) {
+    return of(context, listen: listen).currentTheme.colorScheme;
+    return Theme.of(context).colorScheme;
+  }
+
+  static ThemeData theme(BuildContext context, {bool listen = true}) {
+    return of(context, listen: listen).currentTheme;
+    return Theme.of(context);
+  }
+
+  static ThemeController of(BuildContext context, {bool listen = true}) {
+    return Provider.of<ThemeController>(context, listen: listen);
+  }
+}
 
 class ThemeItem {
   final String name;
-  final ThemeData theme;
-
-  const ThemeItem(this.name, this.theme);
-
+  final ThemeData value;
+  const ThemeItem(this.name, this.value);
 }

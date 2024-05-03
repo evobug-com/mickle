@@ -10,10 +10,10 @@ import 'package:talk/core/connection/connection.dart';
 import 'package:talk/core/connection/reconnect_manager.dart';
 import 'package:talk/core/connection/session_manager.dart';
 import 'package:talk/core/notifiers/current_connection.dart';
-import 'package:talk/core/theme.dart';
 
 import '../core/notifiers/theme_controller.dart';
 import '../core/storage/secure_storage.dart';
+import '../main.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -78,9 +78,8 @@ class LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     if(_connectingTo != null) {
-      return ConnectionWidget(
+      return MyScaffold(body: ConnectionWidget(
         connection: _connectingTo!,
         errorMessage: errorMessage,
         onCancel: () {
@@ -89,14 +88,14 @@ class LoginScreenState extends State<LoginScreen> {
             _connectingTo = null;
           });
         }
-      );
+      ));
     }
 
     // In the centre of screen there will be two boxes
     // Left box will contain some text
     // Right box will contain login form
 
-     return Column(
+     return MyScaffold(body: Column(
       mainAxisAlignment: MainAxisAlignment.center,
        children: [
          Row(
@@ -122,7 +121,7 @@ class LoginScreenState extends State<LoginScreen> {
                decoration: BoxDecoration(
                  border: Border.all(),
                  borderRadius: BorderRadius.circular(8),
-                 color: ThemeController().theme.colorScheme.inverseSurface,
+                 color: ThemeController.scheme(context).surfaceContainerHigh,
                ),
                padding: const EdgeInsets.all(16),
                child: Column(
@@ -234,7 +233,7 @@ class LoginScreenState extends State<LoginScreen> {
            ],
          ),
        ],
-     );
+     ));
   }
 }
 

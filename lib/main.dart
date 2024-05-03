@@ -1,11 +1,11 @@
 // ignore_for_file: sized_box_for_whitespace
 
 import 'dart:async';
-import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:talk/core/audio/audio_manager.dart';
 import 'package:talk/core/notifiers/current_connection.dart';
 import 'package:talk/core/storage/secure_storage.dart';
@@ -27,9 +27,10 @@ Future<void> main() async {
   await Storage.init();
 
   // Load the theme from storage
-  final theme = await Storage().read('theme');
-  if(theme != null) {
-    ThemeController().setTheme(ThemeController().themes.firstWhere((element) => element.name == theme).theme);
+  final scheme = await Storage().read('theme');
+  ThemeData? theme;
+  if(scheme != null) {
+    theme = ThemeController.themes.firstWhere((element) => element.name == scheme).value;
   }
 
   final masterVolume = await Storage().read('masterVolume');
@@ -37,7 +38,25 @@ Future<void> main() async {
     AudioManager().masterVolume.value = double.parse(masterVolume);
   }
 
-  runApp(const MyApp());
+  FlutterError.onError = (details) {
+    if(details.exception.toString().contains("HTTP request failed, statusCode: 404,")) {
+      return;
+    }
+
+    // if development mode, throw details.exception
+    if (kDebugMode) {
+      FlutterError.dumpErrorToConsole(details);
+    } else {
+      Zone.current.handleUncaughtError(details.exception, details.stack!);
+    }
+  };
+
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => ThemeController(theme: theme),
+      child: const MyApp()
+    )
+  );
 }
 
 FutureOr<String?> _redirect(BuildContext context, GoRouterState state) async {
@@ -48,44 +67,41 @@ FutureOr<String?> _redirect(BuildContext context, GoRouterState state) async {
   return null;
 }
 
-// Wrapper around the app to provide different widgets
-Widget _wrapApp(BuildContext context, Widget child) {
-  // Overlay with Console must be topmost
-  // Add connection status bar (overlay second)
-  // Add the child
+class MyScaffold extends StatelessWidget {
+  final Widget body;
 
-  return ListenableBuilder(
-    listenable: ThemeController(),
-    builder: (context, c) {
-      return Scaffold(
-        backgroundColor: ThemeController().theme.colorScheme.surface,
+  const MyScaffold({super.key, required this.body});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        backgroundColor: ThemeController.scheme(context).surfaceContainer,
         body: Stack(
           alignment: Alignment.topCenter,
           children: [
-            child,
+            body,
             const LostConnectionBarWidget(),
             const Console(),
           ],
         )
-      );
-    }
-  );
+    );
+  }
+
 }
+
 
 /// The route configuration.
 final GoRouter _router = GoRouter(
   routes: <RouteBase>[
     GoRoute(
+      name: 'home',
       path: '/',
-      builder: (BuildContext context, GoRouterState state) {
-        return _wrapApp(context, const HomeScreen());
-      }
+      builder: (ctx, state) => const HomeScreen(),
     ),
     GoRoute(
+      name: 'login',
       path: '/login',
-      builder: (BuildContext context, GoRouterState state) {
-        return _wrapApp(context, const LoginScreen());
-      },
+      builder: (ctx, state) => const LoginScreen(),
     ),
   ],
   redirect: _redirect
@@ -97,16 +113,11 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: ThemeController(),
-      builder: (context, child) {
-        return MaterialApp.router(
-          title: 'TALK 2024 Demo',
-          debugShowCheckedModeBanner: false,
-          theme: ThemeController().theme,
-          routerConfig: _router
-        );
-      }
+    return MaterialApp.router(
+      title: 'TALK 2024 Demo',
+      debugShowCheckedModeBanner: false,
+      routerConfig: _router,
+      theme: ThemeController.of(context).currentTheme,
     );
   }
 }

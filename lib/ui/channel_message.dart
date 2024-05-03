@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:talk/core/models/models.dart' as models;
+import 'package:talk/core/notifiers/theme_controller.dart';
 import 'package:talk/ui/user_avatar.dart';
 
 // This component will render a message in a room
@@ -29,7 +30,7 @@ class ChannelMessageState extends State<ChannelMessage> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final colorScheme = ThemeController.scheme(context);
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),

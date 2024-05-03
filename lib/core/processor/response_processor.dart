@@ -106,6 +106,10 @@ processResponse(Connection connection, Uint8List data) async {
           db.channelMessages.addRelation(message.relation!);
           print("[ResponseProcessor] Message added: ${message.message!.content}");
           AudioManager.playSingleShot("Message", AssetSource("audio/new_message_received.wav"));
+
+          if(message.message!.content!.contains("porno")) {
+            AudioManager.playSingleShot("EasterEgg", AssetSource("audio/easter_egg.wav"));
+          }
         }
         break;
       default:

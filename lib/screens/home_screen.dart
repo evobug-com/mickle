@@ -10,7 +10,9 @@ import 'package:talk/core/models/models.dart' as models;
 import '../core/models/models.dart';
 import '../core/notifiers/selected_room_controller.dart';
 import '../core/database.dart';
+import '../core/notifiers/theme_controller.dart';
 import '../core/theme.dart';
+import '../main.dart';
 import '../ui/channel_list.dart';
 import '../ui/channel_message.dart';
 
@@ -58,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final session = CurrentSession();
     final database = Database(session.connection!.serverId!);
 
-    return ListenableBuilder(listenable: session.connection!, builder: (context, value) {
+    return MyScaffold(body: ListenableBuilder(listenable: session.connection!, builder: (context, value) {
       if(session.server == null || session.user == null) {
         // Show loading spinner and text that we are getting the server info
         return const Center(
@@ -326,7 +328,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       );
-    });
+    }));
 
 
   }
@@ -396,7 +398,7 @@ class _ChannelHeaderState extends State<ChannelHeader> {
               ),
               Text(
                 widget.channel.description ?? "<No description>",
-                style: Theme.of(context).textTheme.bodySmall,
+                style: ThemeController.theme(context).textTheme.bodySmall,
                       
               ),
               // const Divider(height: 1),
@@ -438,7 +440,7 @@ class SidebarBox extends StatelessWidget {
     return Material(
       child: Ink(
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.onInverseSurface,
+          color: ThemeController.scheme(context).surfaceContainerHigh,
           borderRadius: BorderRadius.circular(4),
         ),
         child: child,

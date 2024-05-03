@@ -31,7 +31,16 @@ class UserAvatar extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 20,
-          backgroundImage: imageUrl != null ? NetworkImage(imageUrl!) : null,
+          backgroundImage: imageUrl != null ? FadeInImage.assetNetwork(
+            placeholder: 'assets/images/default_avatar.png',
+            image: imageUrl!,
+            imageErrorBuilder: (context, error, stackTrace) {
+              print('Error loading image: $error');
+              return const Image(
+                image: AssetImage('assets/images/default_avatar.png'),
+              );
+            },
+          ).image : const AssetImage('assets/images/default_avatar.png'),
           backgroundColor: Colors.transparent,
 
         ),
@@ -40,8 +49,8 @@ class UserAvatar extends StatelessWidget {
           bottom: 0,
           right: 0,
           child: Container(
-            width: 15,
-            height: 15,
+            width: 12,
+            height: 12,
             decoration: BoxDecoration(
               color: _getColor(presence!),
               shape: BoxShape.circle,

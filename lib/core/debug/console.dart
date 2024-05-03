@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:talk/core/audio/audio_manager.dart';
 import 'package:talk/core/storage/storage.dart';
-import 'package:talk/ui/scheme.dart';
 
 import '../notifiers/theme_controller.dart';
 
@@ -51,127 +50,122 @@ class ConsoleState extends State<Console> {
 
   Widget _buildConsole() {
     AudioManager audioManager = AudioManager();
-    return ListenableBuilder(
-      listenable: ThemeController(),
-      builder: (context, child) {
-        ThemeData theme = ThemeController().theme;
-        return Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(color: theme.colorScheme.onInverseSurface.withOpacity(0.99)),
+    final scheme = ThemeController.scheme(context);
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(color: scheme.surfaceContainerHighest.withOpacity(0.99)),
 
-          // Tabs with different sections, like Audio, Network, etc...
-          child: Column(
+      // Tabs with different sections, like Audio, Network, etc...
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Text("Console", style: TextStyle(fontSize: 20)),
+              Text("Select a tab to view more information",
+                  style: TextStyle(fontSize: 16)),
+            ],
+          ),
+          Divider(),
+          // Audio section
+          DefaultTabController(
+            length: 3,
+            child: Expanded(
+              child: Column(
                 children: [
-                  Text("Console", style: TextStyle(fontSize: 20)),
-                  Text("Select a tab to view more information",
-                      style: TextStyle(fontSize: 16)),
-                ],
-              ),
-              Divider(),
-              // Audio section
-              DefaultTabController(
-                length: 3,
-                child: Expanded(
-                  child: Column(
-                    children: [
-                      TabBar(
-                        // The tab is at the top of the screen
-                        tabs: [
-                          Tab(text: "Audio"),
-                          Tab(text: "Network"),
-                          Tab(text: "Settings"),
-                        ],
-                      ),
-                      Expanded(
-                        child: TabBarView(
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Audio tab with volume control, show audio devices, connected devices, each audio source
-                                  Expanded(
-                                    child: ListView(
-                                      children: [
-                                        ListTile(
-                                          title: Text("Master Volume"),
-                                          subtitle: ListenableBuilder(
-                                            listenable: audioManager.masterVolume,
-                                            builder: (context, child) {
-                                              return Slider(
-                                                value: audioManager.masterVolume.value,
-                                                onChanged: (value) {
-                                                  audioManager.masterVolume.value = value;
-                                                  Storage().write("masterVolume", value.toString());
-                                                },
-                                                max: 1.0,
-                                                min: 0.0,
-                                                divisions: 50,
-                                                label: "${(audioManager.masterVolume.value * 100).round()}%",
-                                              );
-                                            }
-                                          ),
-                                        ),
-                                        ListTile(
-                                          title: Text("Music Volume"),
-                                          subtitle: Slider(
-                                            value: 0.5,
-                                            onChanged: null,
-                                          ),
-                                        ),
-                                        ListTile(
-                                          title: Text("Sound Effects Volume"),
-                                          subtitle: Slider(
-                                            value: 0.5,
-                                            onChanged: null,
-                                          ),
-                                        ),
-                                        ListTile(
-                                          title: Text("Voice Volume"),
-                                          subtitle: Slider(
-                                            value: 0.5,
-                                            onChanged: null,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ]
-                              ),
-                          Text("Network"),
+                  TabBar(
+                    // The tab is at the top of the screen
+                    tabs: [
+                      Tab(text: "Audio"),
+                      Tab(text: "Network"),
+                      Tab(text: "Settings"),
+                    ],
+                  ),
+                  Expanded(
+                    child: TabBarView(
+                        children: [
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const SizedBox(height: 8),
-                              DropdownMenu<ThemeItem>(
-                                label: Text("Theme"),
-                                dropdownMenuEntries: ThemeController().themes.map((e) => DropdownMenuEntry(value: e, label: e.name)).toList(),
-                                initialSelection: ThemeController().themes.firstWhere((element) => element.theme == ThemeController().theme, orElse: () => ThemeController().themes.first),
-                                onSelected: (value) {
-                                  if(value != null) {
-                                    ThemeController().setTheme(value.theme);
-                                    Storage().write("theme", value.name);
-                                  }
-                                },
-                                enableSearch: false,
-                                enableFilter: false,
-                              )
-                            ],
+                              // Audio tab with volume control, show audio devices, connected devices, each audio source
+                              Expanded(
+                                child: ListView(
+                                  children: [
+                                    ListTile(
+                                      title: Text("Master Volume"),
+                                      subtitle: ListenableBuilder(
+                                        listenable: audioManager.masterVolume,
+                                        builder: (context, child) {
+                                          return Slider(
+                                            value: audioManager.masterVolume.value,
+                                            onChanged: (value) {
+                                              audioManager.masterVolume.value = value;
+                                              Storage().write("masterVolume", value.toString());
+                                            },
+                                            max: 1.0,
+                                            min: 0.0,
+                                            divisions: 50,
+                                            label: "${(audioManager.masterVolume.value * 100).round()}%",
+                                          );
+                                        }
+                                      ),
+                                    ),
+                                    ListTile(
+                                      title: Text("Music Volume"),
+                                      subtitle: Slider(
+                                        value: 0.5,
+                                        onChanged: null,
+                                      ),
+                                    ),
+                                    ListTile(
+                                      title: Text("Sound Effects Volume"),
+                                      subtitle: Slider(
+                                        value: 0.5,
+                                        onChanged: null,
+                                      ),
+                                    ),
+                                    ListTile(
+                                      title: Text("Voice Volume"),
+                                      subtitle: Slider(
+                                        value: 0.5,
+                                        onChanged: null,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ]
+                          ),
+                      Text("Network"),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 8),
+                          DropdownMenu<ThemeItem>(
+                            label: Text("Theme"),
+                            dropdownMenuEntries: ThemeController.themes.map((e) => DropdownMenuEntry(value: e, label: e.name)).toList(),
+                            initialSelection: ThemeController.themes.firstWhere((element) => element.name == ThemeController.of(context).currentThemeName),
+                            onSelected: (value) {
+                              if(value != null) {
+                                ThemeController.of(context, listen: false).setTheme(value.value);
+                                Storage().write("theme", value.name);
+                              }
+                            },
+                            enableSearch: false,
+                            enableFilter: false,
                           )
-                        ]
-                        ),
+                        ],
                       )
-                    ],
-                  ),
-                ),
+                    ]
+                    ),
+                  )
+                ],
               ),
-            ],
+            ),
           ),
-        );
-      }
+        ],
+      ),
     );
   }
 }
