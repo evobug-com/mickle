@@ -67,7 +67,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Listen to the selected channel controller
     _selectedChannelController.addListener(() {
-      print("Selected channel changed to ${_selectedChannelController.currentChannel?.id}");
       // Restore the scroll controller for the selected channel
       if(_scrollControllers.containsKey(_selectedChannelController.currentChannel!.id)) {
         WidgetsBinding.instance!.addPostFrameCallback((_) {
@@ -180,8 +179,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ListenableBuilder(
               listenable: _selectedChannelController,
               builder: (context, child) {
-
-                print("Rebuilding chat screen with channel ${_selectedChannelController.currentChannel?.id}");
 
                 if(_selectedChannelController.currentChannel == null) {
                   return const Expanded(

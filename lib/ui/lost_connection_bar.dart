@@ -18,7 +18,6 @@ class LostConnectionBarWidget extends StatelessWidget {
 
       return ListenableBuilder(listenable: connection, builder: (context, child) {
         final connectionState = connection.state;
-        print("Connection state: ${connectionState}");
         if(connectionState == ConnState.connected) {
           return const SizedBox.shrink();
         }

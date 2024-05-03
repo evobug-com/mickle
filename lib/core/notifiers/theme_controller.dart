@@ -10,16 +10,14 @@ class ThemeController extends ChangeNotifier {
 
   ThemeController({ThemeData? theme}) {
     if(theme != null) {
-      _currentTheme = theme;
-      _currentThemeName = themes.firstWhere((element) => element.value == theme).name;
-
-      print("Theme set to $_currentThemeName");
+      setTheme(theme);
     }
   }
 
   void setTheme(ThemeData theme) {
     _currentTheme = theme;
     _currentThemeName = themes.firstWhere((element) => element.value == theme).name;
+    print("Theme set to $_currentThemeName");
     notifyListeners();
   }
 
