@@ -1,6 +1,7 @@
 // Console is a overlay that can be used to display messages, errors, and warnings.
 // It can be used to control the audio volume, etc...
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:talk/core/audio/audio_manager.dart';
@@ -15,13 +16,29 @@ class Console extends StatefulWidget {
   State<StatefulWidget> createState() => ConsoleState();
 }
 
+class ErrorItem {
+  final String title;
+  final String message;
+
+  ErrorItem(this.title, this.message);
+}
+
 class ConsoleState extends State<Console> {
   bool _isVisible = false;
+  List<ErrorItem> _errors = [];
 
   @override
   void initState() {
     super.initState();
     HardwareKeyboard.instance.addHandler(_keyboardToggleConsole);
+    final originalOnError = FlutterError.onError;
+    FlutterError.onError = (FlutterErrorDetails details) {
+      _errors.add(ErrorItem(details.exceptionAsString(), details.stack.toString()));
+      AudioManager.playSingleShot("Master", AssetSource("audio/error.wav"));
+      if(originalOnError != null) {
+        originalOnError(details);
+      }
+    };
   }
 
   @override
@@ -70,13 +87,14 @@ class ConsoleState extends State<Console> {
           Divider(),
           // Audio section
           DefaultTabController(
-            length: 3,
+            length: 4,
             child: Expanded(
               child: Column(
                 children: [
                   TabBar(
                     // The tab is at the top of the screen
                     tabs: [
+                      Tab(text: "Errors"),
                       Tab(text: "Audio"),
                       Tab(text: "Network"),
                       Tab(text: "Settings"),
@@ -85,6 +103,20 @@ class ConsoleState extends State<Console> {
                   Expanded(
                     child: TabBarView(
                         children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Error tab with error messages, warnings, etc...
+                              Expanded(
+                                child: ListView(
+                                  children: _errors.reversed.map((e) => ListTile(
+                                    title: SelectableText(e.title),
+                                    subtitle: SelectableText(e.message),
+                                  )).toList(),
+                                ),
+                              ),
+                            ]
+                          ),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
