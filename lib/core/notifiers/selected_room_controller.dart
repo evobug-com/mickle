@@ -10,7 +10,7 @@ class SelectedChannelController extends ChangeNotifier {
   Channel? get previousChannel => _previousChannel;
 
   set currentChannel(Channel? channel) {
-    print("Setting selected channel id to $channel.");
+    print("Setting selected channel id to ${channel?.id}.");
     _previousChannel = _currentChannel;
     _currentChannel = channel;
     notifyListeners();
