@@ -221,7 +221,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                   });
 
                                   return ListView.builder(
-                                    controller: _scrollControllers.putIfAbsent(_selectedChannelController.currentChannel!.id, () => CachedScrollController()).controller,
+                                    controller: _scrollControllers.putIfAbsent(_selectedChannelController.currentChannel!.id, (){
+                                      var controller = CachedScrollController();
+                                      controller.controller.addListener(() {
+                                        // If user scrolls up, disable auto scroll to bottom
+                                        nextRenderScrollToBottom = shouldScrollToBottom();
+                                      });
+                                      return controller;
+                                    }).controller,
                                     itemCount: messages.length,
                                     itemBuilder: (context, index) {
                                       final message = messages[index];
