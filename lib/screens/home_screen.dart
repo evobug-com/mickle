@@ -16,6 +16,35 @@ import '../main.dart';
 import '../ui/channel_list.dart';
 import '../ui/channel_message.dart';
 
+class CachedScrollController {
+  final ScrollController controller;
+  double? position;
+
+  factory CachedScrollController() {
+    final ScrollController controller = ScrollController();
+    final cached = CachedScrollController._(controller, 0);
+    controller.addListener(() {
+      cached.position = controller.position.pixels;
+    });
+    return cached;
+  }
+
+  CachedScrollController._(this.controller, this.position);
+
+  bool get hasClients => controller.hasClients;
+
+  jumpToCached() {
+    controller.jumpTo(position!);
+  }
+
+  scrollToBottom() {
+    controller.jumpTo(controller.position.maxScrollExtent);
+  }
+
+  void dispose() {
+    controller.dispose();
+  }
+}
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,17 +57,40 @@ class _HomeScreenState extends State<HomeScreen> {
   final SelectedChannelController _selectedChannelController = SelectedChannelController();
   final TextEditingController _chatTextController = TextEditingController();
 
+  final Map<String, CachedScrollController> _scrollControllers = {};
   final FocusNode _chatTextFocus = FocusNode();
-  final ScrollController _chatScrollController = ScrollController();
-  bool scrollAtBottom = true;
+  bool nextRenderScrollToBottom = false;
 
   @override
   void initState() {
-    _chatScrollController.addListener(() {
-      scrollAtBottom = _chatScrollController.position.maxScrollExtent - _chatScrollController.position.pixels < 100;
-    });
-
     super.initState();
+
+    // Listen to the selected channel controller
+    _selectedChannelController.addListener(() {
+      print("Selected channel changed to ${_selectedChannelController.currentChannel?.id}");
+      // Restore the scroll controller for the selected channel
+      if(_scrollControllers.containsKey(_selectedChannelController.currentChannel!.id)) {
+        WidgetsBinding.instance!.addPostFrameCallback((_) {
+          _scrollControllers[_selectedChannelController.currentChannel!.id]!.jumpToCached();
+        });
+      }
+    });
+  }
+
+  // Returns true if the chat is scrolled to the bottom
+  shouldScrollToBottom() {
+    final chatScrollController = _scrollControllers[_selectedChannelController.currentChannel!.id];
+    if(chatScrollController != null && chatScrollController.hasClients) {
+      return chatScrollController.position == chatScrollController.controller.position.maxScrollExtent;
+    }
+    return true;
+  }
+
+  scrollToBottom() {
+    final chatScrollController = _scrollControllers[_selectedChannelController.currentChannel!.id];
+    if(chatScrollController != null && chatScrollController.hasClients) {
+      chatScrollController.scrollToBottom();
+    }
   }
 
   @override
@@ -46,7 +98,9 @@ class _HomeScreenState extends State<HomeScreen> {
     _selectedChannelController.dispose();
     _chatTextController.dispose();
     _chatTextFocus.dispose();
-    _chatScrollController.dispose();
+    for (var element in _scrollControllers.values) {
+      element.dispose();
+    }
     super.dispose();
   }
 
@@ -149,22 +203,25 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: StreamBuilder(
                               key: ValueKey(_selectedChannelController.currentChannel!.id),
                               stream: database.messages.stream.where((message) => database.channelMessages.output(message.id) == _selectedChannelController.currentChannel!.id),
-                              initialData: getMessagesForChannel(_selectedChannelController.currentChannel!.id!),
+                              initialData: getMessagesForChannel(_selectedChannelController.currentChannel!.id),
                               builder: (context, snapshot) {
-                                print("Current channel: ${_selectedChannelController.currentChannel!.id}");
-                                if(scrollAtBottom) {
-                                  WidgetsBinding.instance!.addPostFrameCallback((_) {
-                                    if(_chatScrollController.hasClients) {
-                                      _chatScrollController.jumpTo(_chatScrollController.position.maxScrollExtent);
-                                    }
-                                  });
-                                }
-
-                                final messages = getMessagesForChannel(_selectedChannelController.currentChannel!.id!);
+                                final messages = getMessagesForChannel(_selectedChannelController.currentChannel!.id);
 
                                 if (snapshot.hasData) {
+
+                                  // If we are at bottom, scroll to bottom on new message
+                                  nextRenderScrollToBottom = shouldScrollToBottom();
+
+                                  // Post frame callback to scroll to bottom
+                                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                                    if(nextRenderScrollToBottom) {
+                                      scrollToBottom();
+                                      nextRenderScrollToBottom = false;
+                                    }
+                                  });
+
                                   return ListView.builder(
-                                    controller: _chatScrollController,
+                                    controller: _scrollControllers.putIfAbsent(_selectedChannelController.currentChannel!.id, () => CachedScrollController()).controller,
                                     itemCount: messages.length,
                                     itemBuilder: (context, index) {
                                       final message = messages[index];
@@ -207,6 +264,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   message: value,
                                 ).serialize(),
                               );
+
+                              nextRenderScrollToBottom = true;
 
                               // Clean the input for next message
                               _chatTextController.clear();
