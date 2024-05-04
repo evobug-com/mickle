@@ -199,8 +199,8 @@ class LoginScreenState extends State<LoginScreen> {
                               ReconnectManager().removeAll();
                               errorMessage.value = null;
                               _connectingTo = SessionManager().addSession(
-                                // serverAddress: "vps.sionzee.cz",
-                                serverAddress: "localhost",
+                                serverAddress: "vps.sionzee.cz",
+                                // serverAddress: "localhost",
                                 username: usernameController.text,
                                 password: passwordController.text,
                                 onError: (error) {
