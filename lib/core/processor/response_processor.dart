@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flat_buffers/flex_buffers.dart' as flex_buffers;
+import 'package:flutter/material.dart';
 import 'package:talk/core/audio/audio_manager.dart';
 import 'package:talk/core/connection/reconnect_manager.dart';
 import 'package:talk/core/database.dart';
@@ -120,6 +121,70 @@ processResponse(Connection connection, Uint8List data) async {
           if(message.message!.content!.contains("porno")) {
             AudioManager.playSingleShot("EasterEgg", AssetSource("audio/easter_egg.wav"));
           }
+        }
+        break;
+      case "ChangeStatus":
+        print("[ResponseProcessor] $key response: $value");
+        final packet = response.ChangeStatus.fromReference(value);
+        if(packet.error == null) {
+          final db = Database(connection.serverId);
+          final user = db.users.get("User:${packet.userId}");
+          if(user != null) {
+            user.status = packet.status;
+            user.onUpdated();
+            print("User ${user.displayName} has changed status to '${user.status}'");
+          }
+        }
+        break;
+      case "ChangePresence":
+        print("[ResponseProcessor] $key response: $value");
+        final packet = response.ChangePresence.fromReference(value);
+        if(packet.error == null) {
+          final db = Database(connection.serverId);
+          final user = db.users.get("User:${packet.userId}");
+          if(user != null) {
+            user.presence = packet.presence;
+            user.onUpdated();
+            print("User ${user.displayName} has changed presence to '${user.presence}'");
+          }
+        }
+        break;
+      case "ChangeAvatar":
+        print("[ResponseProcessor] $key response: $value");
+        final packet = response.ChangeAvatar.fromReference(value);
+        if(packet.error == null) {
+          final db = Database(connection.serverId);
+          final user = db.users.get("User:${packet.userId}");
+          if(user != null) {
+            user.avatar = packet.avatar;
+            user.onUpdated();
+            print("User ${user.displayName} has changed avatar to '${user.avatar}'");
+          }
+        }
+        break;
+      case "ChangeDisplayName":
+        print("[ResponseProcessor] $key response: $value");
+        final packet = response.ChangeDisplayName.fromReference(value);
+        if(packet.error == null) {
+          final db = Database(connection.serverId);
+          final user = db.users.get("User:${packet.userId}");
+          if(user != null) {
+            final displayName = user.displayName;
+            user.displayName = packet.displayName;
+            user.onUpdated();
+            print("User ${displayName} has changed status to '${user.displayName}'");
+          }
+        }
+        break;
+      case "ChangePassword":
+        print("[ResponseProcessor] $key response: $value");
+        final packet = response.ChangePassword.fromReference(value);
+        if(packet.error == null) {
+          // Display toast with success
+          print("[ResponseProcessor] ChangePassword success");
+        } else {
+          // Display toast with error
+          print("[ResponseProcessor] ChangePassword error: ${packet.error}");
         }
         break;
       default:
