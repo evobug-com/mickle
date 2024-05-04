@@ -40,8 +40,6 @@ class LoginWelcome {
   late List<models.Channel> channels;
   late List<models.Relation> channelUsers;
   late List<models.User> users;
-  late List<models.Message> messages;
-  late List<models.Relation> channelMessages;
   
   LoginWelcome();
   
@@ -54,9 +52,7 @@ class LoginWelcome {
       ..roleUsers = data["roleUsers"].vectorIterable.map((item) => models.Relation.fromReference(item)).toList()
       ..channels = data["channels"].vectorIterable.map((item) => models.Channel.fromReference(item)).toList()
       ..channelUsers = data["channelUsers"].vectorIterable.map((item) => models.Relation.fromReference(item)).toList()
-      ..users = data["users"].vectorIterable.map((item) => models.User.fromReference(item)).toList()
-      ..messages = data["messages"].vectorIterable.map((item) => models.Message.fromReference(item)).toList()
-      ..channelMessages = data["channelMessages"].vectorIterable.map((item) => models.Relation.fromReference(item)).toList();
+      ..users = data["users"].vectorIterable.map((item) => models.User.fromReference(item)).toList();
   }
 }
 class UpdatePresence {
