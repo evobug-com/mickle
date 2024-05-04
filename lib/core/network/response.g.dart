@@ -89,3 +89,84 @@ class Message {
       ..relation = data["relation"].isNull ? null : models.Relation.fromReference(data["relation"]);
   }
 }
+class ChangePassword {
+
+  late int requestId;
+  String? error;
+  
+  ChangePassword();
+  
+  factory ChangePassword.fromReference(flex_buffers.Reference data) {
+    return ChangePassword()
+      ..requestId = data["requestId"].intValue!
+      ..error = data["error"].stringValue;
+  }
+}
+class ChangeDisplayName {
+
+  late int requestId;
+  late String userId;
+  late String displayName;
+  String? error;
+  
+  ChangeDisplayName();
+  
+  factory ChangeDisplayName.fromReference(flex_buffers.Reference data) {
+    return ChangeDisplayName()
+      ..requestId = data["requestId"].intValue!
+      ..userId = data["userId"].stringValue!
+      ..displayName = data["displayName"].stringValue!
+      ..error = data["error"].stringValue;
+  }
+}
+class ChangeStatus {
+
+  late int requestId;
+  late String userId;
+  late String status;
+  String? error;
+  
+  ChangeStatus();
+  
+  factory ChangeStatus.fromReference(flex_buffers.Reference data) {
+    return ChangeStatus()
+      ..requestId = data["requestId"].intValue!
+      ..userId = data["userId"].stringValue!
+      ..status = data["status"].stringValue!
+      ..error = data["error"].stringValue;
+  }
+}
+class ChangeAvatar {
+
+  late int requestId;
+  late String userId;
+  late String avatar;
+  String? error;
+  
+  ChangeAvatar();
+  
+  factory ChangeAvatar.fromReference(flex_buffers.Reference data) {
+    return ChangeAvatar()
+      ..requestId = data["requestId"].intValue!
+      ..userId = data["userId"].stringValue!
+      ..avatar = data["avatar"].stringValue!
+      ..error = data["error"].stringValue;
+  }
+}
+class ChangePresence {
+
+  late int requestId;
+  late String userId;
+  late String presence;
+  String? error;
+  
+  ChangePresence();
+  
+  factory ChangePresence.fromReference(flex_buffers.Reference data) {
+    return ChangePresence()
+      ..requestId = data["requestId"].intValue!
+      ..userId = data["userId"].stringValue!
+      ..presence = data["presence"].stringValue!
+      ..error = data["error"].stringValue;
+  }
+}
