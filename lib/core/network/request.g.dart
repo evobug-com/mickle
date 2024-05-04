@@ -61,6 +61,27 @@ class Message extends Request {
   } 
 
 }
+class FetchMessages extends Request {
+
+  int requestId;
+  String channelId;
+  String? lastMessageId;
+  
+  FetchMessages({required this.requestId, required this.channelId,  this.lastMessageId});
+  
+    serialize() {
+    final builder = flex_buffers.Builder();
+   
+    builder.addMapWKey("FetchMessages", () {
+      builder.addIntWKey("requestId", requestId);
+      builder.addStringWKey("channelId", channelId);
+      if(lastMessageId != null) { builder.addStringWKey("lastMessageId", lastMessageId!); } else { builder.addNullWKey("lastMessageId"); }
+    });
+    
+    return builder.finish(); 
+  } 
+
+}
 class ChangePassword extends Request {
 
   int requestId;

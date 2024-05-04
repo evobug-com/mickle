@@ -68,6 +68,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Listen to the selected channel controller
     _selectedChannelController.addListener(() {
+
+      // Fetch the messages for the selected channel if empty
+      final database = Database(CurrentSession().connection!.serverId!);
+      if(database.channelMessages.whereInput(_selectedChannelController.currentChannel!.id).isEmpty) {
+        CurrentSession().connection!.send(
+          request.FetchMessages(
+            requestId: getNewRequestId(),
+            channelId: _selectedChannelController.currentChannel!.id!,
+          ).serialize(),
+        );
+      }
+
       // Restore the scroll controller for the selected channel
       if(_scrollControllers.containsKey(_selectedChannelController.currentChannel!.id)) {
         WidgetsBinding.instance!.addPostFrameCallback((_) {
@@ -75,6 +87,18 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     });
+  }
+
+  shouldFetchMessages() {
+    return isScrollAvailable() && _scrollControllers[_selectedChannelController.currentChannel!.id]!.controller.position.pixels == 0;
+  }
+
+  isScrollAvailable() {
+    final chatScrollController = _scrollControllers[_selectedChannelController.currentChannel!.id];
+    if(chatScrollController != null && chatScrollController.hasClients) {
+      return chatScrollController.controller.position.maxScrollExtent > 0;
+    }
+    return false;
   }
 
   // Returns true if the chat is scrolled to the bottom
@@ -106,7 +130,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   getMessagesForChannel(String channelId) {
     final database = Database(CurrentSession().connection!.serverId!);
-    return database.messages.items.where((message) => database.channelMessages.output(message.id) == channelId).toList(growable: false);
+    var items = database.messages.items.where((message) => database.channelMessages.output(message.id) == channelId).toList(growable: false);
+    items.sort((a, b) => a.createdAt!.compareTo(b.createdAt!));
+    return items;
   }
 
   @override
@@ -200,10 +226,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           Expanded(
                             child: StreamBuilder(
                               key: ValueKey(_selectedChannelController.currentChannel!.id),
-                              stream: database.messages.stream.where((message) => database.channelMessages.output(message.id) == _selectedChannelController.currentChannel!.id),
+                              stream: database.messages.stream.where((message) => message != null && database.channelMessages.output(message.id) == _selectedChannelController.currentChannel!.id),
                               initialData: getMessagesForChannel(_selectedChannelController.currentChannel!.id),
                               builder: (context, snapshot) {
+                                print("Updated messages for channel ${_selectedChannelController.currentChannel!.id}");
                                 final messages = getMessagesForChannel(_selectedChannelController.currentChannel!.id);
+                                print("Total messages: ${messages.length}");
 
                                 if (snapshot.hasData) {
 
@@ -224,6 +252,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                       controller.controller.addListener(() {
                                         // If user scrolls up, disable auto scroll to bottom
                                         nextRenderScrollToBottom = shouldScrollToBottom();
+
+                                        if(shouldFetchMessages()) {
+                                          CurrentSession().connection!.send(
+                                            request.FetchMessages(
+                                              requestId: getNewRequestId(),
+                                              channelId: _selectedChannelController.currentChannel!.id!,
+                                              lastMessageId: getMessagesForChannel(_selectedChannelController.currentChannel!.id).first.id,
+                                            ).serialize(),
+                                          );
+                                        }
                                       });
                                       return controller;
                                     }).controller,

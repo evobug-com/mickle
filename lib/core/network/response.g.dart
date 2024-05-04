@@ -170,3 +170,20 @@ class ChangePresence {
       ..error = data["error"].stringValue;
   }
 }
+class FetchMessages {
+
+  late int requestId;
+  String? error;
+  late List<models.Message> messages;
+  late List<models.Relation> relations;
+  
+  FetchMessages();
+  
+  factory FetchMessages.fromReference(flex_buffers.Reference data) {
+    return FetchMessages()
+      ..requestId = data["requestId"].intValue!
+      ..error = data["error"].stringValue
+      ..messages = data["messages"].vectorIterable.map((item) => models.Message.fromReference(item)).toList()
+      ..relations = data["relations"].vectorIterable.map((item) => models.Relation.fromReference(item)).toList();
+  }
+}

@@ -50,6 +50,7 @@ String constructSerializeFunction(String className, List<String> fields) {
 ''';
 }
 
+
 final rustToDartTypes = {
   'u16': 'int',
   'u32': 'int',
@@ -59,32 +60,31 @@ final rustToDartTypes = {
   'i64': 'int',
   'bool': 'bool',
   'String': 'String',
-  'Option<String>': 'String?',
-  'Option<Message>': 'models.Message?',
-  'Option<Relation>': 'models.Relation?',
-  'Option<Server>': 'models.Server?',
-  'Option<Permission>': 'models.Permission?',
-  'Option<Role>': 'models.Role?',
-  'Option<Channel>': 'models.Channel?',
-  'Option<User>': 'models.User?',
-  'Vec<Server>': 'List<models.Server>',
-  'Vec<Relation>': 'List<models.Relation>',
-  'Vec<Permission>': 'List<models.Permission>',
-  'Vec<Role>': 'List<models.Role>',
-  'Vec<Channel>': 'List<models.Channel>',
-  'Vec<User>': 'List<models.User>',
-  'Vec<Message>': 'List<models.Message>',
-  'Vec<String>': 'List<String>',
-  'Vec<i32>': 'List<int>',
-  'Vec<i64>': 'List<int>',
-  'Vec<u32>': 'List<int>',
-  'Vec<u64>': 'List<int>',
-  'Vec<bool>': 'List<bool>',
-
-
-  // Custom types
   'RecordId': 'String',
+  'Message': 'models.Message',
+  'Relation': 'models.Relation',
+  'Server': 'models.Server',
+  'Permission': 'models.Permission',
+  'Role': 'models.Role',
+  'Channel': 'models.Channel',
+  'User': 'models.User',
 };
+
+String resolveRuntimeType(String type, {String? prefix, String? suffix}) {
+  if (type.startsWith('Option<')) {
+    return resolveRuntimeType(type.substring(7, type.length - 1), suffix: '?', prefix: prefix);
+  }
+  if (type.startsWith('Vec<')) {
+    return '${prefix ?? ''}List<${resolveRuntimeType(type.substring(4, type.length - 1))}>${suffix ?? ''}';
+  }
+
+  if(!rustToDartTypes.containsKey(type)) {
+    type = "dynamic";
+  }
+
+  return '${prefix ?? ''}${rustToDartTypes[type] ?? type}${suffix ?? ''}';
+}
+
 
 String generateRequest() {
   print('Generating request');
@@ -125,7 +125,7 @@ String generateRequest() {
     fields = fields.map((field) {
       final parts = field.split(':').map((part) => part.trim()).toList();
       final fieldName = parts[0];
-      final fieldType = rustToDartTypes[parts[1]] ?? 'dynamic${parts[1].contains("Option<") ? '?' : ''}';
+      final fieldType = resolveRuntimeType(parts[1]);
       return '$fieldType ${snakeToCamel(fieldName)}';
     }).toList();
 
@@ -191,7 +191,7 @@ String generateResponse() {
     fields = fields.map((field) {
       final parts = field.split(':').map((part) => part.trim()).toList();
       final fieldName = parts[0];
-      String fieldType = rustToDartTypes[parts[1]] ?? 'dynamic${parts[1].contains("Option<") ? '?' : ''}';
+      String fieldType = resolveRuntimeType(parts[1]);
       return '$fieldType ${snakeToCamel(fieldName)}';
     }).toList();
 
@@ -306,7 +306,7 @@ String generateModels() {
     fields = fields.map((field) {
       final parts = field.split(':').map((part) => part.trim()).toList();
       final fieldName = parts[0];
-      final fieldType = rustToDartTypes[parts[1]] ?? 'dynamic${parts[1].contains("Option<") ? '?' : ''}';
+      final fieldType = resolveRuntimeType(parts[1]);
       return '$fieldType ${snakeToCamel(fieldName)}';
     }).toList();
 

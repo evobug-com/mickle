@@ -83,8 +83,8 @@ processResponse(Connection connection, Uint8List data) async {
         db.roleUsers.addRelations(loginWelcome.roleUsers);
         db.channelUsers.addRelations(loginWelcome.channelUsers);
         db.permissions.addItems(loginWelcome.permissions);
-        db.messages.addItems(loginWelcome.messages);
-        db.channelMessages.addRelations(loginWelcome.channelMessages);
+        // db.messages.addItems(loginWelcome.messages);
+        // db.channelMessages.addRelations(loginWelcome.channelMessages);
 
         connection.server = db.servers.firstWhereOrNull((element) => element.id == connection.serverId);
         if(connection.server == null) {
@@ -185,6 +185,18 @@ processResponse(Connection connection, Uint8List data) async {
         } else {
           // Display toast with error
           print("[ResponseProcessor] ChangePassword error: ${packet.error}");
+        }
+        break;
+      case "FetchMessages":
+        print("[ResponseProcessor] $key response: $value");
+        final packet = response.FetchMessages.fromReference(value);
+        if(packet.error == null) {
+          final db = Database(connection.serverId);
+          db.messages.addItems(packet.messages);
+          db.channelMessages.addRelations(packet.relations);
+          print("[ResponseProcessor] Fetched [${packet.messages.length}, ${packet.relations.length}] messages");
+        } else {
+          print("[ResponseProcessor] FetchMessages error: ${packet.error}");
         }
         break;
       default:

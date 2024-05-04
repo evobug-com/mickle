@@ -97,8 +97,16 @@ class RelationListStream {
     return _relationsIn[id];
   }
 
+  whereInput(String id) {
+    return _relationsIn.entries.where((element) => element.value == id).map((e) => e.key).toList();
+  }
+
   output(String id) {
     return _relationsOut[id];
+  }
+
+  whereOutput(String id) {
+    return _relationsOut.entries.where((element) => element.value == id).map((e) => e.key).toList();
   }
 
   dispose() {
