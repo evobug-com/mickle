@@ -82,10 +82,10 @@ jobs:
           echo "New Version: $NEW_VERSION"
 
           # Update pubspec.yml
-          sed -i "s/version: $CURRENT_VERSION/version: $NEW_VERSION/g" pubspec.yaml
+          sed -i "s/^version: .*$/version: $NEW_VERSION/g" pubspec.yaml
 
           # Update version.dart
-          sed -i "s/const String version = 'REPLACE_ME_WITH_VERSION'/const String version = '$NEW_VERSION'/g" lib/core/version.dart
+          sed -i "s/const String version = '.*'/const String version = '$NEW_VERSION'/g" lib/core/version.dart
 
           # Export the new version to be used by other steps
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
