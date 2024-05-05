@@ -106,7 +106,7 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: true
-          tag_name: v$NEW_VERSION
+          tag_name: v${NEW_VERSION}
 
   build-windows:
     needs: prepare-and-test
@@ -145,3 +145,4 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: build/windows/runner/Release/*
+          tag_name: v${{ env.NEW_VERSION }}
