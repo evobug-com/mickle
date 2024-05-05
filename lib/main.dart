@@ -52,10 +52,12 @@ Future<void> main() async {
   };
 
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => ThemeController(theme: theme),
-      child: const MyApp()
-    )
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => ThemeController(theme: theme)),
+      ],
+      child: const MyApp(),
+    ),
   );
 }
 
