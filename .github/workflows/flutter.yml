@@ -36,6 +36,38 @@ jobs:
       - name: Run tests
         run: flutter test
 
+      - name: Bump version and update files
+        run: |
+          # Extract current version
+          CURRENT_VERSION=$(grep 'version: ' pubspec.yaml | sed 's/version: //')
+          echo "Current Version: $CURRENT_VERSION"
+
+          # Increment the patch part
+          IFS='.' read -ra ADDR <<< "$CURRENT_VERSION"
+          NEW_VERSION="${ADDR[0]}.${ADDR[1]}.$(( ${ADDR[2]} + 1 ))"
+          echo "New Version: $NEW_VERSION"
+          
+          # Update pubspec.yml
+          sed -i "s/version: $CURRENT_VERSION/version: $NEW_VERSION/g" pubspec.yaml
+          
+          # Update version.dart
+          sed -i "s/const String version = 'REPLACE_ME_WITH_VERSION'/const String version = '$NEW_VERSION'/g" lib/core/version.dart
+
+          # Export the new version to be used by other steps
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+
+      - name: Commit updated files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add pubspec.yaml lib/core/version.dart
+          git commit -m "release: ${NEW_VERSION}"
+
+      - name: Tag
+        run: |
+          git tag v$NEW_VERSION
+          git push --tags
+
       - name: Build windows
         run: flutter build windows
 
@@ -45,3 +77,24 @@ jobs:
           name: Windows Release
           path: build/windows/x64/runner/Release/
           retention-days: 1
+
+      - name: Create and publish GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v$NEW_VERSION
+          release_name: Release v$NEW_VERSION
+          draft: false
+          prerelease: false
+          body: 'Release Version $NEW_VERSION'
+
+      - name: Upload Release Artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./build/windows/x64/runner/Release/
+          asset_name: 'Windows_Release_v$NEW_VERSION.zip'
+          asset_content_type: application/zip
