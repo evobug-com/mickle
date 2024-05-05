@@ -94,6 +94,7 @@ jobs:
           body: "Release $NEW_VERSION"
           draft: false
           prerelease: false
+          generate_release_notes: true
           tag_name: v$NEW_VERSION
 
   build-windows:
@@ -129,8 +130,7 @@ jobs:
           retention-days: 1
 
       - name: Attach Windows Artifact to Release
+        if: github.event_name == 'workflow_dispatch'
         uses: softprops/action-gh-release@v2
         with:
           files: build/windows/runner/Release/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
