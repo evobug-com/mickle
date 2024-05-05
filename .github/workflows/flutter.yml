@@ -12,7 +12,64 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  prepare-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2.16.0
+        with:
+          channel: beta
+          cache: true
+          # optional parameters follow
+          cache-key: "flutter-:os:-:channel:-:version:-:arch:" # optional, change this to force refresh cache
+          cache-path: "${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:" # optional, change this to specify the cache path
+          pub-cache-key: "flutter-pub:os:-:channel:-:version:-:arch:" # optional, change this to force refresh cache of dart pub get dependencies
+          pub-cache-path: "${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:" # optional, change this to specify the cache path
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Bump version and update files
+        run: |
+          # Extract current version
+          CURRENT_VERSION=$(grep 'version: ' pubspec.yaml | sed 's/version: //')
+          echo "Current Version: $CURRENT_VERSION"
+
+          # Increment the patch part
+          IFS='.' read -ra ADDR <<< "$CURRENT_VERSION"
+          NEW_VERSION="${ADDR[0]}.${ADDR[1]}.$(( ${ADDR[2]} + 1 ))"
+          echo "New Version: $NEW_VERSION"
+
+          # Update pubspec.yml
+          sed -i "s/version: $CURRENT_VERSION/version: $NEW_VERSION/g" pubspec.yaml
+
+          # Update version.dart
+          sed -i "s/const String version = 'REPLACE_ME_WITH_VERSION'/const String version = '$NEW_VERSION'/g" lib/core/version.dart
+
+          # Export the new version to be used by other steps
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+
+      - name: Commit updated files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add pubspec.yaml lib/core/version.dart
+          git commit -m "release: ${NEW_VERSION}"
+
+      - name: Tag
+        run: |
+          git tag v$NEW_VERSION
+          git push --tags
+
+  build-windows:
+    needs: prepare-and-test
     runs-on: windows-latest
 
     steps:
@@ -32,69 +89,44 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
-        
-      - name: Run tests
-        run: flutter test
 
-      - name: Bump version and update files
-        run: |
-          # Extract current version
-          CURRENT_VERSION=$(grep 'version: ' pubspec.yaml | sed 's/version: //')
-          echo "Current Version: $CURRENT_VERSION"
-
-          # Increment the patch part
-          IFS='.' read -ra ADDR <<< "$CURRENT_VERSION"
-          NEW_VERSION="${ADDR[0]}.${ADDR[1]}.$(( ${ADDR[2]} + 1 ))"
-          echo "New Version: $NEW_VERSION"
-          
-          # Update pubspec.yml
-          sed -i "s/version: $CURRENT_VERSION/version: $NEW_VERSION/g" pubspec.yaml
-          
-          # Update version.dart
-          sed -i "s/const String version = 'REPLACE_ME_WITH_VERSION'/const String version = '$NEW_VERSION'/g" lib/core/version.dart
-
-          # Export the new version to be used by other steps
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
-
-      - name: Commit updated files
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add pubspec.yaml lib/core/version.dart
-          git commit -m "release: ${NEW_VERSION}"
-
-      - name: Tag
-        run: |
-          git tag v$NEW_VERSION
-          git push --tags
-
-      - name: Build windows
+      - name: Build for Windows
         run: flutter build windows
 
-      - name: 'Upload Artifact'
+      - name: Upload Windows Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Windows Release
           path: build/windows/x64/runner/Release/
           retention-days: 1
 
+  create-release:
+    needs: [ prepare-and-test, build-windows ]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Windows Release
+
       - name: Create and publish GitHub Release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v$NEW_VERSION
-          release_name: Release v$NEW_VERSION
+          tag_name: v${{ needs.prepare-and-test.outputs.new_version }}
+          release_name: Release v${{ needs.prepare-and-test.outputs.new_version }}
           draft: false
           prerelease: false
-          body: 'Release Version $NEW_VERSION'
+          body: Release Version ${{ needs.prepare-and-test.outputs.new_version }}
 
-      - name: Upload Release Artifact
+      - name: Upload Release Artifact to GitHub Release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/windows/x64/runner/Release/
-          asset_name: 'Windows_Release_v$NEW_VERSION.zip'
+          asset_path: ./Windows_Release.zip
+          asset_name: Windows_Release_v${{ needs.prepare-and-test.outputs.new_version }}.zip
           asset_content_type: application/zip
