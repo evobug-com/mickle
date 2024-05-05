@@ -95,8 +95,6 @@ jobs:
           draft: false
           prerelease: false
           tag_name: v$NEW_VERSION
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-windows:
     needs: prepare-and-test
