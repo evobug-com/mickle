@@ -20,6 +20,7 @@ on:
           description: 'The type of release to create'
           required: true
           default: 'patch'
+          type: choice
           options:
           - major
           - minor
