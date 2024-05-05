@@ -5,6 +5,10 @@
 
 name: Flutter
 
+permissions:
+  contents: write
+  discussions: write
+
 on:
   push:
     branches: [ "main" ]
@@ -37,6 +41,7 @@ jobs:
         run: flutter test
 
       - name: Bump version and update files
+        if: github.ref == 'refs/heads/main'
         run: |
           # Extract current version
           CURRENT_VERSION=$(grep 'version: ' pubspec.yaml | sed 's/version: //')
@@ -57,16 +62,19 @@ jobs:
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
       - name: Commit updated files
+        if: github.ref == 'refs/heads/main'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add pubspec.yaml lib/core/version.dart
-          git commit -m "release: ${NEW_VERSION}"
+          git commit -m "release: ${NEW_VERSION} [skip ci]"
+          git push
 
       - name: Tag
+        if: github.ref == 'refs/heads/main'
         run: |
           git tag v$NEW_VERSION
-          git push --tags
+          git push origin tag v$NEW_VERSION
 
   build-windows:
     needs: prepare-and-test
@@ -111,22 +119,7 @@ jobs:
           name: Windows Release
 
       - name: Create and publish GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          tag_name: v${{ needs.prepare-and-test.outputs.new_version }}
-          release_name: Release v${{ needs.prepare-and-test.outputs.new_version }}
-          draft: false
-          prerelease: false
-          body: Release Version ${{ needs.prepare-and-test.outputs.new_version }}
-
-      - name: Upload Release Artifact to GitHub Release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./Windows_Release.zip
-          asset_name: Windows_Release_v${{ needs.prepare-and-test.outputs.new_version }}.zip
-          asset_content_type: application/zip
+          files: Windows Release.zip
