@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -15,12 +16,13 @@ import 'package:talk/screens/home_screen.dart';
 import 'package:talk/screens/login_screen.dart';
 import 'package:talk/ui/lost_connection_bar.dart';
 import 'package:tray_manager/tray_manager.dart';
-import 'package:window_manager/window_manager.dart';
+import 'package:window_manager/window_manager.dart' hide WindowCaption, kWindowCaptionHeight;
 
 import 'core/debug/console.dart';
 import 'core/notifiers/theme_controller.dart';
 import 'core/storage/storage.dart';
 import 'core/tray.dart';
+import 'ui/window_caption.dart';
 
 Future<void> main() async {
   // This is required so ObjectBox can get the application directory
@@ -112,7 +114,7 @@ class MyScaffold extends StatelessWidget {
       appBar:  PreferredSize(
         preferredSize: const Size.fromHeight(kWindowCaptionHeight),
         child: WindowCaption(
-          title: Text('Siocom Talk'),
+          title: Text('TALK'),
           brightness: Theme.of(context).brightness,
         ),
       ),
@@ -178,6 +180,7 @@ class _MyAppState extends State<MyApp> with TrayListener, WindowListener {
   @override
   Widget build(BuildContext context) {
     final virtualWindowFrameBuilder = VirtualWindowFrameInit();
+    final botToastBuilder = BotToastInit();
 
     return MaterialApp.router(
       title: 'TALK 2024 Demo',
@@ -186,6 +189,7 @@ class _MyAppState extends State<MyApp> with TrayListener, WindowListener {
       theme: ThemeController.of(context).currentTheme,
       builder: (context, child) {
         child = virtualWindowFrameBuilder(context, child);
+        child = botToastBuilder(context, child);
         return child;
       },
     );

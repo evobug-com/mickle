@@ -9,7 +9,7 @@ import 'package:talk/core/network/request.dart' as request;
 import 'package:talk/core/models/models.dart' as models;
 
 import '../core/models/models.dart';
-import '../core/notifiers/selected_room_controller.dart';
+import '../core/notifiers/selected_channel_controller.dart';
 import '../core/database.dart';
 import '../core/notifiers/theme_controller.dart';
 import '../core/theme.dart';

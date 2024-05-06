@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 import 'disposable.dart';
-import 'notifiers/selected_room_controller.dart';
+import 'notifiers/selected_channel_controller.dart';
 
 class GenericRoomList extends StatefulWidget {
   final int itemCount;
@@ -21,10 +21,10 @@ class GenericRoomList extends StatefulWidget {
   });
 
   @override
-  GenericRoomListState createState() => GenericRoomListState();
+  GenericChannelListState createState() => GenericChannelListState();
 }
 
-class GenericRoomListState extends State<GenericRoomList> {
+class GenericChannelListState extends State<GenericRoomList> {
   final Map<String, Function> _setStates = {};
 
   @override

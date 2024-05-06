@@ -1,9 +1,9 @@
 
 import 'package:flutter/material.dart';
 
-import '../core/generic_room_list.dart';
+import '../core/generic_channel_list.dart';
 import '../core/models/models.dart';
-import '../core/notifiers/selected_room_controller.dart';
+import '../core/notifiers/selected_channel_controller.dart';
 
 
 class ChannelList extends StatelessWidget {

@@ -58,6 +58,7 @@ class ConsoleState extends State<Console> {
 
   _init() async {
     _autoStartup = await launchAtStartup.isEnabled();
+    _newDisplayNameController.text = CurrentSession().connection!.user!.displayName!;
     setState(() {});
   }
 
@@ -197,7 +198,6 @@ class ConsoleState extends State<Console> {
                     );
                   },
                 ),
-                // Change display name
                 ListTile(
                   leading: Icon(Icons.person),
                   title: Text("Change Display Name"),
