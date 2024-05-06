@@ -4,6 +4,7 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:talk/core/audio/audio_manager.dart';
 import 'package:talk/core/network/utils.dart';
 import 'package:talk/core/notifiers/current_connection.dart';
@@ -29,6 +30,7 @@ class ErrorItem {
 class ConsoleState extends State<Console> {
   bool _isVisible = false;
   List<ErrorItem> _errors = [];
+  bool _autoStartup = false;
 
   final TextEditingController _oldPasswordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
@@ -51,6 +53,26 @@ class ConsoleState extends State<Console> {
         originalOnError(details);
       }
     };
+    _init();
+  }
+
+  _init() async {
+    _autoStartup = await launchAtStartup.isEnabled();
+    setState(() {});
+  }
+
+  isEnableAutoStartup() {
+    return _autoStartup;
+  }
+
+  setAutoStartup(bool value) async {
+    if(value) {
+      await launchAtStartup.enable();
+    } else {
+      await launchAtStartup.disable();
+    }
+    _autoStartup = value;
+    setState(() {});
   }
 
   @override
@@ -91,6 +113,15 @@ class ConsoleState extends State<Console> {
           Expanded(
             child: ListView(
               children: [
+                // Auto startup
+                ListTile(
+                  leading: Icon(Icons.autorenew),
+                  title: Text("Start Siocom Talk with system"),
+                  trailing: Switch(
+                    value: isEnableAutoStartup(),
+                    onChanged: setAutoStartup,
+                  ),
+                ),
                 // Change password
                 ListTile(
                   leading: Icon(Icons.lock),

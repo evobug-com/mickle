@@ -1,10 +1,12 @@
 // ignore_for_file: sized_box_for_whitespace
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:provider/provider.dart';
 import 'package:talk/core/audio/audio_manager.dart';
 import 'package:talk/core/notifiers/current_connection.dart';
@@ -75,6 +77,11 @@ Future<void> main() async {
     await windowManager.show();
     await windowManager.focus();
   });
+
+  launchAtStartup.setup(
+    appName: 'Siocom Talk',
+    appPath: Platform.resolvedExecutable,
+  );
 
   runApp(
     MultiProvider(
