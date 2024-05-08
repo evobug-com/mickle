@@ -74,6 +74,7 @@ class Message {
   String? error;
   models.Message? message;
   models.Relation? relation;
+  List<String>? mentions;
   
   Message();
   
@@ -82,7 +83,8 @@ class Message {
       ..requestId = data["requestId"].intValue!
       ..error = data["error"].stringValue
       ..message = data["message"].isNull ? null : models.Message.fromReference(data["message"])
-      ..relation = data["relation"].isNull ? null : models.Relation.fromReference(data["relation"]);
+      ..relation = data["relation"].isNull ? null : models.Relation.fromReference(data["relation"])
+      ..mentions = data["mentions"].isNull ? null : data["mentions"].vectorIterable.map((item) => item.stringValue!).toList();
   }
 }
 class ChangePassword {

@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
+import 'package:local_notifier/local_notifier.dart';
 import 'package:provider/provider.dart';
 import 'package:talk/core/audio/audio_manager.dart';
 import 'package:talk/core/notifiers/current_connection.dart';
@@ -22,6 +23,7 @@ import 'core/debug/console.dart';
 import 'core/notifiers/theme_controller.dart';
 import 'core/storage/storage.dart';
 import 'core/tray.dart';
+import 'core/version.dart';
 import 'ui/window_caption.dart';
 
 Future<void> main() async {
@@ -33,6 +35,14 @@ Future<void> main() async {
 
   // Initialize the system tray
   await initSystemTray();
+
+  // Initialize Notifications
+  await localNotifier.setup(
+    appName: appName,
+    // The parameter shortcutPolicy only works on Windows
+    shortcutPolicy: ShortcutPolicy.requireCreate,
+  );
+
 
   // Initialize the storage
   await SecureStorage.init();
@@ -69,7 +79,7 @@ Future<void> main() async {
     backgroundColor: Colors.transparent,
     skipTaskbar: false,
     titleBarStyle: TitleBarStyle.hidden,
-    title: "Siocom Talk",
+    title: appName,
     alwaysOnTop: false,
     fullScreen: false,
     minimumSize: Size(1280, 720),
@@ -81,7 +91,7 @@ Future<void> main() async {
   });
 
   launchAtStartup.setup(
-    appName: 'Siocom Talk',
+    appName: appName,
     appPath: Platform.resolvedExecutable,
   );
 

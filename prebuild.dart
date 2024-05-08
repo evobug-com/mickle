@@ -27,7 +27,9 @@ String constructSerializeFunction(String className, List<String> fields) {
 
     // if array (List) then call addArrayWKey
     if(fieldType.startsWith('List')) {
-      return 'builder.addArrayWKey("${snakeToCamel(fieldName)}", () { ${fieldName}.forEach((item) { builder.add${fieldType[5].toUpperCase()}${fieldType.substring(6)}(item); }); });';
+      final isOptional = fieldType.endsWith('?');
+      final innerType = fieldType.substring(5, fieldType.indexOf('>'));
+      return 'builder.addArrayWKey("${snakeToCamel(fieldName)}", () { ${fieldName + (isOptional ? '?' : '')}.forEach((item) { builder.add$innerType(item); }); });';
     }
 
     // if String or Int then call addTypeWKey
@@ -222,12 +224,21 @@ class $className {
       // if array (List) then call vectorIterable
       // If the inner type is a custom type, then call fromReference on the custom type
       if(fieldType.startsWith('List')) {
+        final isNullable = parts[0].endsWith('?');
         final innerType = fieldType.substring(5, fieldType.length - 1);
+        String result;
         if (innerType != "int" && innerType != "String" && innerType != "bool" && innerType != "double") {
-          return '..$fieldName = data["${snakeToCamel(fieldName)}"].vectorIterable.map((item) => $innerType.fromReference(item)).toList()';
+          result = 'data["${snakeToCamel(fieldName)}"].vectorIterable.map((item) => $innerType.fromReference(item)).toList()';
+        } else {
+          result = 'data["${snakeToCamel(fieldName)}"].vectorIterable.map((item) => item.${innerType[0].toLowerCase()}${innerType.substring(1)}Value!).toList()';
         }
-        return '..$fieldName = data["${snakeToCamel(fieldName)}"].vectorIterable';
-      }
+        if(isNullable) {
+          return '..$fieldName = data["${snakeToCamel(fieldName)}"].isNull ? null : $result';
+        } else {
+          return '..$fieldName = $result';
+        }
+
+    }
 
       // If type is a custom type, then call fromReference on the custom type
       if (fieldType != "int" && fieldType != "String" && fieldType != "bool" && fieldType != "double") {
@@ -297,6 +308,15 @@ String generateModels() {
         final parts = element.split(':').map((part) => part.trim()).toList();
         return '$newName: ${parts[1]}';
       }
+
+      if(element.contains("#[serde(default")) {
+        print("Element: $element");
+        // Remove #[serde(default)]\n
+        element = element.replaceAll(RegExp(r"#\[serde\(default\)\]\s*"), "");
+      }
+
+
+
       return element;
     }).toList();
 
@@ -342,6 +362,26 @@ class $structName extends ChangeNotifier {
         fieldType = "String";
       }
       final fieldName = parts[1];
+
+      // If array
+      if(fieldType.startsWith('List')) {
+        String result;
+        final isNullable = parts[0].endsWith('?');
+        final innerType = fieldType.substring(5, fieldType.length - 1);
+        // if inner type is a custom type, then call fromReference on the custom type otherwise call {type}Value
+        if (innerType != "int" && innerType != "String" && innerType != "bool" && innerType != "double") {
+          result = 'data["${snakeToCamel(fieldName)}"].vectorIterable.map((item) => $innerType.fromReference(item)).toList()';
+        } else {
+          result = 'data["${snakeToCamel(fieldName)}"].vectorIterable.map((item) => item.${innerType[0].toLowerCase()}${innerType.substring(1)}Value!).toList()';
+        }
+
+        if(isNullable) {
+          return '$fieldName: data["${snakeToCamel(fieldName)}"].isNull ? null : $result';
+        } else {
+          return '$fieldName: $result';
+        }
+      }
+
       // If not optional, then add required keyword
       return '${fieldName}: data["${snakeToCamel(fieldName)}"].${fieldType[0].toLowerCase()}${fieldType.substring(1)}Value${parts[0].endsWith("?") ? '' : '!'}';
 

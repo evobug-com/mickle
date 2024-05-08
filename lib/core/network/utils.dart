@@ -26,11 +26,9 @@ extension FlexBufferExt on flex_buffers.Builder {
   }
 
   addArrayWKey(String key, Function callback) {
-    startMap();
     addKey(key);
     startVector();
     callback();
-    end();
     end();
   }
 }

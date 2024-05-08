@@ -58,7 +58,7 @@ class ConsoleState extends State<Console> {
 
   _init() async {
     _autoStartup = await launchAtStartup.isEnabled();
-    _newDisplayNameController.text = CurrentSession().connection!.user!.displayName!;
+    _newDisplayNameController.text = CurrentSession().connection?.user?.displayName ?? '';
     setState(() {});
   }
 

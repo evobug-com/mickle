@@ -108,8 +108,9 @@ class Message extends ChangeNotifier {
   String user;
   String content;
   dynamic createdAt;
+  List<String>? mentions;
   
-  Message({required this.id, required this.user, required this.content, required this.createdAt});
+  Message({required this.id, required this.user, required this.content, required this.createdAt,  this.mentions});
     
   onUpdated() {
     notifyListeners();
@@ -120,7 +121,8 @@ class Message extends ChangeNotifier {
       id: data["id"].stringValue!,
       user: data["user"].stringValue!,
       content: data["content"].stringValue!,
-      createdAt: data["createdAt"].stringValue!
+      createdAt: data["createdAt"].stringValue!,
+      mentions: data["mentions"].isNull ? null : data["mentions"].vectorIterable.map((item) => item.stringValue!).toList()
     );
   }
 }

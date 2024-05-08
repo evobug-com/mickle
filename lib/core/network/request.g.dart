@@ -45,8 +45,9 @@ class Message extends Request {
   int requestId;
   String channelId;
   String message;
+  List<String>? mentions;
   
-  Message({required this.requestId, required this.channelId, required this.message});
+  Message({required this.requestId, required this.channelId, required this.message,  this.mentions});
   
     serialize() {
     final builder = flex_buffers.Builder();
@@ -55,6 +56,7 @@ class Message extends Request {
       builder.addIntWKey("requestId", requestId);
       builder.addStringWKey("channelId", channelId);
       builder.addStringWKey("message", message);
+      builder.addArrayWKey("mentions", () { mentions?.forEach((item) { builder.addString(item); }); });
     });
     
     return builder.finish(); 

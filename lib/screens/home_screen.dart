@@ -9,6 +9,7 @@ import 'package:talk/core/network/request.dart' as request;
 import 'package:talk/core/models/models.dart' as models;
 
 import '../core/models/models.dart';
+import '../core/network/request.dart';
 import '../core/notifiers/selected_channel_controller.dart';
 import '../core/database.dart';
 import '../core/notifiers/theme_controller.dart';
@@ -306,6 +307,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   requestId: getNewRequestId(),
                                   channelId: _selectedChannelController.currentChannel!.id!,
                                   message: value,
+                                  mentions: parseMessageMentions(value),
                                 ).serialize(),
                               );
 

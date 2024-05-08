@@ -4,11 +4,12 @@ import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flat_buffers/flex_buffers.dart' as flex_buffers;
-import 'package:flutter/material.dart';
+import 'package:local_notifier/local_notifier.dart';
 import 'package:talk/core/audio/audio_manager.dart';
 import 'package:talk/core/connection/reconnect_manager.dart';
 import 'package:talk/core/database.dart';
 import 'package:talk/core/storage/secure_storage.dart';
+import 'package:window_manager/window_manager.dart';
 import 'dart:typed_data';
 import "../network/response.dart" as response;
 import "../network/request.dart" as request;
@@ -116,7 +117,25 @@ processResponse(Connection connection, Uint8List data) async {
           db.messages.addItem(message.message!);
           db.channelMessages.addRelation(message.relation!);
           print("[ResponseProcessor] Message added: ${message.message!.content}");
-          AudioManager.playSingleShot("Message", AssetSource("audio/new_message_received.wav"));
+          if(message.mentions != null && message.mentions!.contains(connection.userId!)) {
+            AudioManager.playSingleShot("Message", AssetSource("audio/mention.wav"));
+
+            final user = db.users.firstWhereOrNull((element) => element.id == message.message!.user);
+            if(user != null) {
+              if(!await windowManager.isFocused()) {
+                LocalNotification notification = LocalNotification(
+                  title: "Mention from ${user.displayName}",
+                  body: message.message!.content,
+                );
+
+                notification.show();
+              }
+            }
+
+
+          } else {
+            AudioManager.playSingleShot("Message", AssetSource("audio/new_message_received.wav"));
+          }
 
           if(message.message!.content!.contains("porno")) {
             AudioManager.playSingleShot("EasterEgg", AssetSource("audio/easter_egg.wav"));
