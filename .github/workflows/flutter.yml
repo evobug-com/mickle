@@ -131,8 +131,15 @@ jobs:
         run: flutter pub get
 
       - name: Build for Windows
-        run: flutter build windows
+        run: flutter build windows --release
 
+      - name: Bump version and update files
+        run: |
+          # Extract current version
+          CURRENT_VERSION=$(grep 'version: ' pubspec.yaml | sed 's/version: //')
+
+          # Export the new version to be used by other steps
+          echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
       - name: Upload Windows Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -144,5 +151,5 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         uses: softprops/action-gh-release@v2
         with:
-          files: build/windows/runner/Release/*
-          tag_name: v${{ env.NEW_VERSION }}
+          files: build/windows/x64/runner/Release/*
+          tag_name: v${{ env.CURRENT_VERSION }}
