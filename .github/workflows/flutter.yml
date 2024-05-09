@@ -110,8 +110,10 @@ jobs:
           tag_name: v${{ env.NEW_VERSION }}
 
   build-windows:
-    needs: prepare-and-test
+    needs: [ prepare-and-test ]
     runs-on: windows-latest
+    outputs:
+      NEW_VERSION: ${{ needs.prepare-and-test.outputs.NEW_VERSION }}
 
     steps:
       - name: Clone repository
@@ -141,9 +143,26 @@ jobs:
           path: build/windows/x64/runner/Release/
           retention-days: 1
 
+  attach-artifacts:
+    needs: [ build-windows ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Windows Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Windows Release
+          path: build/windows
+
+      - uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r windows-release.zip build/windows
+
+      - name: Display structure of downloaded and zipped files
+        run: ls -R build/windows windows-release.zip
+
       - name: Attach Windows Artifact to Release
         if: github.event_name == 'workflow_dispatch'
         uses: softprops/action-gh-release@v2
         with:
-          files: build/windows/x64/runner/Release/*
-          tag_name: v${{ steps.prepare-and-test.outputs.NEW_VERSION }}
+          files: windows-release.zip
+          tag_name: v${{ needs.build-windows.outputs.NEW_VERSION }}
