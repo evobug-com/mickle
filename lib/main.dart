@@ -24,15 +24,24 @@ import 'core/notifiers/theme_controller.dart';
 import 'core/storage/storage.dart';
 import 'core/tray.dart';
 import 'core/version.dart';
+import 'screens/updater_screen.dart';
 import 'ui/window_caption.dart';
 
-Future<void> main() async {
-  // This is required so ObjectBox can get the application directory
-  // to store the database in.
-  WidgetsFlutterBinding.ensureInitialized();
+Future<void> updaterMain() async {
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => ThemeController(theme: ThemeController.themes[0].value)),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        builder: (ctx, a) => const UpdaterScreen(),
+      ),
+    ),
+  );
+}
 
-  await windowManager.ensureInitialized();
-
+Future<void> talkMain() async {
   // Initialize the system tray
   await initSystemTray();
 
@@ -73,23 +82,6 @@ Future<void> main() async {
     }
   };
 
-  WindowOptions windowOptions = const WindowOptions(
-    size: Size(1280, 720),
-    center: true,
-    backgroundColor: Colors.transparent,
-    skipTaskbar: false,
-    titleBarStyle: TitleBarStyle.hidden,
-    title: appName,
-    alwaysOnTop: false,
-    fullScreen: false,
-    minimumSize: Size(1280, 720),
-    windowButtonVisibility: false,
-  );
-  windowManager.waitUntilReadyToShow(windowOptions, () async {
-    await windowManager.show();
-    await windowManager.focus();
-  });
-
   launchAtStartup.setup(
     appName: appName,
     appPath: Platform.resolvedExecutable,
@@ -100,9 +92,41 @@ Future<void> main() async {
       providers: [
         ChangeNotifierProvider(create: (context) => ThemeController(theme: theme)),
       ],
-      child: const MyApp(),
+      child: const AppWidget(),
     ),
   );
+}
+
+Future<void> main() async {
+  bool isUpdater = const String.fromEnvironment("UPDATER").isNotEmpty && (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
+  WidgetsFlutterBinding.ensureInitialized();
+  await windowManager.ensureInitialized();
+
+  Size size = isUpdater ? const Size(500, 500) : const Size(1280, 720);
+
+  WindowOptions windowOptions = WindowOptions(
+    size: size,
+    center: true,
+    backgroundColor: Colors.transparent,
+    skipTaskbar: false,
+    titleBarStyle: TitleBarStyle.hidden,
+    title: isUpdater ? "Talk Updater" : appName,
+    alwaysOnTop: false,
+    fullScreen: false,
+    minimumSize: size,
+    windowButtonVisibility: false,
+  );
+
+  windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.show();
+    await windowManager.focus();
+  });
+
+  if(isUpdater) {
+    await updaterMain();
+  } else {
+    await talkMain();
+  }
 }
 
 FutureOr<String?> _redirect(BuildContext context, GoRouterState state) async {
@@ -111,6 +135,31 @@ FutureOr<String?> _redirect(BuildContext context, GoRouterState state) async {
     return '/login';
   }
   return null;
+}
+
+class UpdaterScaffold extends StatelessWidget {
+  final Widget body;
+  const UpdaterScaffold({super.key, required this.body});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(kWindowCaptionHeight),
+          child: WindowCaption(
+            title: Text('Talk Updater'),
+            disableExit: true,
+            brightness: Theme
+                .of(context)
+                .brightness,
+          ),
+        ),
+        backgroundColor: ThemeController
+            .scheme(context)
+            .surfaceContainer,
+        body: body
+    );
+  }
 }
 
 class MyScaffold extends StatelessWidget {
@@ -160,13 +209,13 @@ final GoRouter _router = GoRouter(
   redirect: _redirect
 );
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class AppWidget extends StatefulWidget {
+  const AppWidget({super.key});
   @override
-  State<StatefulWidget> createState() => _MyAppState();
+  State<StatefulWidget> createState() => _AppWidgetState();
 }
 
-class _MyAppState extends State<MyApp> with TrayListener, WindowListener {
+class _AppWidgetState extends State<AppWidget> with TrayListener, WindowListener {
 
   @override
   void initState() {

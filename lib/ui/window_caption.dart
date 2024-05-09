@@ -25,11 +25,13 @@ class WindowCaption extends StatefulWidget {
     this.title,
     this.backgroundColor,
     this.brightness,
+    this.disableExit = false,
   });
 
   final Widget? title;
   final Color? backgroundColor;
   final Brightness? brightness;
+  final bool disableExit;
 
   @override
   State<WindowCaption> createState() => _WindowCaptionState();
@@ -116,7 +118,9 @@ class _WindowCaptionState extends State<WindowCaption> with WindowListener {
           WindowCaptionButton.close(
             brightness: widget.brightness,
             onPressed: () {
-              windowManager.close();
+              if(!widget.disableExit) {
+                windowManager.close();
+              }
             },
           ),
         ],
