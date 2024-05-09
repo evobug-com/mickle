@@ -119,6 +119,8 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+        with:
+          ref: v${{ needs.release.outputs.NEW_VERSION }}
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2.16.0
