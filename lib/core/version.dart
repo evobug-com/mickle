@@ -1,4 +1,4 @@
 // String with version that will be replaced by the CI/CD pipeline
-const String version = '0.0.9';
+const String version = '0.0.10';
 
 const String appName = 'Siocom Talk';
