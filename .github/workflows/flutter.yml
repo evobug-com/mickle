@@ -112,8 +112,6 @@ jobs:
   build-windows:
     needs: [ prepare-and-test ]
     runs-on: windows-latest
-    outputs:
-      NEW_VERSION: ${{ needs.prepare-and-test.outputs.NEW_VERSION }}
 
     steps:
       - name: Clone repository
@@ -144,7 +142,7 @@ jobs:
           retention-days: 1
 
   attach-artifacts:
-    needs: [ build-windows ]
+    needs: [ build-windows, prepare-and-test ]
     runs-on: ubuntu-latest
     steps:
       - name: Download Windows Artifact
@@ -165,4 +163,4 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: windows-release.zip
-          tag_name: v${{ needs.build-windows.outputs.NEW_VERSION }}
+          tag_name: v${{ needs.prepare-and-test.outputs.NEW_VERSION }}
