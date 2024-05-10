@@ -64,4 +64,5 @@ class Database {
   final RelationListStream channelUsers = RelationListStream();
   final RelationListStream channelMessages = RelationListStream();
   final RelationListStream roleUsers = RelationListStream();
+  final RelationListStream rolePermissions = RelationListStream();
 }

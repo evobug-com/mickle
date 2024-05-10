@@ -4,11 +4,14 @@
 import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:talk/core/audio/audio_manager.dart';
+import 'package:talk/core/database.dart';
+import 'package:talk/core/models/models.dart';
 import 'package:talk/core/network/utils.dart';
 import 'package:talk/core/notifiers/current_connection.dart';
 import 'package:talk/core/storage/storage.dart';
@@ -121,8 +124,8 @@ class ConsoleState extends State<Console> {
               children: [
                 // Tile to launch auto updater
                 ListTile(
-                  leading: Icon(Icons.update),
-                  title: Text("Launch Auto Updater"),
+                  leading: const Icon(Icons.update),
+                  title: const Text("Spustit vyhledávání aktualizací"),
                   onTap: () {
                     globals.isUpdater = true;
                     context.go("/updater");
@@ -131,8 +134,8 @@ class ConsoleState extends State<Console> {
                 ),
                 // Auto startup
                 ListTile(
-                  leading: Icon(Icons.autorenew),
-                  title: Text("Start Siocom Talk with system"),
+                  leading: const Icon(Icons.autorenew),
+                  title: const Text("Spustit při startu systému"),
                   trailing: Switch(
                     value: isEnableAutoStartup(),
                     onChanged: setAutoStartup,
@@ -140,35 +143,35 @@ class ConsoleState extends State<Console> {
                 ),
                 // Change password
                 ListTile(
-                  leading: Icon(Icons.lock),
-                  title: Text("Change Password"),
-                  trailing: Icon(Icons.arrow_forward_ios),
+                  leading: const Icon(Icons.lock),
+                  title: const Text("Změnit heslo"),
+                  trailing: const Icon(Icons.arrow_forward_ios),
                   onTap: () {
                     showDialog(
                         context: context,
                         builder: (context) {
                           return AlertDialog(
-                            title: Text("Change Password"),
+                            title: const Text("Změna hesla"),
                             content: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 TextField(
-                                  decoration: InputDecoration(
-                                    labelText: "Old Password",
+                                  decoration: const InputDecoration(
+                                    labelText: "Staré heslo",
                                   ),
                                   obscureText: true,
                                   controller: _oldPasswordController,
                                 ),
                                 TextField(
-                                  decoration: InputDecoration(
-                                    labelText: "New Password",
+                                  decoration: const InputDecoration(
+                                    labelText: "Nové heslo",
                                   ),
                                   obscureText: true,
                                   controller: _newPasswordController,
                                 ),
                                 TextField(
-                                  decoration: InputDecoration(
-                                    labelText: "Confirm New Password",
+                                  decoration: const InputDecoration(
+                                    labelText: "Potvrzení hesla",
                                   ),
                                   obscureText: true,
                                   controller: _confirmPasswordController,
@@ -180,20 +183,20 @@ class ConsoleState extends State<Console> {
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: Text("Cancel"),
+                                child: const Text("Zrušit"),
                               ),
                               TextButton(
                                 onPressed: () {
 
                                   // Check if password is not empty, show toast if it is
                                   if(_newPasswordController.text.isEmpty) {
-                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Password cannot be empty")));
+                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Password cannot be empty")));
                                     return;
                                   }
 
                                   // Check if password is valid, show toast if not
                                   if(_newPasswordController.text != _confirmPasswordController.text) {
-                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Passwords do not match")));
+                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Passwords do not match")));
                                     return;
                                   }
 
@@ -205,7 +208,7 @@ class ConsoleState extends State<Console> {
 
                                   Navigator.of(context).pop();
                                 },
-                                child: Text("Change"),
+                                child: const Text("Potvrdit"),
                               ),
                             ],
                           );
@@ -214,21 +217,21 @@ class ConsoleState extends State<Console> {
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.person),
-                  title: Text("Change Display Name"),
-                  trailing: Icon(Icons.arrow_forward_ios),
+                  leading: const Icon(Icons.person),
+                  title: const Text("Změnit zobrazovací jméno"),
+                  trailing: const Icon(Icons.arrow_forward_ios),
                   onTap: () {
                     showDialog(
                         context: context,
                         builder: (context) {
                           return AlertDialog(
-                            title: Text("Change Display Name"),
+                            title: const Text("Změna zobrazovacího jména"),
                             content: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 TextField(
-                                  decoration: InputDecoration(
-                                    labelText: "New Display Name",
+                                  decoration: const InputDecoration(
+                                    labelText: "Nové zobrazovací jméno",
                                   ),
                                   controller: _newDisplayNameController,
                                 ),
@@ -239,14 +242,14 @@ class ConsoleState extends State<Console> {
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: Text("Cancel"),
+                                child: const Text("Zrušit"),
                               ),
                               TextButton(
                                 onPressed: () {
 
                                   // Check if display name is not empty, show toast if it is
                                   if(_newDisplayNameController.text.isEmpty) {
-                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Display name cannot be empty")));
+                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Display name cannot be empty")));
                                     return;
                                   }
 
@@ -257,7 +260,7 @@ class ConsoleState extends State<Console> {
 
                                   Navigator.of(context).pop();
                                 },
-                                child: Text("Change"),
+                                child: const Text("Potvrdit"),
                               ),
                             ],
                           );
@@ -267,21 +270,21 @@ class ConsoleState extends State<Console> {
                 ),
                 // Change status
                 ListTile(
-                  leading: Icon(Icons.info),
-                  title: Text("Change Status"),
-                  trailing: Icon(Icons.arrow_forward_ios),
+                  leading: const Icon(Icons.info),
+                  title: const Text("Změnit status"),
+                  trailing: const Icon(Icons.arrow_forward_ios),
                   onTap: () {
                     showDialog(
                         context: context,
                         builder: (context) {
                           return AlertDialog(
-                            title: Text("Change Status"),
+                            title: const Text("Změna statusu"),
                             content: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 TextField(
-                                  decoration: InputDecoration(
-                                    labelText: "New Status",
+                                  decoration: const InputDecoration(
+                                    labelText: "Nový status",
                                   ),
                                   controller: _newStatusController,
                                 ),
@@ -292,7 +295,7 @@ class ConsoleState extends State<Console> {
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: Text("Cancel"),
+                                child: const Text("Zrušit"),
                               ),
                               TextButton(
                                 onPressed: () {
@@ -304,7 +307,7 @@ class ConsoleState extends State<Console> {
 
                                   Navigator.of(context).pop();
                                 },
-                                child: Text("Change"),
+                                child: const Text("Potvrdit"),
                               ),
                             ],
                           );
@@ -314,21 +317,21 @@ class ConsoleState extends State<Console> {
                 ),
                 // Change avatar
                 ListTile(
-                  leading: Icon(Icons.image),
-                  title: Text("Change Avatar"),
-                  trailing: Icon(Icons.arrow_forward_ios),
+                  leading: const Icon(Icons.image),
+                  title: const Text("Změnit avatar"),
+                  trailing: const Icon(Icons.arrow_forward_ios),
                   onTap: () {
                     showDialog(
                         context: context,
                         builder: (context) {
                           return AlertDialog(
-                            title: Text("Change Avatar"),
+                            title: const Text("Změna avataru"),
                             content: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 TextField(
-                                  decoration: InputDecoration(
-                                    labelText: "New Avatar URL",
+                                  decoration: const InputDecoration(
+                                    labelText: "Adresa obrázku",
                                   ),
                                   controller: _newAvatarController,
                                 ),
@@ -339,7 +342,7 @@ class ConsoleState extends State<Console> {
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: Text("Cancel"),
+                                child: const Text("Zrušit"),
                               ),
                               TextButton(
                                 onPressed: () {
@@ -351,7 +354,7 @@ class ConsoleState extends State<Console> {
 
                                   Navigator.of(context).pop();
                                 },
-                                child: Text("Change"),
+                                child: const Text("Potvrdit"),
                               ),
                             ],
                           );
@@ -361,15 +364,15 @@ class ConsoleState extends State<Console> {
                 ),
                 // Change presence (pick from online, away, do not disturb, etc...)
                 ListTile(
-                  leading: Icon(Icons.circle),
-                  title: Text("Change Presence"),
-                  trailing: Icon(Icons.arrow_forward_ios),
+                  leading: const Icon(Icons.circle),
+                  title: const Text("Změnit přítomnost"),
+                  trailing: const Icon(Icons.arrow_forward_ios),
                   onTap: () {
                     showDialog(
                         context: context,
                         builder: (context) {
                           return AlertDialog(
-                            title: Text("Change Presence"),
+                            title: const Text("Změna přítomnosti"),
                             content: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -396,19 +399,82 @@ class ConsoleState extends State<Console> {
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: Text("Cancel"),
+                                child: const Text("Cancel"),
                               ),
                               TextButton(
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
-                                child: Text("Change"),
+                                child: const Text("Change"),
                               ),
                             ],
                           );
                         }
                     );
                   },
+                ),
+                // Divider
+                const Divider(),
+                // Heading with section with padding to show list of roles
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("Seznam rolí", style: TextStyle(fontSize: 20)),
+                    ...Database(CurrentSession().server!.id).roles.items.map((role) {
+                      final rolePermissions = role.getPermissions();
+                      return Card(
+                        child: Column(
+                          children: [
+                            ListTile(
+                              title: Text(role.name),
+                              subtitle: Text("Váha: ${role.rank}"),
+                            ),
+                            const Divider(),
+                            // Foldable section with permissions
+                            ExpansionTile(
+                              title: const Text("Oprávnění"),
+                              children: [
+                                // Display all permissions with checkboxes, group them by category
+                                ...Database(CurrentSession().server!.id).permissions.items.groupListsBy((permission) => permission.category).entries.map((entry) {
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                                        color: Theme.of(context).colorScheme.surfaceContainer,
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(entry.key, style: Theme.of(context).textTheme.bodyLarge),
+                                            ...entry.value.map((permission) {
+                                              return CheckboxListTile(
+                                                title: Text(permission.name),
+                                                value: rolePermissions.contains(permission),
+                                                dense: true,
+                                                onChanged: (value) {
+                                                  // if(value) {
+                                                  //   role.addPermission(permission);
+                                                  // } else {
+                                                  //   role.removePermission(permission);
+                                                  // }
+                                                },
+                                              );
+                                            }),
+                                          ],
+                                        ),
+                                      ),
+
+                                    ],
+                                  );
+                                }),
+
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ],
                 ),
               ],
             ),
@@ -428,29 +494,28 @@ class ConsoleState extends State<Console> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Column(
+          const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Console", style: TextStyle(fontSize: 20)),
-              Text("Select a tab to view more information",
-                  style: TextStyle(fontSize: 16)),
+              Text("Konzole", style: TextStyle(fontSize: 20)),
+              Text("Zde můžete vidět chyby, upozornění, atd...", style: TextStyle(fontSize: 16)),
             ],
           ),
-          Divider(),
+          const Divider(),
           // Audio section
           DefaultTabController(
             length: 5,
             child: Expanded(
               child: Column(
                 children: [
-                  TabBar(
+                  const TabBar(
                     // The tab is at the top of the screen
                     tabs: [
-                      Tab(text: "General"),
-                      Tab(text: "Errors"),
-                      Tab(text: "Audio"),
-                      Tab(text: "Network"),
-                      Tab(text: "Settings"),
+                      Tab(text: "Obecné"),
+                      Tab(text: "Chyby"),
+                      Tab(text: "Zvuk"),
+                      Tab(text: "Síť"),
+                      Tab(text: "Nastavení"),
                     ],
                   ),
                   Expanded(
@@ -479,7 +544,7 @@ class ConsoleState extends State<Console> {
                                 child: ListView(
                                   children: [
                                     ListTile(
-                                      title: Text("Master Volume"),
+                                      title: const Text("Master Volume"),
                                       subtitle: ListenableBuilder(
                                         listenable: audioManager.masterVolume,
                                         builder: (context, child) {
@@ -497,21 +562,21 @@ class ConsoleState extends State<Console> {
                                         }
                                       ),
                                     ),
-                                    ListTile(
+                                    const ListTile(
                                       title: Text("Music Volume"),
                                       subtitle: Slider(
                                         value: 0.5,
                                         onChanged: null,
                                       ),
                                     ),
-                                    ListTile(
+                                    const ListTile(
                                       title: Text("Sound Effects Volume"),
                                       subtitle: Slider(
                                         value: 0.5,
                                         onChanged: null,
                                       ),
                                     ),
-                                    ListTile(
+                                    const ListTile(
                                       title: Text("Voice Volume"),
                                       subtitle: Slider(
                                         value: 0.5,
@@ -523,13 +588,13 @@ class ConsoleState extends State<Console> {
                               ),
                             ]
                           ),
-                      Text("Network"),
+                      const Text("Network tab with network statistics, ping, latency, etc..."),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const SizedBox(height: 8),
                           DropdownMenu<ThemeItem>(
-                            label: Text("Theme"),
+                            label: const Text("Vzhled aplikace"),
                             dropdownMenuEntries: ThemeController.themes.map((e) => DropdownMenuEntry(value: e, label: e.name)).toList(),
                             initialSelection: ThemeController.themes.firstWhere((element) => element.name == ThemeController.of(context).currentThemeName),
                             onSelected: (value) {

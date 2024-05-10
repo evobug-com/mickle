@@ -93,19 +93,19 @@ class RelationListStream {
     }
   }
 
-  input(String id) {
+  String? input(String id) {
     return _relationsIn[id];
   }
 
-  whereInput(String id) {
+  List<String> whereInput(String id) {
     return _relationsIn.entries.where((element) => element.value == id).map((e) => e.key).toList();
   }
 
-  output(String id) {
+  String? output(String id) {
     return _relationsOut[id];
   }
 
-  whereOutput(String id) {
+  List<String> whereOutput(String id) {
     return _relationsOut.entries.where((element) => element.value == id).map((e) => e.key).toList();
   }
 
