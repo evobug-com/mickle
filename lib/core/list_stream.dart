@@ -62,51 +62,49 @@ class ListStream<T> {
 }
 
 class RelationListStream {
-  final Map<String, String> _relationsIn = {};
-  final Map<String, String> _relationsOut = {};
+  List<Relation> _relations = [];
+  Map<String, List<Relation>> _inputIndex = {};
+  Map<String, List<Relation>> _outputIndex = {};
+
   final _controller = StreamController<Relation>.broadcast();
 
   Stream<Relation> get stream => _controller.stream;
 
   void addRelation(Relation relation) {
-    _relationsIn[relation.input] = relation.output;
-    _relationsOut[relation.output] = relation.input;
+    _relations.add(relation);
+    _inputIndex.putIfAbsent(relation.input, () => []).add(relation);
+    _outputIndex.putIfAbsent(relation.output, () => []).add(relation);
     _controller.add(relation);
   }
 
   void removeRelation(Relation relation) {
-    _relationsIn.remove(relation.input);
-    _relationsOut.remove(relation.output);
+    _relations.remove(relation);
+    _inputIndex[relation.input]?.remove(relation);
+    _outputIndex[relation.output]?.remove(relation);
     _controller.add(relation);
   }
 
   void clear() {
-    _relationsIn.clear();
-    _relationsOut.clear();
-  }
-
-  void addRelations(List<Relation> relations) {
-    for (var relation in relations) {
-      _relationsIn[relation.input] = relation.output;
-      _relationsOut[relation.output] = relation.input;
+    _relations.clear();
+    _inputIndex.clear();
+    _outputIndex.clear();
+    for (var relation in _relations) {
       _controller.add(relation);
     }
   }
 
-  String? input(String id) {
-    return _relationsIn[id];
+  void addRelations(List<Relation> relations) {
+    for (var relation in relations) {
+      addRelation(relation);
+    }
   }
 
-  List<String> whereInput(String id) {
-    return _relationsIn.entries.where((element) => element.value == id).map((e) => e.key).toList();
+  List<Relation> inputs(String id) {
+    return _inputIndex[id] ?? [];
   }
 
-  String? output(String id) {
-    return _relationsOut[id];
-  }
-
-  List<String> whereOutput(String id) {
-    return _relationsOut.entries.where((element) => element.value == id).map((e) => e.key).toList();
+  List<Relation> outputs(String id) {
+    return _outputIndex[id] ?? [];
   }
 
   dispose() {

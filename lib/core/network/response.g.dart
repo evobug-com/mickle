@@ -37,6 +37,7 @@ class LoginWelcome {
   late List<models.Permission> permissions;
   late List<models.Role> roles;
   late List<models.Relation> roleUsers;
+  late List<models.Relation> rolePermissions;
   late List<models.Channel> channels;
   late List<models.Relation> channelUsers;
   late List<models.User> users;
@@ -50,6 +51,7 @@ class LoginWelcome {
       ..permissions = data["permissions"].vectorIterable.map((item) => models.Permission.fromReference(item)).toList()
       ..roles = data["roles"].vectorIterable.map((item) => models.Role.fromReference(item)).toList()
       ..roleUsers = data["roleUsers"].vectorIterable.map((item) => models.Relation.fromReference(item)).toList()
+      ..rolePermissions = data["rolePermissions"].vectorIterable.map((item) => models.Relation.fromReference(item)).toList()
       ..channels = data["channels"].vectorIterable.map((item) => models.Channel.fromReference(item)).toList()
       ..channelUsers = data["channelUsers"].vectorIterable.map((item) => models.Relation.fromReference(item)).toList()
       ..users = data["users"].vectorIterable.map((item) => models.User.fromReference(item)).toList();

@@ -84,6 +84,7 @@ processResponse(Connection connection, Uint8List data) async {
         db.roleUsers.addRelations(loginWelcome.roleUsers);
         db.channelUsers.addRelations(loginWelcome.channelUsers);
         db.permissions.addItems(loginWelcome.permissions);
+        db.rolePermissions.addRelations(loginWelcome.rolePermissions);
         // db.messages.addItems(loginWelcome.messages);
         // db.channelMessages.addRelations(loginWelcome.channelMessages);
 

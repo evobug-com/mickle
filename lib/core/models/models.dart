@@ -9,8 +9,8 @@ extension UserExtension on User {
   List<Role> getRoles() {
     CurrentSession session = CurrentSession();
     Database database = Database(session.server!.id);
-    final roles = database.roleUsers.whereOutput(id);
-    return roles.map((role) => database.roles.get("Role:$role")!).toList();
+    final roles = database.roleUsers.outputs(id);
+    return roles.map((relation) => database.roles.get("Role:${relation.input}")!).toList();
   }
 }
 
@@ -18,7 +18,32 @@ extension RoleExtension on Role {
   List<Permission> getPermissions() {
     CurrentSession session = CurrentSession();
     Database database = Database(session.server!.id);
-    final permissions = database.rolePermissions.whereInput(id);
-    return permissions.map((permissionId) => database.permissions.get("Permission:$permissionId")!).toList();
+    final permissions = database.rolePermissions.inputs(id);
+    return permissions.map((relation) => database.permissions.get("Permission:${relation.output}")!).toList();
+  }
+
+  List<User> getUsers() {
+    CurrentSession session = CurrentSession();
+    Database database = Database(session.server!.id);
+    final users = database.roleUsers.inputs(id);
+    return users.map((relation) => database.users.get("User:${relation.output}")!).toList();
+  }
+}
+
+extension ChannelExtension on Channel {
+  List<Message> getMessages() {
+    final database = Database(CurrentSession().connection!.serverId!);
+    final channelMessagesRelations = database.channelMessages.inputs(id);
+
+    // Get all messages for channelMessagesRelations by id
+    final channelMessages = channelMessagesRelations.map((relation) => database.messages.get("Message:${relation.output}")!).toList(growable: false);
+    channelMessages.sort((a, b) => a.createdAt!.compareTo(b.createdAt!));
+    return channelMessages;
+  }
+
+  containsMessage(Message message) {
+    final database = Database(CurrentSession().connection!.serverId!);
+    final channelMessagesRelations = database.channelMessages.outputs(message.id);
+    return channelMessagesRelations.any((relation) => relation.input == id);
   }
 }

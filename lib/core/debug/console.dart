@@ -421,12 +421,13 @@ class ConsoleState extends State<Console> {
                   children: [
                     const Text("Seznam rolí", style: TextStyle(fontSize: 20)),
                     ...Database(CurrentSession().server!.id).roles.items.map((role) {
-                      final rolePermissions = role.getPermissions();
+                      final users = role.getUsers();
+                      final permissions = role.getPermissions();
                       return Card(
                         child: Column(
                           children: [
                             ListTile(
-                              title: Text(role.name),
+                              title: Text("${role.name} (${users.length})"),
                               subtitle: Text("Váha: ${role.rank}"),
                             ),
                             const Divider(),
@@ -449,7 +450,7 @@ class ConsoleState extends State<Console> {
                                             ...entry.value.map((permission) {
                                               return CheckboxListTile(
                                                 title: Text(permission.name),
-                                                value: rolePermissions.contains(permission),
+                                                value: permissions.contains(permission),
                                                 dense: true,
                                                 onChanged: (value) {
                                                   // if(value) {
@@ -470,6 +471,23 @@ class ConsoleState extends State<Console> {
 
                               ],
                             ),
+                            ExpansionTile(
+                              title: const Text("Uživatelé"),
+                              children: [
+                                // Display all users in the role, with ability to remove them and add new ones
+                                ...users.map((user) {
+                                  return ListTile(
+                                    title: Text(user.displayName!),
+                                    trailing: IconButton(
+                                      icon: const Icon(Icons.remove),
+                                      onPressed: () {
+                                        // role.removeUser(user);
+                                      },
+                                    ),
+                                  );
+                                }),
+                              ],
+                            )
                           ],
                         ),
                       );

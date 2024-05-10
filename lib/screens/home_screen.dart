@@ -70,9 +70,9 @@ class _HomeScreenState extends State<HomeScreen> {
     // Listen to the selected channel controller
     _selectedChannelController.addListener(() {
 
-      // Fetch the messages for the selected channel if empty
-      final database = Database(CurrentSession().connection!.serverId!);
-      if(database.channelMessages.whereInput(_selectedChannelController.currentChannel!.id).isEmpty) {
+      // Ask backend for messages if we don't have any
+      final messages = _selectedChannelController.currentChannel?.getMessages() ?? [];
+      if(messages.isEmpty) {
         CurrentSession().connection!.send(
           request.FetchMessages(
             requestId: getNewRequestId(),
@@ -127,13 +127,6 @@ class _HomeScreenState extends State<HomeScreen> {
       element.dispose();
     }
     super.dispose();
-  }
-
-  getMessagesForChannel(String channelId) {
-    final database = Database(CurrentSession().connection!.serverId!);
-    var items = database.messages.items.where((message) => database.channelMessages.output(message.id) == channelId).toList(growable: false);
-    items.sort((a, b) => a.createdAt!.compareTo(b.createdAt!));
-    return items;
   }
 
   @override
@@ -227,11 +220,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           Expanded(
                             child: StreamBuilder(
                               key: ValueKey(_selectedChannelController.currentChannel!.id),
-                              stream: database.messages.stream.where((message) => message != null && database.channelMessages.output(message.id) == _selectedChannelController.currentChannel!.id),
-                              initialData: getMessagesForChannel(_selectedChannelController.currentChannel!.id),
+                              stream: database.messages.stream.where((message) => _selectedChannelController.currentChannel!.containsMessage(message)),
+                              initialData: _selectedChannelController.currentChannel!.getMessages(),
                               builder: (context, snapshot) {
                                 print("Updated messages for channel ${_selectedChannelController.currentChannel!.id}");
-                                final messages = getMessagesForChannel(_selectedChannelController.currentChannel!.id);
+                                final messages = _selectedChannelController.currentChannel!.getMessages();
                                 print("Total messages: ${messages.length}");
 
                                 if (snapshot.hasData) {
@@ -259,7 +252,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             request.FetchMessages(
                                               requestId: getNewRequestId(),
                                               channelId: _selectedChannelController.currentChannel!.id!,
-                                              lastMessageId: getMessagesForChannel(_selectedChannelController.currentChannel!.id).first.id,
+                                              lastMessageId: _selectedChannelController.currentChannel!.getMessages().first.id,
                                             ).serialize(),
                                           );
                                         }
