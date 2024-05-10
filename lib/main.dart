@@ -26,22 +26,42 @@ import 'core/tray.dart';
 import 'core/version.dart';
 import 'screens/updater_screen.dart';
 import 'ui/window_caption.dart';
+import 'globals.dart' as globals;
 
-Future<void> updaterMain() async {
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => ThemeController(theme: ThemeController.themes[0].value)),
-      ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        builder: (ctx, a) => const UpdaterScreen(),
-      ),
-    ),
-  );
+void updateWindowStyle() async {
+  if(globals.isUpdater) {
+    windowManager.setMinimumSize(const Size(500, 500));
+    windowManager.setSize(const Size(500, 500));
+    windowManager.setTitle('Talk Updater [${version}]');
+  } else {
+    windowManager.setMinimumSize(const Size(1280, 720));
+    windowManager.setSize(const Size(1280, 720));
+    windowManager.setTitle('TALK [${version}]');
+  }
+  await windowManager.focus();
 }
 
-Future<void> talkMain() async {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await windowManager.ensureInitialized();
+
+  WindowOptions windowOptions = const WindowOptions(
+    center: true,
+    backgroundColor: Colors.transparent,
+    skipTaskbar: false,
+    titleBarStyle: TitleBarStyle.hidden,
+    alwaysOnTop: false,
+    fullScreen: false,
+    windowButtonVisibility: false,
+  );
+
+  updateWindowStyle();
+
+  windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.show();
+    await windowManager.focus();
+  });
+
   // Initialize the system tray
   await initSystemTray();
 
@@ -51,7 +71,6 @@ Future<void> talkMain() async {
     // The parameter shortcutPolicy only works on Windows
     shortcutPolicy: ShortcutPolicy.requireCreate,
   );
-
 
   // Initialize the storage
   await SecureStorage.init();
@@ -97,39 +116,13 @@ Future<void> talkMain() async {
   );
 }
 
-Future<void> main() async {
-  bool isUpdater = const String.fromEnvironment("UPDATER").isNotEmpty && (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
-  WidgetsFlutterBinding.ensureInitialized();
-  await windowManager.ensureInitialized();
-
-  Size size = isUpdater ? const Size(500, 500) : const Size(1280, 720);
-
-  WindowOptions windowOptions = WindowOptions(
-    size: size,
-    center: true,
-    backgroundColor: Colors.transparent,
-    skipTaskbar: false,
-    titleBarStyle: TitleBarStyle.hidden,
-    title: isUpdater ? "Talk Updater" : appName,
-    alwaysOnTop: false,
-    fullScreen: false,
-    minimumSize: size,
-    windowButtonVisibility: false,
-  );
-
-  windowManager.waitUntilReadyToShow(windowOptions, () async {
-    await windowManager.show();
-    await windowManager.focus();
-  });
-
-  if(isUpdater) {
-    await updaterMain();
-  } else {
-    await talkMain();
-  }
-}
-
 FutureOr<String?> _redirect(BuildContext context, GoRouterState state) async {
+  if(const String.fromEnvironment("UPDATER").isNotEmpty) {
+    globals.isUpdater = true;
+    updateWindowStyle();
+    return '/updater';
+  }
+
   final session = CurrentSession();
   if(session.connection == null) {
     return '/login';
@@ -147,7 +140,7 @@ class UpdaterScaffold extends StatelessWidget {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(kWindowCaptionHeight),
           child: WindowCaption(
-            title: Text('Talk Updater'),
+            title: const Text('Talk Updater [${version}]'),
             disableExit: true,
             brightness: Theme
                 .of(context)
@@ -173,7 +166,7 @@ class MyScaffold extends StatelessWidget {
       appBar:  PreferredSize(
         preferredSize: const Size.fromHeight(kWindowCaptionHeight),
         child: WindowCaption(
-          title: Text('TALK'),
+          title: const Text('TALK [${version}]'),
           brightness: Theme.of(context).brightness,
         ),
       ),
@@ -205,6 +198,11 @@ final GoRouter _router = GoRouter(
       path: '/login',
       builder: (ctx, state) => const LoginScreen(),
     ),
+    GoRoute(
+      name: 'updater',
+      path: '/updater',
+      builder: (ctx, state) => const UpdaterScreen(),
+    )
   ],
   redirect: _redirect
 );

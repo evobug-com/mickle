@@ -1,15 +1,20 @@
 // Console is a overlay that can be used to display messages, errors, and warnings.
 // It can be used to control the audio volume, etc...
 
+import 'dart:io';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:talk/core/audio/audio_manager.dart';
 import 'package:talk/core/network/utils.dart';
 import 'package:talk/core/notifiers/current_connection.dart';
 import 'package:talk/core/storage/storage.dart';
 import 'package:talk/core/network/request.dart' as request;
+import 'package:talk/main.dart';
+import 'package:talk/globals.dart' as globals;
 
 import '../notifiers/theme_controller.dart';
 
@@ -114,6 +119,16 @@ class ConsoleState extends State<Console> {
           Expanded(
             child: ListView(
               children: [
+                // Tile to launch auto updater
+                ListTile(
+                  leading: Icon(Icons.update),
+                  title: Text("Launch Auto Updater"),
+                  onTap: () {
+                    globals.isUpdater = true;
+                    context.go("/updater");
+                    updateWindowStyle();
+                  },
+                ),
                 // Auto startup
                 ListTile(
                   leading: Icon(Icons.autorenew),
