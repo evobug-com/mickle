@@ -90,12 +90,6 @@ class GenericChannelListState extends State<GenericRoomList> {
                       isDisabled: true
                     ),
                     MenuItem(
-                      label: "Přejmenovat",
-                      value: 'rename',
-                      icon: Icons.edit,
-                      isDisabled: !permissions.canManageRoom
-                    ),
-                    MenuItem(
                       label: "Upravit",
                       value: 'edit',
                       icon: Icons.edit,
