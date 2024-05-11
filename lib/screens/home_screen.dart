@@ -2,18 +2,15 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:talk/core/network/utils.dart';
 import 'package:talk/core/notifiers/current_connection.dart';
+import 'package:talk/core/processor/request_processor.dart';
 import 'package:talk/ui/user_avatar.dart';
-import 'package:talk/core/network/request.dart' as request;
 import 'package:talk/core/models/models.dart' as models;
 
 import '../core/models/models.dart';
-import '../core/network/request.dart';
 import '../core/notifiers/selected_channel_controller.dart';
 import '../core/database.dart';
 import '../core/notifiers/theme_controller.dart';
-import '../core/theme.dart';
 import '../main.dart';
 import '../ui/channel_list.dart';
 import '../ui/channel_message.dart';
@@ -59,6 +56,9 @@ class _HomeScreenState extends State<HomeScreen> {
   final SelectedChannelController _selectedChannelController = SelectedChannelController();
   final TextEditingController _chatTextController = TextEditingController();
 
+  final TextEditingController _createChannelNameController = TextEditingController();
+  final TextEditingController _createChannelDescriptionController = TextEditingController();
+
   final Map<String, CachedScrollController> _scrollControllers = {};
   final FocusNode _chatTextFocus = FocusNode();
   bool nextRenderScrollToBottom = false;
@@ -73,12 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
       // Ask backend for messages if we don't have any
       final messages = _selectedChannelController.currentChannel?.getMessages() ?? [];
       if(messages.isEmpty) {
-        CurrentSession().connection!.send(
-          request.FetchMessages(
-            requestId: getNewRequestId(),
-            channelId: _selectedChannelController.currentChannel!.id!,
-          ).serialize(),
-        );
+        packetChannelMessageFetch(channelId: _selectedChannelController.currentChannel!.id!, lastMessageId: null);
       }
 
       // Restore the scroll controller for the selected channel
@@ -123,6 +118,8 @@ class _HomeScreenState extends State<HomeScreen> {
     _selectedChannelController.dispose();
     _chatTextController.dispose();
     _chatTextFocus.dispose();
+    _createChannelNameController.dispose();
+    _createChannelDescriptionController.dispose();
     for (var element in _scrollControllers.values) {
       element.dispose();
     }
@@ -150,6 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       // Left sidebar, content, right sidebar
       return Row(
+        key: const ValueKey("Row-Sidebar-Chat-Sidebar"),
         children: <Widget>[
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -159,27 +157,30 @@ class _HomeScreenState extends State<HomeScreen> {
               // They will be equally divided
               // Add border and padding around the lists
               child: Column(
+                key: const ValueKey("Column-SidebarChannels"),
                 children: <Widget>[
                   Expanded(
-                      child: SidebarBox(
-                        child: StreamBuilder(
-                          stream: database.channels.stream,
-                          initialData: database.channels.items,
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              final rooms = database.channels.items;
-                              return ChannelList(
-                                controller: _selectedChannelController,
-                                channels: rooms,
-                              );
-                            } else {
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            }
-                          },
-                        ),
-                      )),
+                    child: SidebarBox(
+                      child: StreamBuilder(
+                        stream: database.channels.stream,
+                        initialData: database.channels.items,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            final rooms = database.channels.items;
+                            return ChannelList(
+                              controller: _selectedChannelController,
+                              channels: rooms,
+                            );
+                          } else {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+
                   // Spacer between the two lists
                   // const SizedBox(height: 8.0),
                   // Expanded(
@@ -248,13 +249,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         nextRenderScrollToBottom = shouldScrollToBottom();
 
                                         if(shouldFetchMessages()) {
-                                          CurrentSession().connection!.send(
-                                            request.FetchMessages(
-                                              requestId: getNewRequestId(),
-                                              channelId: _selectedChannelController.currentChannel!.id!,
-                                              lastMessageId: _selectedChannelController.currentChannel!.getMessages().first.id,
-                                            ).serialize(),
-                                          );
+                                          packetChannelMessageFetch(channelId: _selectedChannelController.currentChannel!.id!, lastMessageId: _selectedChannelController.currentChannel!.getMessages().first.id);
                                         }
                                       });
                                       return controller;
@@ -295,14 +290,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 return;
                               }
 
-                              session.connection!.send(
-                                request.Message(
-                                  requestId: getNewRequestId(),
-                                  channelId: _selectedChannelController.currentChannel!.id!,
-                                  message: value,
-                                  mentions: parseMessageMentions(value),
-                                ).serialize(),
-                              );
+                              packetChannelMessageCreate(value: value, channelId: _selectedChannelController.currentChannel!.id!);
 
                               nextRenderScrollToBottom = true;
 

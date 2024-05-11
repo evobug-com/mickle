@@ -110,4 +110,24 @@ class RelationListStream {
   dispose() {
     _controller.close();
   }
+
+  void removeRelationInput(String id) {
+    final removed = _inputIndex.remove(id);
+    if (removed != null) {
+      removed.forEach((relation) {
+        removeRelation(relation);
+        _relations.remove(relation);
+      });
+    }
+  }
+
+  void removeRelationOutput(String id) {
+    final removed = _outputIndex.remove(id);
+    if (removed != null) {
+      removed.forEach((relation) {
+        removeRelation(relation);
+        _relations.remove(relation);
+      });
+    }
+  }
 }

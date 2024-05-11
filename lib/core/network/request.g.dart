@@ -40,19 +40,19 @@ class Pong extends Request {
   } 
 
 }
-class Message extends Request {
+class ChannelMessageCreate extends Request {
 
   int requestId;
   String channelId;
   String message;
   List<String>? mentions;
   
-  Message({required this.requestId, required this.channelId, required this.message,  this.mentions});
+  ChannelMessageCreate({required this.requestId, required this.channelId, required this.message,  this.mentions});
   
     serialize() {
     final builder = flex_buffers.Builder();
    
-    builder.addMapWKey("Message", () {
+    builder.addMapWKey("ChannelMessageCreate", () {
       builder.addIntWKey("requestId", requestId);
       builder.addStringWKey("channelId", channelId);
       builder.addStringWKey("message", message);
@@ -63,18 +63,18 @@ class Message extends Request {
   } 
 
 }
-class FetchMessages extends Request {
+class ChannelMessageFetch extends Request {
 
   int requestId;
   String channelId;
   String? lastMessageId;
   
-  FetchMessages({required this.requestId, required this.channelId,  this.lastMessageId});
+  ChannelMessageFetch({required this.requestId, required this.channelId,  this.lastMessageId});
   
     serialize() {
     final builder = flex_buffers.Builder();
    
-    builder.addMapWKey("FetchMessages", () {
+    builder.addMapWKey("ChannelMessageFetch", () {
       builder.addIntWKey("requestId", requestId);
       builder.addStringWKey("channelId", channelId);
       if(lastMessageId != null) { builder.addStringWKey("lastMessageId", lastMessageId!); } else { builder.addNullWKey("lastMessageId"); }
@@ -84,18 +84,18 @@ class FetchMessages extends Request {
   } 
 
 }
-class ChangePassword extends Request {
+class UserChangePassword extends Request {
 
   int requestId;
   String oldPassword;
   String newPassword;
   
-  ChangePassword({required this.requestId, required this.oldPassword, required this.newPassword});
+  UserChangePassword({required this.requestId, required this.oldPassword, required this.newPassword});
   
     serialize() {
     final builder = flex_buffers.Builder();
    
-    builder.addMapWKey("ChangePassword", () {
+    builder.addMapWKey("UserChangePassword", () {
       builder.addIntWKey("requestId", requestId);
       builder.addStringWKey("oldPassword", oldPassword);
       builder.addStringWKey("newPassword", newPassword);
@@ -105,17 +105,17 @@ class ChangePassword extends Request {
   } 
 
 }
-class ChangeDisplayName extends Request {
+class UserChangeDisplayName extends Request {
 
   int requestId;
   String displayName;
   
-  ChangeDisplayName({required this.requestId, required this.displayName});
+  UserChangeDisplayName({required this.requestId, required this.displayName});
   
     serialize() {
     final builder = flex_buffers.Builder();
    
-    builder.addMapWKey("ChangeDisplayName", () {
+    builder.addMapWKey("UserChangeDisplayName", () {
       builder.addIntWKey("requestId", requestId);
       builder.addStringWKey("displayName", displayName);
     });
@@ -124,17 +124,17 @@ class ChangeDisplayName extends Request {
   } 
 
 }
-class ChangeStatus extends Request {
+class UserChangeStatus extends Request {
 
   int requestId;
   String status;
   
-  ChangeStatus({required this.requestId, required this.status});
+  UserChangeStatus({required this.requestId, required this.status});
   
     serialize() {
     final builder = flex_buffers.Builder();
    
-    builder.addMapWKey("ChangeStatus", () {
+    builder.addMapWKey("UserChangeStatus", () {
       builder.addIntWKey("requestId", requestId);
       builder.addStringWKey("status", status);
     });
@@ -143,17 +143,17 @@ class ChangeStatus extends Request {
   } 
 
 }
-class ChangeAvatar extends Request {
+class UserChangeAvatar extends Request {
 
   int requestId;
   String avatar;
   
-  ChangeAvatar({required this.requestId, required this.avatar});
+  UserChangeAvatar({required this.requestId, required this.avatar});
   
     serialize() {
     final builder = flex_buffers.Builder();
    
-    builder.addMapWKey("ChangeAvatar", () {
+    builder.addMapWKey("UserChangeAvatar", () {
       builder.addIntWKey("requestId", requestId);
       builder.addStringWKey("avatar", avatar);
     });
@@ -162,19 +162,84 @@ class ChangeAvatar extends Request {
   } 
 
 }
-class ChangePresence extends Request {
+class UserChangePresence extends Request {
 
   int requestId;
   String presence;
   
-  ChangePresence({required this.requestId, required this.presence});
+  UserChangePresence({required this.requestId, required this.presence});
   
     serialize() {
     final builder = flex_buffers.Builder();
    
-    builder.addMapWKey("ChangePresence", () {
+    builder.addMapWKey("UserChangePresence", () {
       builder.addIntWKey("requestId", requestId);
       builder.addStringWKey("presence", presence);
+    });
+    
+    return builder.finish(); 
+  } 
+
+}
+class ChannelCreate extends Request {
+
+  int requestId;
+  String serverId;
+  String name;
+  String? description;
+  
+  ChannelCreate({required this.requestId, required this.serverId, required this.name,  this.description});
+  
+    serialize() {
+    final builder = flex_buffers.Builder();
+   
+    builder.addMapWKey("ChannelCreate", () {
+      builder.addIntWKey("requestId", requestId);
+      builder.addStringWKey("serverId", serverId);
+      builder.addStringWKey("name", name);
+      if(description != null) { builder.addStringWKey("description", description!); } else { builder.addNullWKey("description"); }
+    });
+    
+    return builder.finish(); 
+  } 
+
+}
+class ChannelDelete extends Request {
+
+  int requestId;
+  String channelId;
+  
+  ChannelDelete({required this.requestId, required this.channelId});
+  
+    serialize() {
+    final builder = flex_buffers.Builder();
+   
+    builder.addMapWKey("ChannelDelete", () {
+      builder.addIntWKey("requestId", requestId);
+      builder.addStringWKey("channelId", channelId);
+    });
+    
+    return builder.finish(); 
+  } 
+
+}
+class ChannelUpdate extends Request {
+
+  int requestId;
+  String channelId;
+  String? name;
+  String? description;
+  
+  ChannelUpdate({required this.requestId, required this.channelId,  this.name,  this.description});
+  
+    serialize() {
+    final builder = flex_buffers.Builder();
+   
+    builder.addMapWKey("ChannelUpdate", () {
+      builder.addIntWKey("requestId", requestId);
+      builder.addStringWKey("channelId", channelId);
+      if(name != null) { builder.addStringWKey("name", name!); } else { builder.addNullWKey("name"); }
+      if(description != null) { builder.addStringWKey("description", description!); } else { builder.addNullWKey("description"); }
     });
     
     return builder.finish(); 

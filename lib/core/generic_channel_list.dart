@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:talk/components/context_menu/context_menu.dart';
-import 'package:talk/core/database.dart';
 import 'package:talk/core/notifiers/current_connection.dart';
 import 'disposable.dart';
 import 'notifiers/selected_channel_controller.dart';
@@ -11,6 +10,7 @@ class GenericRoomList extends StatefulWidget {
   final SelectedChannelController controller;
   final void Function(int index) onRoomSelected;
   final String Function(int index) getRoomUid;
+  final void Function(String roomId, String action) contextMenuHandler;
 
   const GenericRoomList({
     super.key,
@@ -19,6 +19,7 @@ class GenericRoomList extends StatefulWidget {
     required this.controller,
     required this.onRoomSelected,
     required this.getRoomUid,
+    required this.contextMenuHandler,
   });
 
   @override
@@ -58,7 +59,7 @@ class GenericChannelListState extends State<GenericRoomList> {
 
               return ContextMenuRegion(
                 onItemSelected: (value) {
-
+                  widget.contextMenuHandler(roomId, value);
                 },
                 contextMenu: ContextMenu(
                   entries: <ContextMenuEntry> [

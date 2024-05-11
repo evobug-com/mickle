@@ -131,8 +131,9 @@ class Channel extends ChangeNotifier {
   String name;
   String? description;
   dynamic createdAt;
+  bool archived;
   
-  Channel({required this.id, required this.name,  this.description, required this.createdAt});
+  Channel({required this.id, required this.name,  this.description, required this.createdAt, required this.archived});
     
   onUpdated() {
     notifyListeners();
@@ -143,7 +144,8 @@ class Channel extends ChangeNotifier {
       id: data["id"].stringValue!,
       name: data["name"].stringValue!,
       description: data["description"].stringValue,
-      createdAt: data["createdAt"].stringValue!
+      createdAt: data["createdAt"].stringValue!,
+      archived: data["archived"].boolValue!
     );
   }
 }

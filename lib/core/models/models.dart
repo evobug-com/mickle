@@ -36,7 +36,7 @@ extension ChannelExtension on Channel {
     final channelMessagesRelations = database.channelMessages.inputs(id);
 
     // Get all messages for channelMessagesRelations by id
-    final channelMessages = channelMessagesRelations.map((relation) => database.messages.get("Message:${relation.output}")!).toList(growable: false);
+    final channelMessages = channelMessagesRelations.map((relation) => database.messages.get("Message:${relation.output}")!).toList();
     channelMessages.sort((a, b) => a.createdAt!.compareTo(b.createdAt!));
     return channelMessages;
   }

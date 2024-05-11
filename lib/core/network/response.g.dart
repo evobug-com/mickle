@@ -2,6 +2,8 @@ part of 'response.dart';
 
 class Login {
 
+  static const PacketResponse packetName = PacketResponse.Login;
+
   late int requestId;
   String? error;
   String? token;
@@ -21,6 +23,8 @@ class Login {
 }
 class Ping {
 
+  static const PacketResponse packetName = PacketResponse.Ping;
+
   
   
   Ping();
@@ -31,6 +35,8 @@ class Ping {
   }
 }
 class LoginWelcome {
+
+  static const PacketResponse packetName = PacketResponse.LoginWelcome;
 
   late List<models.Server> servers;
   late List<models.Relation> serverUsers;
@@ -59,6 +65,8 @@ class LoginWelcome {
 }
 class UpdatePresence {
 
+  static const PacketResponse packetName = PacketResponse.UpdatePresence;
+
   late String userId;
   late String presence;
   
@@ -70,7 +78,9 @@ class UpdatePresence {
       ..presence = data["presence"].stringValue!;
   }
 }
-class Message {
+class ChannelMessageCreate {
+
+  static const PacketResponse packetName = PacketResponse.ChannelMessageCreate;
 
   late int requestId;
   String? error;
@@ -78,10 +88,10 @@ class Message {
   models.Relation? relation;
   List<String>? mentions;
   
-  Message();
+  ChannelMessageCreate();
   
-  factory Message.fromReference(flex_buffers.Reference data) {
-    return Message()
+  factory ChannelMessageCreate.fromReference(flex_buffers.Reference data) {
+    return ChannelMessageCreate()
       ..requestId = data["requestId"].intValue!
       ..error = data["error"].stringValue
       ..message = data["message"].isNull ? null : models.Message.fromReference(data["message"])
@@ -89,101 +99,185 @@ class Message {
       ..mentions = data["mentions"].isNull ? null : data["mentions"].vectorIterable.map((item) => item.stringValue!).toList();
   }
 }
-class ChangePassword {
+class UserChangePassword {
+
+  static const PacketResponse packetName = PacketResponse.UserChangePassword;
 
   late int requestId;
   String? error;
   
-  ChangePassword();
+  UserChangePassword();
   
-  factory ChangePassword.fromReference(flex_buffers.Reference data) {
-    return ChangePassword()
+  factory UserChangePassword.fromReference(flex_buffers.Reference data) {
+    return UserChangePassword()
       ..requestId = data["requestId"].intValue!
       ..error = data["error"].stringValue;
   }
 }
-class ChangeDisplayName {
+class UserChangeDisplayName {
+
+  static const PacketResponse packetName = PacketResponse.UserChangeDisplayName;
 
   late int requestId;
   late String userId;
   late String displayName;
   String? error;
   
-  ChangeDisplayName();
+  UserChangeDisplayName();
   
-  factory ChangeDisplayName.fromReference(flex_buffers.Reference data) {
-    return ChangeDisplayName()
+  factory UserChangeDisplayName.fromReference(flex_buffers.Reference data) {
+    return UserChangeDisplayName()
       ..requestId = data["requestId"].intValue!
       ..userId = data["userId"].stringValue!
       ..displayName = data["displayName"].stringValue!
       ..error = data["error"].stringValue;
   }
 }
-class ChangeStatus {
+class UserChangeStatus {
+
+  static const PacketResponse packetName = PacketResponse.UserChangeStatus;
 
   late int requestId;
   late String userId;
   late String status;
   String? error;
   
-  ChangeStatus();
+  UserChangeStatus();
   
-  factory ChangeStatus.fromReference(flex_buffers.Reference data) {
-    return ChangeStatus()
+  factory UserChangeStatus.fromReference(flex_buffers.Reference data) {
+    return UserChangeStatus()
       ..requestId = data["requestId"].intValue!
       ..userId = data["userId"].stringValue!
       ..status = data["status"].stringValue!
       ..error = data["error"].stringValue;
   }
 }
-class ChangeAvatar {
+class UserChangeAvatar {
+
+  static const PacketResponse packetName = PacketResponse.UserChangeAvatar;
 
   late int requestId;
   late String userId;
   late String avatar;
   String? error;
   
-  ChangeAvatar();
+  UserChangeAvatar();
   
-  factory ChangeAvatar.fromReference(flex_buffers.Reference data) {
-    return ChangeAvatar()
+  factory UserChangeAvatar.fromReference(flex_buffers.Reference data) {
+    return UserChangeAvatar()
       ..requestId = data["requestId"].intValue!
       ..userId = data["userId"].stringValue!
       ..avatar = data["avatar"].stringValue!
       ..error = data["error"].stringValue;
   }
 }
-class ChangePresence {
+class UserChangePresence {
+
+  static const PacketResponse packetName = PacketResponse.UserChangePresence;
 
   late int requestId;
   late String userId;
   late String presence;
   String? error;
   
-  ChangePresence();
+  UserChangePresence();
   
-  factory ChangePresence.fromReference(flex_buffers.Reference data) {
-    return ChangePresence()
+  factory UserChangePresence.fromReference(flex_buffers.Reference data) {
+    return UserChangePresence()
       ..requestId = data["requestId"].intValue!
       ..userId = data["userId"].stringValue!
       ..presence = data["presence"].stringValue!
       ..error = data["error"].stringValue;
   }
 }
-class FetchMessages {
+class ChannelMessageFetch {
+
+  static const PacketResponse packetName = PacketResponse.ChannelMessageFetch;
 
   late int requestId;
   String? error;
   late List<models.Message> messages;
   late List<models.Relation> relations;
   
-  FetchMessages();
+  ChannelMessageFetch();
   
-  factory FetchMessages.fromReference(flex_buffers.Reference data) {
-    return FetchMessages()
+  factory ChannelMessageFetch.fromReference(flex_buffers.Reference data) {
+    return ChannelMessageFetch()
       ..requestId = data["requestId"].intValue!
       ..error = data["error"].stringValue
       ..messages = data["messages"].vectorIterable.map((item) => models.Message.fromReference(item)).toList()
       ..relations = data["relations"].vectorIterable.map((item) => models.Relation.fromReference(item)).toList();
   }
 }
+class ChannelCreate {
+
+  static const PacketResponse packetName = PacketResponse.ChannelCreate;
+
+  late int requestId;
+  String? error;
+  models.Channel? channel;
+  models.Relation? channelUserRelation;
+  models.Relation? serverChannelRelation;
+  
+  ChannelCreate();
+  
+  factory ChannelCreate.fromReference(flex_buffers.Reference data) {
+    return ChannelCreate()
+      ..requestId = data["requestId"].intValue!
+      ..error = data["error"].stringValue
+      ..channel = data["channel"].isNull ? null : models.Channel.fromReference(data["channel"])
+      ..channelUserRelation = data["channelUserRelation"].isNull ? null : models.Relation.fromReference(data["channelUserRelation"])
+      ..serverChannelRelation = data["serverChannelRelation"].isNull ? null : models.Relation.fromReference(data["serverChannelRelation"]);
+  }
+}
+class ChannelDelete {
+
+  static const PacketResponse packetName = PacketResponse.ChannelDelete;
+
+  late int requestId;
+  late String channelId;
+  String? error;
+  
+  ChannelDelete();
+  
+  factory ChannelDelete.fromReference(flex_buffers.Reference data) {
+    return ChannelDelete()
+      ..requestId = data["requestId"].intValue!
+      ..channelId = data["channelId"].stringValue!
+      ..error = data["error"].stringValue;
+  }
+}
+class ChannelUpdate {
+
+  static const PacketResponse packetName = PacketResponse.ChannelUpdate;
+
+  late int requestId;
+  String? error;
+  models.Channel? channel;
+  
+  ChannelUpdate();
+  
+  factory ChannelUpdate.fromReference(flex_buffers.Reference data) {
+    return ChannelUpdate()
+      ..requestId = data["requestId"].intValue!
+      ..error = data["error"].stringValue
+      ..channel = data["channel"].isNull ? null : models.Channel.fromReference(data["channel"]);
+  }
+}
+enum PacketResponse {
+  Login,
+  Ping,
+  LoginWelcome,
+  UpdatePresence,
+  ChannelMessageCreate,
+  UserChangePassword,
+  UserChangeDisplayName,
+  UserChangeStatus,
+  UserChangeAvatar,
+  UserChangePresence,
+  ChannelMessageFetch,
+  ChannelCreate,
+  ChannelDelete,
+  ChannelUpdate
+}
+  

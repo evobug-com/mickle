@@ -70,6 +70,7 @@ final rustToDartTypes = {
   'Role': 'models.Role',
   'Channel': 'models.Channel',
   'User': 'models.User',
+  'Value': 'dynamic'
 };
 
 String resolveRuntimeType(String type, {String? prefix, String? suffix}) {
@@ -201,6 +202,8 @@ String generateResponse() {
     generatedCode += '''
 class $className {
 
+  static const PacketResponse packetName = PacketResponse.$className;
+
   ${fields.isNotEmpty ? '''${fields.map((element) {
       final parts = element.split(' ');
       String fieldType = parts[0];
@@ -251,6 +254,13 @@ class $className {
 }
 ''';
   });
+
+  generatedCode += '''
+enum PacketResponse {
+  ${packetResponseVariants.map((match) => match.group(1)!).join(',\n  ')}
+}
+  ''';
+
   return generatedCode;
 
 }

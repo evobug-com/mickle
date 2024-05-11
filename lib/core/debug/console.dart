@@ -1,8 +1,3 @@
-// Console is a overlay that can be used to display messages, errors, and warnings.
-// It can be used to control the audio volume, etc...
-
-import 'dart:io';
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -12,10 +7,9 @@ import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:talk/core/audio/audio_manager.dart';
 import 'package:talk/core/database.dart';
 import 'package:talk/core/models/models.dart';
-import 'package:talk/core/network/utils.dart';
 import 'package:talk/core/notifiers/current_connection.dart';
+import 'package:talk/core/processor/request_processor.dart';
 import 'package:talk/core/storage/storage.dart';
-import 'package:talk/core/network/request.dart' as request;
 import 'package:talk/main.dart';
 import 'package:talk/globals.dart' as globals;
 
@@ -200,12 +194,7 @@ class ConsoleState extends State<Console> {
                                     return;
                                   }
 
-                                  CurrentSession().connection!.send(request.ChangePassword(
-                                    requestId: getNewRequestId(),
-                                    oldPassword: _oldPasswordController.text,
-                                    newPassword: _newPasswordController.text,
-                                  ).serialize());
-
+                                  packetUserChangePassword(oldPassword: _oldPasswordController.text, newPassword: _newPasswordController.text);
                                   Navigator.of(context).pop();
                                 },
                                 child: const Text("Potvrdit"),
@@ -253,10 +242,7 @@ class ConsoleState extends State<Console> {
                                     return;
                                   }
 
-                                  CurrentSession().connection!.send(request.ChangeDisplayName(
-                                    requestId: getNewRequestId(),
-                                    displayName: _newDisplayNameController.text,
-                                  ).serialize());
+                                  packetUserChangeDisplayName(displayName: _newDisplayNameController.text);
 
                                   Navigator.of(context).pop();
                                 },
@@ -300,10 +286,7 @@ class ConsoleState extends State<Console> {
                               TextButton(
                                 onPressed: () {
 
-                                  CurrentSession().connection!.send(request.ChangeStatus(
-                                    requestId: getNewRequestId(),
-                                    status: _newStatusController.text,
-                                  ).serialize());
+                                  packetUserChangeStatus(status: _newStatusController.text);
 
                                   Navigator.of(context).pop();
                                 },
@@ -347,10 +330,7 @@ class ConsoleState extends State<Console> {
                               TextButton(
                                 onPressed: () {
 
-                                  CurrentSession().connection!.send(request.ChangeAvatar(
-                                    requestId: getNewRequestId(),
-                                    avatar: _newAvatarController.text,
-                                  ).serialize());
+                                  packetUserChangeAvatar(avatar: _newAvatarController.text);
 
                                   Navigator.of(context).pop();
                                 },
@@ -384,10 +364,7 @@ class ConsoleState extends State<Console> {
                                       items: ["online", "offline", "away", "busy", "invisible"].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
                                       onChanged: (value) {
                                         // Change presence
-                                        CurrentSession().connection!.send(request.ChangePresence(
-                                          requestId: getNewRequestId(),
-                                          presence: value!,
-                                        ).serialize());
+                                        packetUserChangePresence(presence: value!);
                                       },
                                     );
                                   }
