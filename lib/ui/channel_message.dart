@@ -35,14 +35,14 @@ class ChannelMessageState extends State<ChannelMessage> {
       if (_isHovered) {
         return ThemeController
             .scheme(context)
-            .surfaceContainerLowest;
+            .surfaceContainerHigh;
       } else {
-        return ThemeController.scheme(context).surfaceContainerLow;
+        return ThemeController.scheme(context).surfaceContainer;
       }
     }
 
     if(_isHovered) {
-      return ThemeController.scheme(context).surfaceContainerLowest;
+      return ThemeController.scheme(context).surfaceContainerHigh;
     } else {
       return Colors.transparent;
     }
