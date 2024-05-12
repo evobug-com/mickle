@@ -70,6 +70,8 @@ class RelationListStream {
 
   Stream<Relation> get stream => _controller.stream;
 
+  get items => _relations;
+
   void addRelation(Relation relation) {
     _relations.add(relation);
     _inputIndex.putIfAbsent(relation.input, () => []).add(relation);

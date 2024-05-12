@@ -18,6 +18,11 @@ class Relation extends ChangeNotifier {
       output: data["output"].stringValue!
     );
   }
+  
+  @override
+  String toString() {
+    return 'Relation(id: $id, input: $input, output: $output)';
+  }
 }
 class Token extends ChangeNotifier {
   String id;
@@ -41,6 +46,11 @@ class Token extends ChangeNotifier {
       expiresAt: data["expiresAt"].stringValue!
     );
   }
+  
+  @override
+  String toString() {
+    return 'Token(id: $id, user: $user, token: $token, createdAt: $createdAt, expiresAt: $expiresAt)';
+  }
 }
 class Server extends ChangeNotifier {
   String id;
@@ -59,6 +69,11 @@ class Server extends ChangeNotifier {
       name: data["name"].stringValue!,
       main: data["main"].boolValue!
     );
+  }
+  
+  @override
+  String toString() {
+    return 'Server(id: $id, name: $name, main: $main)';
   }
 }
 class Permission extends ChangeNotifier {
@@ -81,6 +96,11 @@ class Permission extends ChangeNotifier {
       createdAt: data["createdAt"].stringValue!
     );
   }
+  
+  @override
+  String toString() {
+    return 'Permission(id: $id, name: $name, category: $category, createdAt: $createdAt)';
+  }
 }
 class Role extends ChangeNotifier {
   String id;
@@ -101,6 +121,11 @@ class Role extends ChangeNotifier {
       rank: data["rank"].intValue!,
       createdAt: data["createdAt"].stringValue!
     );
+  }
+  
+  @override
+  String toString() {
+    return 'Role(id: $id, name: $name, rank: $rank, createdAt: $createdAt)';
   }
 }
 class Message extends ChangeNotifier {
@@ -125,6 +150,11 @@ class Message extends ChangeNotifier {
       mentions: data["mentions"].isNull ? null : data["mentions"].vectorIterable.map((item) => item.stringValue!).toList()
     );
   }
+  
+  @override
+  String toString() {
+    return 'Message(id: $id, user: $user, content: $content, createdAt: $createdAt, mentions: $mentions)';
+  }
 }
 class Channel extends ChangeNotifier {
   String id;
@@ -147,6 +177,11 @@ class Channel extends ChangeNotifier {
       createdAt: data["createdAt"].stringValue!,
       archived: data["archived"].boolValue!
     );
+  }
+  
+  @override
+  String toString() {
+    return 'Channel(id: $id, name: $name, description: $description, createdAt: $createdAt, archived: $archived)';
   }
 }
 class User extends ChangeNotifier {
@@ -178,5 +213,10 @@ class User extends ChangeNotifier {
       avatar: data["avatar"].stringValue,
       presence: data["presence"].stringValue
     );
+  }
+  
+  @override
+  String toString() {
+    return 'User(id: $id, displayName: $displayName, firstName: $firstName, lastName: $lastName, createdAt: $createdAt, lastSeen: $lastSeen, status: $status, avatar: $avatar, presence: $presence)';
   }
 }

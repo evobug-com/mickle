@@ -398,6 +398,15 @@ class $structName extends ChangeNotifier {
     }).join(',\n      ')}
     );
   }
+  
+  @override
+  String toString() {
+    return '$structName(${fields.map((e) {
+      final parts = e.split(' ');
+      final fieldName = parts[1];
+      return '$fieldName: \$$fieldName';
+    }).join(', ')})';
+  }
 }
 ''';
   });

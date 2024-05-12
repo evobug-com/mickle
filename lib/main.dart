@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:local_notifier/local_notifier.dart';
 import 'package:provider/provider.dart';
+import 'package:talk/components/console/widgets/console_widget.dart';
 import 'package:talk/core/audio/audio_manager.dart';
 import 'package:talk/core/notifiers/current_connection.dart';
 import 'package:talk/core/storage/secure_storage.dart';
@@ -19,7 +20,6 @@ import 'package:talk/ui/lost_connection_bar.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart' hide WindowCaption, kWindowCaptionHeight;
 
-import 'core/debug/console.dart';
 import 'core/notifiers/theme_controller.dart';
 import 'core/storage/storage.dart';
 import 'core/tray.dart';
@@ -176,7 +176,7 @@ class MyScaffold extends StatelessWidget {
           children: [
             body,
             const LostConnectionBarWidget(),
-            const Console(),
+            const ConsoleWidget(),
           ],
         )
     );
