@@ -28,7 +28,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
       PacketManager(widget.connection).sendChannelMessageFetch(channelId: widget.channel.id, lastMessageId: null);
     }
 
-    final scrollController = context.read<TextRoomScrollController>();
+    final scrollController = Provider.of<TextRoomScrollController>(context, listen: false);
     // Restore the scroll controller for the selected channel
     if(scrollController.controllers.containsKey(widget.channel.id)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -39,7 +39,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
 
   @override
   void dispose() {
-    final scrollController = context.read<TextRoomScrollController>();
+    final scrollController = Provider.of<TextRoomScrollController>(context, listen: false);
     for (var element in scrollController.controllers.values) {
       element.dispose();
     }
@@ -48,12 +48,12 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
   }
 
   shouldFetchMessages() {
-    final scrollController = context.read<TextRoomScrollController>();
+    final scrollController = Provider.of<TextRoomScrollController>(context, listen: false);
     return isScrollAvailable() && scrollController.controllers[widget.channel.id]!.controller.position.pixels == 0;
   }
 
   isScrollAvailable() {
-    final scrollController = context.read<TextRoomScrollController>();
+    final scrollController = Provider.of<TextRoomScrollController>(context, listen: false);
     final chatScrollController = scrollController.controllers[widget.channel.id];
     if(chatScrollController != null && chatScrollController.hasClients) {
       return chatScrollController.controller.position.maxScrollExtent > 0;
@@ -63,7 +63,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
 
   // Returns true if the chat is scrolled to the bottom
   shouldScrollToBottom() {
-    final scrollController = context.read<TextRoomScrollController>();
+    final scrollController = Provider.of<TextRoomScrollController>(context, listen: false);
     final chatScrollController = scrollController.controllers[widget.channel.id];
     if(chatScrollController != null && chatScrollController.hasClients) {
       return chatScrollController.position == chatScrollController.controller.position.maxScrollExtent;
@@ -72,7 +72,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
   }
 
   scrollToBottom() {
-    final scrollController = context.read<TextRoomScrollController>();
+    final scrollController = Provider.of<TextRoomScrollController>(context, listen: false);
     final chatScrollController = scrollController.controllers[widget.channel.id];
     if(chatScrollController != null && chatScrollController.hasClients) {
       chatScrollController.scrollToBottom();
@@ -84,6 +84,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
     final packetManager = PacketManager(widget.connection);
     final database = Database(widget.connection.serverId);
     final messages = widget.channel.getMessages();
+    final textRoomScrollController = Provider.of<TextRoomScrollController>(context);
     return StreamBuilder(
       stream: database.messages.stream.where((message) => widget.channel.containsMessage(message)),
       initialData: messages,
@@ -94,13 +95,13 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
         if (snapshot.hasData) {
 
           // If we are at bottom, scroll to bottom on new message
-          context.read<TextRoomScrollController>().nextRenderScrollToBottom = shouldScrollToBottom();
+          textRoomScrollController.nextRenderScrollToBottom = shouldScrollToBottom();
 
           // Post frame callback to scroll to bottom
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if(context.read<TextRoomScrollController>().nextRenderScrollToBottom) {
+            if(textRoomScrollController.nextRenderScrollToBottom) {
               scrollToBottom();
-              context.read<TextRoomScrollController>().nextRenderScrollToBottom = false;
+              textRoomScrollController.nextRenderScrollToBottom = false;
             }
           });
 
@@ -109,7 +110,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
               final controller = CachedScrollController();
               controller.controller.addListener(() {
                 // If user scrolls up, disable auto scroll to bottom
-                context.read<TextRoomScrollController>().nextRenderScrollToBottom = shouldScrollToBottom();
+                textRoomScrollController.nextRenderScrollToBottom = shouldScrollToBottom();
 
                 if(shouldFetchMessages()) {
                   packetManager.sendChannelMessageFetch(channelId: widget.channel.id, lastMessageId: widget.channel.getMessages().first.id);
