@@ -2,10 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:talk/components/text_room/widgets/text_room_widget.dart';
 import 'package:talk/core/notifiers/current_connection.dart';
-import 'package:talk/core/processor/request_processor.dart';
 import 'package:talk/ui/user_avatar.dart';
-import 'package:talk/core/models/models.dart' as models;
 
 import '../core/models/models.dart';
 import '../core/notifiers/selected_channel_controller.dart';
@@ -13,37 +12,8 @@ import '../core/database.dart';
 import '../core/notifiers/theme_controller.dart';
 import '../main.dart';
 import '../ui/channel_list.dart';
-import '../ui/channel_message.dart';
 
-class CachedScrollController {
-  final ScrollController controller;
-  double? position;
 
-  factory CachedScrollController() {
-    final ScrollController controller = ScrollController();
-    final cached = CachedScrollController._(controller, 0);
-    controller.addListener(() {
-      cached.position = controller.position.pixels;
-    });
-    return cached;
-  }
-
-  CachedScrollController._(this.controller, this.position);
-
-  bool get hasClients => controller.hasClients;
-
-  jumpToCached() {
-    controller.jumpTo(position!);
-  }
-
-  scrollToBottom() {
-    controller.jumpTo(controller.position.maxScrollExtent);
-  }
-
-  void dispose() {
-    controller.dispose();
-  }
-}
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -54,75 +24,19 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final SelectedChannelController _selectedChannelController = SelectedChannelController();
-  final TextEditingController _chatTextController = TextEditingController();
-
   final TextEditingController _createChannelNameController = TextEditingController();
   final TextEditingController _createChannelDescriptionController = TextEditingController();
-
-  final Map<String, CachedScrollController> _scrollControllers = {};
-  final FocusNode _chatTextFocus = FocusNode();
-  bool nextRenderScrollToBottom = false;
 
   @override
   void initState() {
     super.initState();
-
-    // Listen to the selected channel controller
-    _selectedChannelController.addListener(() {
-
-      // Ask backend for messages if we don't have any
-      final messages = _selectedChannelController.currentChannel?.getMessages() ?? [];
-      if(messages.isEmpty) {
-        packetChannelMessageFetch(channelId: _selectedChannelController.currentChannel!.id!, lastMessageId: null);
-      }
-
-      // Restore the scroll controller for the selected channel
-      if(_scrollControllers.containsKey(_selectedChannelController.currentChannel!.id)) {
-        WidgetsBinding.instance!.addPostFrameCallback((_) {
-          _scrollControllers[_selectedChannelController.currentChannel!.id]!.jumpToCached();
-        });
-      }
-    });
-  }
-
-  shouldFetchMessages() {
-    return isScrollAvailable() && _scrollControllers[_selectedChannelController.currentChannel!.id]!.controller.position.pixels == 0;
-  }
-
-  isScrollAvailable() {
-    final chatScrollController = _scrollControllers[_selectedChannelController.currentChannel!.id];
-    if(chatScrollController != null && chatScrollController.hasClients) {
-      return chatScrollController.controller.position.maxScrollExtent > 0;
-    }
-    return false;
-  }
-
-  // Returns true if the chat is scrolled to the bottom
-  shouldScrollToBottom() {
-    final chatScrollController = _scrollControllers[_selectedChannelController.currentChannel!.id];
-    if(chatScrollController != null && chatScrollController.hasClients) {
-      return chatScrollController.position == chatScrollController.controller.position.maxScrollExtent;
-    }
-    return true;
-  }
-
-  scrollToBottom() {
-    final chatScrollController = _scrollControllers[_selectedChannelController.currentChannel!.id];
-    if(chatScrollController != null && chatScrollController.hasClients) {
-      chatScrollController.scrollToBottom();
-    }
   }
 
   @override
   void dispose() {
     _selectedChannelController.dispose();
-    _chatTextController.dispose();
-    _chatTextFocus.dispose();
     _createChannelNameController.dispose();
     _createChannelDescriptionController.dispose();
-    for (var element in _scrollControllers.values) {
-      element.dispose();
-    }
     super.dispose();
   }
 
@@ -199,112 +113,17 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           ListenableBuilder(
-              listenable: _selectedChannelController,
-              builder: (context, child) {
-
-                if(_selectedChannelController.currentChannel == null) {
-                  return const Expanded(
-                    child: Center(
-                      child: Text('Select a channel to start chatting'),
-                    ),
-                  );
-                }
-
-                return Expanded(
-                  // At bottom of the screen we need resizable text input
-                  // At top there will be scrollable chat history
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        children: <Widget>[
-                          ChannelHeader(channel: _selectedChannelController.currentChannel!),
-                          Expanded(
-                            child: StreamBuilder(
-                              key: ValueKey(_selectedChannelController.currentChannel!.id),
-                              stream: database.messages.stream.where((message) => _selectedChannelController.currentChannel!.containsMessage(message)),
-                              initialData: _selectedChannelController.currentChannel!.getMessages(),
-                              builder: (context, snapshot) {
-                                print("Updated messages for channel ${_selectedChannelController.currentChannel!.id}");
-                                final messages = _selectedChannelController.currentChannel!.getMessages();
-                                print("Total messages: ${messages.length}");
-
-                                if (snapshot.hasData) {
-
-                                  // If we are at bottom, scroll to bottom on new message
-                                  nextRenderScrollToBottom = shouldScrollToBottom();
-
-                                  // Post frame callback to scroll to bottom
-                                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                                    if(nextRenderScrollToBottom) {
-                                      scrollToBottom();
-                                      nextRenderScrollToBottom = false;
-                                    }
-                                  });
-
-                                  return ListView.builder(
-                                    controller: _scrollControllers.putIfAbsent(_selectedChannelController.currentChannel!.id, (){
-                                      var controller = CachedScrollController();
-                                      controller.controller.addListener(() {
-                                        // If user scrolls up, disable auto scroll to bottom
-                                        nextRenderScrollToBottom = shouldScrollToBottom();
-
-                                        if(shouldFetchMessages()) {
-                                          packetChannelMessageFetch(channelId: _selectedChannelController.currentChannel!.id!, lastMessageId: _selectedChannelController.currentChannel!.getMessages().first.id);
-                                        }
-                                      });
-                                      return controller;
-                                    }).controller,
-                                    itemCount: messages.length,
-                                    itemBuilder: (context, index) {
-                                      final message = messages[index];
-                                      final user = database.users.get("User:${message.user}");
-
-                                      return ChannelMessage(
-                                        message: message,
-                                        user: user,
-                                        onEdit: null,
-                                        onDelete: null,
-                                      );
-                                    },
-                                  );
-                                } else {
-                                  return const Center(
-                                    child: CircularProgressIndicator(),
-                                  );
-                                }
-                              },
-                            ),
-                          ),
-                          const Divider(height: 1),
-                          TextField(
-                            controller: _chatTextController,
-                            focusNode: _chatTextFocus,
-                            decoration: InputDecoration(
-                              border: UnderlineInputBorder(),
-                              labelText: 'Message #${
-                                _selectedChannelController.currentChannel?.name
-                              }',
-                            ),
-                            onSubmitted: (value) {
-                              if(value.isEmpty) {
-                                return;
-                              }
-
-                              packetChannelMessageCreate(value: value, channelId: _selectedChannelController.currentChannel!.id!);
-
-                              nextRenderScrollToBottom = true;
-
-                              // Clean the input for next message
-                              _chatTextController.clear();
-
-                              // Keep the chat input focused after sending message
-                              _chatTextFocus.requestFocus();
-                            },
-                          ),
-                        ],
-                      ),
-                    ));
-              }
+            listenable: _selectedChannelController,
+            builder: (context, _) {
+              return Expanded(
+                child: _selectedChannelController.currentChannel != null ? TextRoomWidget(
+                  channel: _selectedChannelController.currentChannel!,
+                  connection: session.connection!
+                ) : const Center(
+                  child: Text('No channel selected'),
+                )
+              );
+            }
           ),
           // If an
           Padding(
@@ -415,105 +234,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       );
     }));
-
-
   }
 }
-
-class ChannelHeader extends StatefulWidget {
-  final Channel channel;
-
-  const ChannelHeader({super.key, required this.channel});
-
-  @override
-  State<ChannelHeader> createState() => _ChannelHeaderState();
-}
-
-class _ChannelHeaderState extends State<ChannelHeader> {
-  bool _isHovering = false;
-
-
-  @override
-  Widget build(BuildContext context) {
-    // First line: Title with badge of how many pinned messages is there
-    // Second line: Description of the current room
-    // On hover, it will show Row with pinned messages
-
-    return SidebarBox(
-      child: MouseRegion(
-        onEnter: (event) {
-          setState(() {
-            _isHovering = true;
-          });
-        },
-        onExit: (event) {
-          setState(() {
-            _isHovering = false;
-          });
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    widget.channel.name ?? "<No name>",
-                  ),
-                  // Colored Box with icon on left, number on right
-                  const SizedBox(width: 8.0),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: const Padding(
-                      padding: EdgeInsets.fromLTRB(4, 1, 4, 1),
-                      child: Row(
-                        children: <Widget>[
-                          Icon(Icons.push_pin, size: 11.0),
-                          SizedBox(width: 4.0),
-                          Text('5'),
-                        ]
-                      )
-                    )
-                  )
-                ]
-              
-              ),
-              Text(
-                widget.channel.description ?? "<No description>",
-                style: ThemeController.theme(context).textTheme.bodySmall,
-                      
-              ),
-              // const Divider(height: 1),
-              // Row with pinned messages
-              if(_isHovering) ...[
-                const Divider(height: 1),
-                const Row(
-                  children: [
-                    
-                  ]
-
-                )
-
-
-              ]
-
-            ]
-          
-          
-          ),
-        ),
-      )
-
-
-    );
-
-  }
-}
-
 
 class SidebarBox extends StatelessWidget {
   final Widget child;

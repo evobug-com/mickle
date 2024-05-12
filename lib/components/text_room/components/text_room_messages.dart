@@ -1,0 +1,142 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:talk/core/connection/connection.dart';
+import 'package:talk/core/database.dart';
+
+import '../../../core/models/models.dart';
+import '../../../core/processor/request_processor.dart';
+import '../../../ui/channel_message.dart';
+import '../core/models/text_room_scroll_controller.dart';
+
+class TextRoomMessages extends StatefulWidget {
+  final Channel channel;
+  final Connection connection;
+  const TextRoomMessages({super.key, required this.channel, required this.connection});
+
+  @override
+  State<TextRoomMessages> createState() => TextRoomMessagesState();
+}
+
+class TextRoomMessagesState extends State<TextRoomMessages> {
+  @override
+  void initState() {
+    super.initState();
+
+    // Ask backend for messages if we don't have any
+    final messages = widget.channel.getMessages();
+    if(messages.isEmpty) {
+      packetChannelMessageFetch(channelId: widget.channel.id, lastMessageId: null);
+    }
+
+    final scrollController = context.read<TextRoomScrollController>();
+    // Restore the scroll controller for the selected channel
+    if(scrollController.controllers.containsKey(widget.channel.id)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        scrollController.controllers[widget.channel.id]!.jumpToCached();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    final scrollController = context.read<TextRoomScrollController>();
+    for (var element in scrollController.controllers.values) {
+      element.dispose();
+    }
+
+    super.dispose();
+  }
+
+  shouldFetchMessages() {
+    final scrollController = context.read<TextRoomScrollController>();
+    return isScrollAvailable() && scrollController.controllers[widget.channel.id]!.controller.position.pixels == 0;
+  }
+
+  isScrollAvailable() {
+    final scrollController = context.read<TextRoomScrollController>();
+    final chatScrollController = scrollController.controllers[widget.channel.id];
+    if(chatScrollController != null && chatScrollController.hasClients) {
+      return chatScrollController.controller.position.maxScrollExtent > 0;
+    }
+    return false;
+  }
+
+  // Returns true if the chat is scrolled to the bottom
+  shouldScrollToBottom() {
+    final scrollController = context.read<TextRoomScrollController>();
+    final chatScrollController = scrollController.controllers[widget.channel.id];
+    if(chatScrollController != null && chatScrollController.hasClients) {
+      return chatScrollController.position == chatScrollController.controller.position.maxScrollExtent;
+    }
+    return true;
+  }
+
+  scrollToBottom() {
+    final scrollController = context.read<TextRoomScrollController>();
+    final chatScrollController = scrollController.controllers[widget.channel.id];
+    if(chatScrollController != null && chatScrollController.hasClients) {
+      chatScrollController.scrollToBottom();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final database = Database(widget.connection.serverId);
+    final messages = widget.channel.getMessages();
+    return StreamBuilder(
+      stream: database.messages.stream.where((message) => widget.channel.containsMessage(message)),
+      initialData: messages,
+      builder: (context, snapshot) {
+        // Get fresh messages
+        final messages = widget.channel.getMessages();
+
+        if (snapshot.hasData) {
+
+          // If we are at bottom, scroll to bottom on new message
+          context.read<TextRoomScrollController>().nextRenderScrollToBottom = shouldScrollToBottom();
+
+          // Post frame callback to scroll to bottom
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if(context.read<TextRoomScrollController>().nextRenderScrollToBottom) {
+              scrollToBottom();
+              context.read<TextRoomScrollController>().nextRenderScrollToBottom = false;
+            }
+          });
+
+          return ListView.builder(
+            controller: Provider.of<TextRoomScrollController>(context, listen: false).controllers.putIfAbsent(widget.channel.id, () {
+              final controller = CachedScrollController();
+              controller.controller.addListener(() {
+                // If user scrolls up, disable auto scroll to bottom
+                context.read<TextRoomScrollController>().nextRenderScrollToBottom = shouldScrollToBottom();
+
+                if(shouldFetchMessages()) {
+                  packetChannelMessageFetch(channelId: widget.channel.id, lastMessageId: widget.channel.getMessages().first.id);
+                }
+              });
+              return controller;
+            }).controller,
+            itemCount: messages.length,
+            itemBuilder: (context, index) {
+              final message = messages[index];
+              final user = database.users.get("User:${message.user}");
+
+              return ChannelMessage(
+                message: message,
+                user: user,
+                onEdit: null,
+                onDelete: null,
+              );
+            },
+          );
+        } else {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+      },
+    );
+
+  }
+
+}

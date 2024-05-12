@@ -108,7 +108,7 @@ class ChannelList extends StatelessWidget {
             getRoomUid: (index) => channels[index].id,
             contextMenuHandler: (roomId, action) {
               switch (action) {
-                case 'delete':
+                case 'archive':
                   packetChannelDelete(channelId: roomId);
                   break;
                 case 'edit':
