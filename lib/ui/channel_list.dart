@@ -5,7 +5,7 @@ import 'package:talk/core/notifiers/current_connection.dart';
 import '../core/generic_channel_list.dart';
 import '../core/models/models.dart';
 import '../core/notifiers/selected_channel_controller.dart';
-import '../core/processor/request_processor.dart';
+import '../core/processor/packet_manager.dart';
 
 class EditRoomDialog extends StatefulWidget {
 
@@ -95,6 +95,7 @@ class ChannelList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final packetManager = PacketManager(CurrentSession().connection!);
     return Column(
       children: [
         Expanded(
@@ -109,7 +110,7 @@ class ChannelList extends StatelessWidget {
             contextMenuHandler: (roomId, action) {
               switch (action) {
                 case 'archive':
-                  packetChannelDelete(channelId: roomId);
+                  packetManager.sendChannelDelete(channelId: roomId);
                   break;
                 case 'edit':
                   showDialog(
@@ -118,7 +119,7 @@ class ChannelList extends StatelessWidget {
                       final channel = Database(CurrentSession().server!.id).channels.get("Channel:$roomId")!;
                       return EditRoomDialog(
                         onSubmitted: (title, description) {
-                          packetChannelUpdate(channelId: roomId, name: title, description: description);
+                          packetManager.sendChannelUpdate(channelId: roomId, name: title, description: description);
                         },
                         confirmLabel: 'Uložit',
                         title: "Editace místnosti ${channels.firstWhere((element) => element.id == roomId).name}",
@@ -143,7 +144,7 @@ class ChannelList extends StatelessWidget {
               builder: (context) {
                 return EditRoomDialog(
                   onSubmitted: (title, description) {
-                    packetChannelCreate(name: title, description: description);
+                    packetManager.sendChannelCreate(name: title, description: description);
                   },
                   confirmLabel: 'Vytvořit',
                   title: 'Vytvoření nové místnosti',

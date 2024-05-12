@@ -1,7 +1,10 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'dart:async';
 
-import '../../../core/processor/request_processor.dart';
+import 'package:flutter/material.dart';
+import 'package:talk/core/completer.dart';
+
+import '../../../core/notifiers/current_connection.dart';
+import '../../../core/processor/packet_manager.dart';
 
 class ConsoleChangeDisplayNameItem extends StatefulWidget {
   const ConsoleChangeDisplayNameItem({super.key});
@@ -13,11 +16,7 @@ class ConsoleChangeDisplayNameItem extends StatefulWidget {
 class ConsoleChangeDisplayNameItemState extends State<ConsoleChangeDisplayNameItem> {
 
   final TextEditingController _newDisplayNameController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-  }
+  Completer? _futureResponse;
 
   @override void dispose() {
     _newDisplayNameController.dispose();
@@ -26,6 +25,7 @@ class ConsoleChangeDisplayNameItemState extends State<ConsoleChangeDisplayNameIt
 
   @override
   Widget build(BuildContext context) {
+    final packetManager = PacketManager(CurrentSession().connection!);
     return ListTile(
       leading: const Icon(Icons.person),
       title: const Text("Změnit zobrazovací jméno"),
@@ -33,43 +33,65 @@ class ConsoleChangeDisplayNameItemState extends State<ConsoleChangeDisplayNameIt
       onTap: () {
         showDialog(
             context: context,
+            barrierDismissible: false,
             builder: (context) {
-              return AlertDialog(
-                title: const Text("Změna zobrazovacího jména"),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      decoration: const InputDecoration(
-                        labelText: "Nové zobrazovací jméno",
-                      ),
-                      controller: _newDisplayNameController,
+              return StatefulBuilder(
+                builder: (context, setState) {
+                  return AlertDialog(
+                    title: const Text("Změna zobrazovacího jména"),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextField(
+                          decoration: const InputDecoration(
+                            labelText: "Nové zobrazovací jméno",
+                          ),
+                          controller: _newDisplayNameController,
+                        ),
+                        if(_futureResponse != null)
+                          FutureBuilder(
+                            future: _futureResponse!.future,
+                            builder: (context, snapshot) {
+                              if(snapshot.connectionState == ConnectionState.waiting) {
+                                return const CircularProgressIndicator();
+                              }
+                              if(snapshot.hasError || (snapshot.hasData && snapshot.data != null && snapshot.data.error != null)) {
+                                return Text("Chyba při změně zobrazovacího jména: ${snapshot.error != null ? snapshot.error.toString() : snapshot.data.error}");
+                              }
+                              return const Text("Zobrazovací jméno bylo změněno");
+                            },
+                          ),
+                      ],
                     ),
-                  ],
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text("Zrušit"),
-                  ),
-                  TextButton(
-                    onPressed: () {
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text("Zavřit"),
+                      ),
+                      TextButton(
+                        onPressed: !(_futureResponse?.isCompleted ?? true) ? null : () {
 
-                      // Check if display name is not empty, show toast if it is
-                      if(_newDisplayNameController.text.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Display name cannot be empty")));
-                        return;
-                      }
+                          // Check if display name is not empty, show toast if it is
+                          if(_newDisplayNameController.text.isEmpty) {
+                            setState(() {
+                              _futureResponse = Completer();
+                              _futureResponse!.completeError("Zobrazovací jméno nesmí být prázdné");
+                            });
+                            return;
+                          }
 
-                      packetUserChangeDisplayName(displayName: _newDisplayNameController.text);
-
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text("Potvrdit"),
-                  ),
-                ],
+                          setState(() {
+                            _futureResponse = packetManager.sendUserChangeDisplayName(displayName: _newDisplayNameController.text).wrapInCompleter();
+                            _futureResponse!.future.whenComplete(() => setState(() {}));
+                          });
+                        },
+                        child: const Text("Potvrdit"),
+                      ),
+                    ],
+                  );
+                }
               );
             }
         );

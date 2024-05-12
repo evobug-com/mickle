@@ -41,7 +41,7 @@ class ConsoleWidgetState extends State<ConsoleWidget> {
   @override
   Widget build(BuildContext context) {
     final scheme = ThemeController.scheme(context);
-    final tabs = {
+    Map<String, Widget> tabs = {
       "Obecné": const ConsoleGeneralTab(),
       "Chyby": const ConsoleErrorsTab(),
       "Zvuk": const ConsoleAudioTab(),
@@ -56,20 +56,18 @@ class ConsoleWidgetState extends State<ConsoleWidget> {
         decoration: BoxDecoration(color: scheme.surfaceContainerHighest.withOpacity(0.99)),
         child: DefaultTabController(
           length: tabs.length,
-          child: Expanded(
-            child: Column(
-              children: [
-                TabBar(
-                  // The tab is at the top of the screen
-                  tabs: tabs.keys.map((e) => Tab(text: e)).toList(),
+          child: Column(
+            children: [
+              TabBar(
+                // The tab is at the top of the screen
+                tabs: tabs.keys.map((e) => Tab(text: e)).toList(),
+              ),
+              Expanded(
+                child: TabBarView(
+                    children: tabs.values.toList()
                 ),
-                Expanded(
-                  child: TabBarView(
-                      children: tabs.values.toList()
-                  ),
-                )
-              ],
-            ),
+              )
+            ],
           ),
         )
       ),

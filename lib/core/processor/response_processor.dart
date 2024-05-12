@@ -9,6 +9,7 @@ import 'package:local_notifier/local_notifier.dart';
 import 'package:talk/core/audio/audio_manager.dart';
 import 'package:talk/core/connection/reconnect_manager.dart';
 import 'package:talk/core/database.dart';
+import 'package:talk/core/processor/packet_manager.dart';
 import 'package:talk/core/storage/secure_storage.dart';
 import 'package:window_manager/window_manager.dart';
 import 'dart:typed_data';
@@ -21,6 +22,7 @@ import '../storage/storage.dart';
 
 processResponse(Connection connection, Uint8List data) async {
   try {
+    final packetManager = PacketManager(connection);
     final reference = flex_buffers.Reference.fromBuffer(data.buffer);
     final targetKey = "PacketResponse.${reference.mapKeyIterable.first}";
     final key = response.PacketResponse.values.firstWhereOrNull((value) => value.toString() == targetKey);
@@ -34,6 +36,7 @@ processResponse(Connection connection, Uint8List data) async {
       switch (key) {
         case response.Login.packetName:
           final login = response.Login.fromReference(value);
+          packetManager.runResolve(login.requestId, login);
           if (login.error != null) {
             connection.onError(login.error);
             connection.disconnect();
@@ -123,6 +126,7 @@ processResponse(Connection connection, Uint8List data) async {
           return;
         case response.ChannelMessageCreate.packetName:
           final message = response.ChannelMessageCreate.fromReference(value);
+          packetManager.runResolve(message.requestId, message);
           if (message.error != null) {
             print("[ResponseProcessor] Message error: ${message.error}");
           } else {
@@ -161,6 +165,7 @@ processResponse(Connection connection, Uint8List data) async {
           return;
         case response.UserChangeStatus.packetName:
           final packet = response.UserChangeStatus.fromReference(value);
+          packetManager.runResolve(packet.requestId, packet);
           if (packet.error == null) {
             final db = Database(connection.serverId);
             final user = db.users.get("User:${packet.userId}");
@@ -174,6 +179,7 @@ processResponse(Connection connection, Uint8List data) async {
           return;
         case response.UserChangePresence.packetName:
           final packet = response.UserChangePresence.fromReference(value);
+          packetManager.runResolve(packet.requestId, packet);
           if (packet.error == null) {
             final db = Database(connection.serverId);
             final user = db.users.get("User:${packet.userId}");
@@ -187,6 +193,7 @@ processResponse(Connection connection, Uint8List data) async {
           return;
         case response.UserChangeAvatar.packetName:
           final packet = response.UserChangeAvatar.fromReference(value);
+          packetManager.runResolve(packet.requestId, packet);
           if (packet.error == null) {
             final db = Database(connection.serverId);
             final user = db.users.get("User:${packet.userId}");
@@ -200,6 +207,7 @@ processResponse(Connection connection, Uint8List data) async {
           return;
         case response.UserChangeDisplayName.packetName:
           final packet = response.UserChangeDisplayName.fromReference(value);
+          packetManager.runResolve(packet.requestId, packet);
           if (packet.error == null) {
             final db = Database(connection.serverId);
             final user = db.users.get("User:${packet.userId}");
@@ -214,6 +222,7 @@ processResponse(Connection connection, Uint8List data) async {
           return;
         case response.UserChangePassword.packetName:
           final packet = response.UserChangePassword.fromReference(value);
+          packetManager.runResolve(packet.requestId, packet);
           if (packet.error == null) {
             // Display toast with success
             print("[ResponseProcessor] UserChangePassword success");
@@ -225,6 +234,7 @@ processResponse(Connection connection, Uint8List data) async {
           return;
         case response.ChannelMessageFetch.packetName:
           final packet = response.ChannelMessageFetch.fromReference(value);
+          packetManager.runResolve(packet.requestId, packet);
           if (packet.error == null) {
             final db = Database(connection.serverId);
             db.messages.addItems(packet.messages);
@@ -237,6 +247,7 @@ processResponse(Connection connection, Uint8List data) async {
           return;
         case response.PacketResponse.ChannelCreate:
           final packet = response.ChannelCreate.fromReference(value);
+          packetManager.runResolve(packet.requestId, packet);
           if (packet.error == null) {
             final db = Database(connection.serverId);
             db.channels.addItem(packet.channel!);
@@ -250,6 +261,7 @@ processResponse(Connection connection, Uint8List data) async {
           return;
         case response.PacketResponse.ChannelDelete:
           final packet = response.ChannelDelete.fromReference(value);
+          packetManager.runResolve(packet.requestId, packet);
           if (packet.error == null) {
             final db = Database(connection.serverId);
             final channel = db.channels.get("Channel:${packet.channelId}");
@@ -265,6 +277,7 @@ processResponse(Connection connection, Uint8List data) async {
           return;
         case response.PacketResponse.ChannelUpdate:
           final packet = response.ChannelUpdate.fromReference(value);
+          packetManager.runResolve(packet.requestId, packet);
           if (packet.error == null) {
             final db = Database(connection.serverId);
             final packetChannel = packet.channel!;

@@ -1,7 +1,10 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'dart:async';
 
-import '../../../core/processor/request_processor.dart';
+import 'package:flutter/material.dart';
+import 'package:talk/core/completer.dart';
+
+import '../../../core/notifiers/current_connection.dart';
+import '../../../core/processor/packet_manager.dart';
 
 class ConsoleChangeStatusItem extends StatefulWidget {
   const ConsoleChangeStatusItem({super.key});
@@ -13,6 +16,7 @@ class ConsoleChangeStatusItem extends StatefulWidget {
 class ConsoleChangeStatusItemState extends State<ConsoleChangeStatusItem> {
 
   final TextEditingController _newStatusController = TextEditingController();
+  Completer? _futureResponse;
 
   @override
   void initState() {
@@ -26,6 +30,7 @@ class ConsoleChangeStatusItemState extends State<ConsoleChangeStatusItem> {
 
   @override
   Widget build(BuildContext context) {
+    final packetManager = PacketManager(CurrentSession().connection!);
     return ListTile(
       leading: const Icon(Icons.info),
       title: const Text("Změnit status"),
@@ -33,37 +38,55 @@ class ConsoleChangeStatusItemState extends State<ConsoleChangeStatusItem> {
       onTap: () {
         showDialog(
             context: context,
+            barrierDismissible: false,
             builder: (context) {
-              return AlertDialog(
-                title: const Text("Změna statusu"),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      decoration: const InputDecoration(
-                        labelText: "Nový status",
-                      ),
-                      controller: _newStatusController,
+              return StatefulBuilder(
+                builder: (context, setState) {
+                  return AlertDialog(
+                    title: const Text("Změna statusu"),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextField(
+                          decoration: const InputDecoration(
+                            labelText: "Nový status",
+                          ),
+                          controller: _newStatusController,
+                        ),
+                        if(_futureResponse != null)
+                          FutureBuilder(
+                            future: _futureResponse!.future,
+                            builder: (context, snapshot) {
+                              if(snapshot.connectionState == ConnectionState.waiting) {
+                                return const CircularProgressIndicator();
+                              }
+                              if(snapshot.hasError || (snapshot.hasData && snapshot.data != null && snapshot.data.error != null)) {
+                                return Text("Chyba při změně statusu: ${snapshot.error != null ? snapshot.error.toString() : snapshot.data.error}");
+                              }
+                              return const Text("Status byl změněn");
+                            },
+                          ),
+                      ],
                     ),
-                  ],
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text("Zrušit"),
-                  ),
-                  TextButton(
-                    onPressed: () {
-
-                      packetUserChangeStatus(status: _newStatusController.text);
-
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text("Potvrdit"),
-                  ),
-                ],
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text("Zavřít"),
+                      ),
+                      TextButton(
+                        onPressed: !(_futureResponse?.isCompleted ?? true) ? null : () {
+                          setState(() {
+                            _futureResponse = packetManager.sendUserChangeStatus(status: _newStatusController.text).wrapInCompleter();
+                            _futureResponse!.future.whenComplete(() => setState(() {}));
+                          });
+                        },
+                        child: const Text("Potvrdit"),
+                      ),
+                    ],
+                  );
+                }
               );
             }
         );

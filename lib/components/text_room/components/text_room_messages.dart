@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:talk/core/connection/connection.dart';
 import 'package:talk/core/database.dart';
+import 'package:talk/core/processor/packet_manager.dart';
 
 import '../../../core/models/models.dart';
-import '../../../core/processor/request_processor.dart';
 import '../../../ui/channel_message.dart';
 import '../core/models/text_room_scroll_controller.dart';
 
@@ -25,7 +25,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
     // Ask backend for messages if we don't have any
     final messages = widget.channel.getMessages();
     if(messages.isEmpty) {
-      packetChannelMessageFetch(channelId: widget.channel.id, lastMessageId: null);
+      PacketManager(widget.connection).sendChannelMessageFetch(channelId: widget.channel.id, lastMessageId: null);
     }
 
     final scrollController = context.read<TextRoomScrollController>();
@@ -81,6 +81,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
 
   @override
   Widget build(BuildContext context) {
+    final packetManager = PacketManager(widget.connection);
     final database = Database(widget.connection.serverId);
     final messages = widget.channel.getMessages();
     return StreamBuilder(
@@ -111,7 +112,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
                 context.read<TextRoomScrollController>().nextRenderScrollToBottom = shouldScrollToBottom();
 
                 if(shouldFetchMessages()) {
-                  packetChannelMessageFetch(channelId: widget.channel.id, lastMessageId: widget.channel.getMessages().first.id);
+                  packetManager.sendChannelMessageFetch(channelId: widget.channel.id, lastMessageId: widget.channel.getMessages().first.id);
                 }
               });
               return controller;

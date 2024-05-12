@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flat_buffers/flex_buffers.dart' as flex_buffers;
 
 extension FlexBufferExt on flex_buffers.Builder {
@@ -43,7 +45,5 @@ getNewRequestId() {
 }
 
 abstract class Request {
-  get requestId {
-    return getNewRequestId();
-  }
+  Uint8List serialize();
 }
