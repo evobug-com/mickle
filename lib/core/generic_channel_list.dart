@@ -59,7 +59,9 @@ class GenericChannelListState extends State<GenericRoomList> {
 
               return ContextMenuRegion(
                 onItemSelected: (value) {
-                  widget.contextMenuHandler(roomId, value);
+                  if(value != null) {
+                    widget.contextMenuHandler(roomId, value);
+                  }
                 },
                 contextMenu: ContextMenu(
                   entries: <ContextMenuEntry> [
