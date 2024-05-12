@@ -173,7 +173,7 @@ class MyScaffold extends StatelessWidget {
           brightness: Theme.of(context).brightness,
         ),
       ),
-        backgroundColor: ThemeController.scheme(context).surfaceContainer,
+        backgroundColor: ThemeController.scheme(context).surfaceContainerLow,
         body: Stack(
           alignment: Alignment.topCenter,
           children: [

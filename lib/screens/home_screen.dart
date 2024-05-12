@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:talk/components/text_room/widgets/text_room_widget.dart';
 import 'package:talk/core/notifiers/current_connection.dart';
+import 'package:talk/core/surfaces.dart';
 import 'package:talk/ui/user_avatar.dart';
 
 import '../core/models/models.dart';
@@ -246,13 +247,12 @@ class SidebarBox extends StatelessWidget {
   Widget build(BuildContext context) {
     // Material: https://github.com/flutter/flutter/issues/73315
     return Material(
-      child: Ink(
+      child: Surface.surfaceContainer(
         decoration: BoxDecoration(
-          color: ThemeController.scheme(context).surfaceContainerHigh,
           borderRadius: BorderRadius.circular(4),
         ),
-        child: child,
-      ),
+        child: child
+      )
     );
   }
 }

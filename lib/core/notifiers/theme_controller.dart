@@ -28,6 +28,9 @@ class ThemeController extends ChangeNotifier {
     ThemeItem("Dark", MaterialTheme(ThemeData.fallback(useMaterial3: true).textTheme).dark()),
     ThemeItem("Dark High Contrast", MaterialTheme(ThemeData.fallback(useMaterial3: true).textTheme).darkHighContrast()),
     ThemeItem("Dark Medium Contrast", MaterialTheme(ThemeData.fallback(useMaterial3: true).textTheme).darkMediumContrast()),
+
+    ThemeItem("Light Green", MaterialTheme(ThemeData.fallback(useMaterial3: true).textTheme).lightGreen()),
+    ThemeItem("Dark Green", MaterialTheme(ThemeData.fallback(useMaterial3: true).textTheme).darkGreen()),
   ];
 
   static ColorScheme scheme(BuildContext context, {bool listen = true}) {

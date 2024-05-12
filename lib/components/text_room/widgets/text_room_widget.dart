@@ -1,12 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:talk/components/text_room/components/text_room_header.dart';
 import 'package:talk/components/text_room/core/models/text_room_scroll_controller.dart';
 import 'package:talk/core/connection/connection.dart';
 import 'package:talk/core/models/models.dart';
-import 'package:talk/core/notifiers/theme_controller.dart';
 
+import '../../../core/surfaces.dart';
 import '../components/text_room_input.dart';
 import '../components/text_room_messages.dart';
 
@@ -32,14 +31,13 @@ class TextRoomWidgetState extends State<TextRoomWidget> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: <Widget>[
-            Container(
+            Surface.surfaceContainer(
               decoration: BoxDecoration(
-                color: ThemeController.of(context).currentTheme.colorScheme.surfaceContainerHigh,
                 borderRadius: BorderRadius.circular(4),
               ),
               child: TextRoomHeader(
                 channel: widget.channel,
-              ),
+              )
             ),
             Expanded(
               child: TextRoomMessages(
