@@ -20,6 +20,7 @@ import 'package:talk/ui/lost_connection_bar.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart' hide WindowCaption, kWindowCaptionHeight;
 
+import 'components/console/widgets/console_errors_tab.dart';
 import 'core/notifiers/theme_controller.dart';
 import 'core/storage/storage.dart';
 import 'core/tray.dart';
@@ -100,6 +101,8 @@ Future<void> main() async {
       Zone.current.handleUncaughtError(details.exception, details.stack!);
     }
   };
+
+  Errors.initialize();
 
   launchAtStartup.setup(
     appName: appName,

@@ -26,20 +26,8 @@ class Errors {
   }
 }
 
-class ConsoleErrorsTab extends StatefulWidget {
+class ConsoleErrorsTab extends StatelessWidget {
   const ConsoleErrorsTab({super.key});
-
-  @override
-  ConsoleErrorsTabState createState() => ConsoleErrorsTabState();
-}
-
-class ConsoleErrorsTabState extends State<ConsoleErrorsTab> {
-  @override
-  void initState() {
-    super.initState();
-    Errors.initialize();
-  }
-
 
   @override
   Widget build(BuildContext context) {
