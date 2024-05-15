@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:talk/core/notifiers/current_connection.dart';
+import 'package:talk/core/notifiers/current_client_provider.dart';
 import 'package:talk/core/processor/packet_manager.dart';
 import 'package:talk/core/completer.dart';
 
@@ -25,7 +25,8 @@ class ConsoleChangeAvatarItemState extends State<ConsoleChangeAvatarItem> {
 
   @override
   Widget build(BuildContext context) {
-    final packetManager = PacketManager(CurrentSession().connection!);
+    final clientProvider = CurrentClientProvider.of(context);
+    final packetManager = clientProvider.packetManager!;
     return ListTile(
       leading: const Icon(Icons.image),
       title: const Text("Změnit avatar"),

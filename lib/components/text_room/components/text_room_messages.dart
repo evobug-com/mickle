@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:talk/core/connection/connection.dart';
+import 'package:talk/core/connection/client.dart';
 import 'package:talk/core/database.dart';
 import 'package:talk/core/processor/packet_manager.dart';
 
@@ -10,8 +10,8 @@ import '../core/models/text_room_scroll_controller.dart';
 
 class TextRoomMessages extends StatefulWidget {
   final Channel channel;
-  final Connection connection;
-  const TextRoomMessages({super.key, required this.channel, required this.connection});
+  final Client client;
+  const TextRoomMessages({super.key, required this.channel, required this.client});
 
   @override
   State<TextRoomMessages> createState() => TextRoomMessagesState();
@@ -25,7 +25,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
     // Ask backend for messages if we don't have any
     final messages = widget.channel.getMessages();
     if(messages.isEmpty) {
-      PacketManager(widget.connection).sendChannelMessageFetch(channelId: widget.channel.id, lastMessageId: null);
+      PacketManager(widget.client).sendChannelMessageFetch(channelId: widget.channel.id, lastMessageId: null);
     }
 
     final scrollController = Provider.of<TextRoomScrollController>(context, listen: false);
@@ -35,16 +35,6 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
         scrollController.controllers[widget.channel.id]!.jumpToCached();
       });
     }
-  }
-
-  @override
-  void dispose() {
-    final scrollController = Provider.of<TextRoomScrollController>(context, listen: false);
-    for (var element in scrollController.controllers.values) {
-      element.dispose();
-    }
-
-    super.dispose();
   }
 
   shouldFetchMessages() {
@@ -81,8 +71,10 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
 
   @override
   Widget build(BuildContext context) {
-    final packetManager = PacketManager(widget.connection);
-    final database = Database(widget.connection.serverId);
+    assert(widget.client.serverId != null);
+
+    final packetManager = PacketManager(widget.client);
+    final database = Database(widget.client.serverId!);
     final messages = widget.channel.getMessages();
     final textRoomScrollController = Provider.of<TextRoomScrollController>(context);
     return StreamBuilder(

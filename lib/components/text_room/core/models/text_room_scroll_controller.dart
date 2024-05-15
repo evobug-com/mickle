@@ -33,4 +33,11 @@ class CachedScrollController {
 class TextRoomScrollController extends ChangeNotifier {
   bool nextRenderScrollToBottom = false;
   final Map<String, CachedScrollController> controllers = {};
+
+  @override void dispose() {
+    for (var element in controllers.values) {
+      element.dispose();
+    }
+    super.dispose();
+  }
 }

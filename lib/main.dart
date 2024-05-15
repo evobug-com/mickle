@@ -1,5 +1,3 @@
-// ignore_for_file: sized_box_for_whitespace
-
 import 'dart:async';
 import 'dart:io';
 
@@ -9,10 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:local_notifier/local_notifier.dart';
+import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 import 'package:talk/components/console/widgets/console_widget.dart';
+import 'package:talk/components/server_list/widgets/server_list_widget.dart';
 import 'package:talk/core/audio/audio_manager.dart';
-import 'package:talk/core/notifiers/current_connection.dart';
+import 'package:talk/core/connection/client_manager.dart';
 import 'package:talk/core/storage/secure_storage.dart';
 import 'package:talk/screens/home_screen.dart';
 import 'package:talk/screens/login_screen.dart';
@@ -21,6 +21,7 @@ import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart' hide WindowCaption, kWindowCaptionHeight;
 
 import 'components/console/widgets/console_errors_tab.dart';
+import 'core/notifiers/current_client_provider.dart';
 import 'core/notifiers/theme_controller.dart';
 import 'core/storage/storage.dart';
 import 'core/tray.dart';
@@ -33,16 +34,23 @@ void updateWindowStyle() async {
   if(globals.isUpdater) {
     windowManager.setMinimumSize(const Size(500, 500));
     windowManager.setSize(const Size(500, 500));
-    windowManager.setTitle('Talk Updater [${version}]');
+    windowManager.setTitle('Talk Updater [$version]');
   } else {
     windowManager.setMinimumSize(const Size(1280, 720));
     windowManager.setSize(const Size(1280, 720));
-    windowManager.setTitle('TALK [${version}]');
+    windowManager.setTitle('TALK [$version]');
   }
   await windowManager.focus();
 }
 
 Future<void> main() async {
+  // Configure logging
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.listen((record) {
+    print('${record.level.name}: ${record.time}: ${record.loggerName}: ${record.message}');
+  });
+
+
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
 
@@ -113,6 +121,8 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => ThemeController(theme: theme)),
+        ChangeNotifierProvider(create: (context) => ClientManager()),
+        ChangeNotifierProvider(create: (context) => CurrentClientProvider()),
       ],
       child: const AppWidget(),
     ),
@@ -126,8 +136,8 @@ FutureOr<String?> _redirect(BuildContext context, GoRouterState state) async {
     return '/updater';
   }
 
-  final session = CurrentSession();
-  if(session.connection == null) {
+  final client = CurrentClientProvider.of(context, listen: false);
+  if(client.selectedClient == null) {
     return '/login';
   }
   return null;
@@ -143,7 +153,7 @@ class UpdaterScaffold extends StatelessWidget {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(kWindowCaptionHeight),
           child: WindowCaption(
-            title: const Text('Talk Updater [${version}]'),
+            title: const Text('Talk Updater [$version]'),
             disableExit: true,
             brightness: Theme
                 .of(context)
@@ -158,35 +168,49 @@ class UpdaterScaffold extends StatelessWidget {
   }
 }
 
-class MyScaffold extends StatelessWidget {
+class MyScaffold extends StatefulWidget {
   final Widget body;
 
   const MyScaffold({super.key, required this.body});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar:  PreferredSize(
-        preferredSize: const Size.fromHeight(kWindowCaptionHeight),
-        child: WindowCaption(
-          title: const Text('TALK [${version}]'),
-          brightness: Theme.of(context).brightness,
-        ),
-      ),
-        backgroundColor: ThemeController.scheme(context).surfaceContainerLow,
-        body: Stack(
-          alignment: Alignment.topCenter,
-          children: [
-            body,
-            const LostConnectionBarWidget(),
-            const ConsoleWidget(),
-          ],
-        )
-    );
-  }
-
+  State<MyScaffold> createState() => _MyScaffoldState();
 }
 
+class _MyScaffoldState extends State<MyScaffold> {
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = ThemeController.scheme(context);
+
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kWindowCaptionHeight),
+        child: WindowCaption(
+          title: const Text('TALK [$version]'),
+          brightness: colorScheme.brightness,
+        ),
+      ),
+      backgroundColor: colorScheme.surfaceContainerLow,
+      body: Row(
+        children: [
+          if (kDebugMode)
+            const ServerListWidget(),
+
+          Expanded(
+            child: Stack(
+              alignment: Alignment.topCenter,
+              children: [
+                widget.body,
+                if (!kDebugMode) const LostConnectionBarWidget(),
+                const ConsoleWidget(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 /// The route configuration.
 final GoRouter _router = GoRouter(

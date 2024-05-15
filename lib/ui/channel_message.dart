@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:talk/core/models/models.dart' as models;
-import 'package:talk/core/notifiers/current_connection.dart';
+import 'package:talk/core/notifiers/current_client_provider.dart';
 import 'package:talk/core/notifiers/theme_controller.dart';
 import 'package:talk/ui/user_avatar.dart';
 
@@ -30,8 +30,9 @@ class ChannelMessageState extends State<ChannelMessage> {
   bool _isHovered = false;
 
   getBackgroundColor() {
+    final clientProvider = CurrentClientProvider.of(context);
     // if is current user
-    if (widget.user?.id == CurrentSession().user?.id) {
+    if (widget.user?.id == clientProvider.userId) {
       if (_isHovered) {
         return ThemeController
             .scheme(context)

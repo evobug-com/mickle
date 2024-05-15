@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:talk/core/completer.dart';
 
-import '../../../core/notifiers/current_connection.dart';
+import '../../../core/notifiers/current_client_provider.dart';
 import '../../../core/processor/packet_manager.dart';
 
 class ConsoleChangePresenceItem extends StatefulWidget {
@@ -18,7 +18,8 @@ class _ConsoleChangePresenceItemState extends State<ConsoleChangePresenceItem> {
 
   @override
   Widget build(BuildContext context) {
-    final packetManager = PacketManager(CurrentSession().connection!);
+    final clientProvider = CurrentClientProvider.of(context);
+    final packetManager = clientProvider.packetManager!;
 
     return ListTile(
       leading: const Icon(Icons.circle),

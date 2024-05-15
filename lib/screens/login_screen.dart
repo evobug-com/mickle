@@ -1,19 +1,20 @@
-// Login screen will be a simple form with email and password fields.
-
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:talk/core/connection/connection.dart';
-import 'package:talk/core/connection/reconnect_manager.dart';
-import 'package:talk/core/connection/session_manager.dart';
-import 'package:talk/core/notifiers/current_connection.dart';
+import 'package:logging/logging.dart';
+import 'package:talk/core/connection/client_manager.dart';
+import 'package:talk/core/notifiers/current_client_provider.dart';
 
+import '../core/connection/client.dart';
 import '../core/notifiers/theme_controller.dart';
 import '../core/storage/secure_storage.dart';
 import '../main.dart';
+
+final _logger = Logger('LoginScreen');
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -22,78 +23,199 @@ class LoginScreen extends StatefulWidget {
   LoginScreenState createState() => LoginScreenState();
 }
 
-class ConnectionByToken {
-
-}
-
 class LoginScreenState extends State<LoginScreen> {
-  final TextEditingController usernameController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+
+  final TextEditingController _serverHostController = TextEditingController(text: kDebugMode ? "localhost" : "vps.sionzee.cz");
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  Client? _client;
+  String _errorMessage = '';
   final _formKey = GlobalKey<FormState>();
-  final ValueNotifier<String?> errorMessage = ValueNotifier<String?>(null);
-  Connection? _connectingTo;
+  bool _isConnecting = false;
+
+  void setErrorMessage(String message) {
+    _errorMessage = message;
+  }
 
 
   @override
   initState() {
     super.initState();
+    _init();
+  }
 
-    Future(() async {
-      // Get servers
-      String? jsonServers = await SecureStorage().read("servers");
-      jsonServers ??= "[]";
+  _init() async {
+    List<dynamic> servers = jsonDecode(await SecureStorage().read("servers") ?? "[]");
+    if(servers.isNotEmpty) {
+      _logger.fine("Connecting to servers: $servers");
 
-      // Parse json data
-      final servers = jsonDecode(jsonServers) as List<dynamic>;
-      print("servers: $servers");
-      if(servers.isNotEmpty) {
-        // Get all servers and try to open a connection
-        for(final server in servers) {
-          final token = await SecureStorage().read("$server.token");
-          final host = await SecureStorage().read("$server.host");
-          if(token != null && host != null) {
-            Completer<bool> completer = Completer<bool>();
-            final connection = SessionManager().addSession(
-                serverAddress: host,
-                token: token,
-                onError: (error) {
-                  // Toast error
-                  // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Unable to connect to server: $host")));
-                  completer.completeError(error);
-                },
-                onSuccess: () {
-                  // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Connected to: $host")));
-                  completer.complete(true);
-                  context.go('/');
-                }
-            );
-            connection.serverId = server;
-            CurrentSession().connection = connection;
-            await completer.future;
-          }
+      // Get all servers and try to open a connection
+      final futures = <Completer>[];
+      for(final server in servers) {
+        final token = await SecureStorage().read("$server.token");
+        final host = await SecureStorage().read("$server.host");
+        if(token != null && host != null) {
+          Completer<bool> completer = Completer<bool>();
+          await _connect(
+              address: ClientAddress(
+                  host: host,
+                  port: 55000
+              ),
+              onError: (message) {
+                completer.completeError(message);
+              },
+              onSuccess: (client) {
+                completer.complete(true);
+              },
+              token: token
+          );
+          futures.add(completer);
         }
       }
+
+      // Wait for all connections to be established
+      await Future.wait(futures.map((e) => e.future));
+      if(mounted) {
+        CurrentClientProvider.of(context, listen: false).selectClient(ClientManager().clients.first);
+        context.go('/');
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _serverHostController.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  // setState(() {
+  //                               if(_connectingTo != null) {
+  //                                 ReconnectManager().removeConnection(_connectingTo!);
+  //                               }
+  //
+  //                               errorMessage.value = null;
+  //                               _connectingTo = SessionManager().addSession(
+  //                                 serverAddress: _serverHostController.text,
+  //                                 username: _usernameController.text,
+  //                                 password: _passwordController.text,
+  //                                 onError: (error) {
+  //                                   errorMessage.value = error;
+  //                                 },
+  //                                 onSuccess: () {
+  //                                   CurrentSession().client = _connectingTo;
+  //                                   _connectingTo = null;
+  //                                   context.go('/');
+  //                                 }
+  //                               );
+  //                             });
+
+  Future<void> _connect({
+    required ClientAddress address,
+    String? username,
+    String? password,
+    String? token,
+    required void Function(String) onError,
+    required void Function(Client client) onSuccess,
+  }) async {
+    final client = Client(
+        address: address,
+        onError: (error) {
+          onError(error.toString());
+        }
+    );
+
+    try {
+      // Throws an error if connection fails
+      await client.connect();
+
+      final loginResult = await client.login(
+          username: username,
+          password: password,
+          token: token
+      );
+
+      // Throws an error if login fails
+      if(loginResult.error != null) {
+        throw loginResult.error!;
+      }
+
+      await SecureStorage().write("${loginResult.serverId}.token", loginResult.token!);
+      await SecureStorage().write("${loginResult.serverId}.userId", loginResult.userId!);
+      await SecureStorage().write("${loginResult.serverId}.host", address.host);
+      await SecureStorage().write("${loginResult.serverId}.port", address.port.toString());
+      ClientManager().addClient(client);
+      onSuccess(client);
+    } catch (e, stacktrace) {
+      client.disconnect();
+      onError(e.toString() + stacktrace.toString());
+    }
+  }
+
+  void connect() async {
+    setState(() {
+      _isConnecting = true;
+    });
+
+    await _connect(
+      address: ClientAddress(
+        host: _serverHostController.text,
+        port: 55000,
+      ),
+      username: _usernameController.text,
+      password: _passwordController.text,
+      onError: (error) {
+        setState(() {
+          setErrorMessage(error);
+          _isConnecting = false;
+        });
+      },
+      onSuccess: (client) {
+        setState(() {
+          setErrorMessage('');
+          _isConnecting = false;
+        });
+
+        CurrentClientProvider.of(context, listen: false).selectClient(client);
+        context.go('/');
+      }
+    );
+  }
+
+  void _abortConnection() async {
+    if(_client != null) {
+      await _client!.disconnect();
+    }
+    setState(() {
+      _isConnecting = false;
+      setErrorMessage('');
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    if(_connectingTo != null) {
+
+    if(_errorMessage.isNotEmpty || _isConnecting) {
       return MyScaffold(body: ConnectionWidget(
-        connection: _connectingTo!,
-        errorMessage: errorMessage,
-        onCancel: () {
-          setState(() {
-            SessionManager().removeSession(_connectingTo!.serverAddress);
-            _connectingTo = null;
-          });
-        }
+        client: _client,
+        onCancel: _abortConnection,
+        errorMessage: _errorMessage,
       ));
     }
 
-    // In the centre of screen there will be two boxes
-    // Left box will contain some text
-    // Right box will contain login form
+    // if(_connectingTo != null) {
+    //   return MyScaffold(body: ConnectionWidget(
+    //     connection: _connectingTo!,
+    //     errorMessage: errorMessage,
+    //     onCancel: () {
+    //       setState(() {
+    //         SessionManager().removeSession(_connectingTo!.serverAddress);
+    //         _connectingTo = null;
+    //       });
+    //     }
+    //   ));
+    // }
 
      return MyScaffold(body: Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -134,8 +256,26 @@ class LoginScreenState extends State<LoginScreen> {
                        key: _formKey,
                        child: Column(
                          children: [
+                           if (kDebugMode)
+                             TextFormField(
+                               controller: _serverHostController,
+                               decoration: const InputDecoration(
+                                 labelText: 'Server Host',
+                               ),
+                               validator: (value) {
+                                 if (value == null || value.isEmpty) {
+                                   return 'Please enter some text';
+                                 }
+
+                                 if (value.length < 3) {
+                                   return 'Server host must be at least 3 characters long';
+                                 }
+
+                                 return null;
+                               },
+                             ),
                            TextFormField(
-                             controller: usernameController,
+                             controller: _usernameController,
                              decoration: const InputDecoration(
                                labelText: 'Username',
                              ),
@@ -162,7 +302,7 @@ class LoginScreenState extends State<LoginScreen> {
                            ),
                            const SizedBox(height: 16),
                            TextFormField(
-                             controller: passwordController,
+                             controller: _passwordController,
                              obscureText: true,
                              decoration: const InputDecoration(
                                labelText: 'Password',
@@ -194,24 +334,7 @@ class LoginScreenState extends State<LoginScreen> {
                        ElevatedButton(
                          onPressed: () {
                            if (_formKey.currentState!.validate()) {
-                            setState(() {
-                              // Disable all reconnections
-                              ReconnectManager().removeAll();
-                              errorMessage.value = null;
-                              _connectingTo = SessionManager().addSession(
-                                serverAddress: "vps.sionzee.cz",
-                                // serverAddress: "localhost",
-                                username: usernameController.text,
-                                password: passwordController.text,
-                                onError: (error) {
-                                  errorMessage.value = error;
-                                },
-                                onSuccess: () {
-                                  CurrentSession().connection = _connectingTo;
-                                  context.go('/');
-                                }
-                              );
-                            });
+                             connect();
                            }
                          },
                          child: const Text('Login'),
@@ -239,37 +362,37 @@ class LoginScreenState extends State<LoginScreen> {
 }
 
 class ConnectionWidget extends StatelessWidget {
-  final Connection connection;
+  final Client? client;
   final VoidCallback? onCancel;
-  final ValueNotifier<String?> errorMessage;
-  const ConnectionWidget({super.key, required this.connection, required this.onCancel, required this.errorMessage});
+  final String errorMessage;
+  const ConnectionWidget({super.key, required this.client, required this.onCancel, required this.errorMessage});
 
   @override
   Widget build(BuildContext context) {
 
+    if(client == null || errorMessage.isNotEmpty) {
+      return Center(
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('Oops! Something went wrong.'),
+              SelectableText(errorMessage),
+              // Add note for copying text
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: onCancel,
+                child: const Text('Cancel'),
+              )
+            ]
+        ),
+      );
+    }
+
     // Show indication about connecting to server and show error if any
     // Show a button for cancelling the connection
     return ListenableBuilder(
-      listenable: connection,
+      listenable: client!.connection,
       builder: (context, widget) {
-
-        if(errorMessage.value != null) {
-          return Center(
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('Oops! Something went wrong.'),
-                  SelectableText('${errorMessage.value}'),
-                  // Add note for copying text
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: onCancel,
-                    child: const Text('Cancel'),
-                  )
-                ]
-            ),
-          );
-        }
 
         return Center(
           child: Column(
@@ -281,7 +404,7 @@ class ConnectionWidget extends StatelessWidget {
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
-                    print("Cancelled connection to server.");
+                    _logger.fine("Cancelled connection to server.");
                     onCancel!();
                   },
                   child: const Text('Cancel'),

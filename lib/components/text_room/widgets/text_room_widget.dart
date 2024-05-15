@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:talk/components/text_room/components/text_room_header.dart';
 import 'package:talk/components/text_room/core/models/text_room_scroll_controller.dart';
-import 'package:talk/core/connection/connection.dart';
+import 'package:talk/core/connection/client.dart';
 import 'package:talk/core/models/models.dart';
 
 import '../../../core/surfaces.dart';
@@ -12,11 +12,11 @@ import '../components/text_room_messages.dart';
 // A widget that displays list of messages, and allows user to send a message
 
 class TextRoomWidget extends StatefulWidget {
-  final Connection connection;
+  final Client client;
   final Channel channel;
 
   const TextRoomWidget(
-      {super.key, required this.channel, required this.connection});
+      {super.key, required this.channel, required this.client});
 
   @override
   State<StatefulWidget> createState() => TextRoomWidgetState();
@@ -42,12 +42,12 @@ class TextRoomWidgetState extends State<TextRoomWidget> {
             Expanded(
               child: TextRoomMessages(
                 channel: widget.channel,
-                connection: widget.connection,
+                client: widget.client,
               ),
             ),
             const Divider(height: 1),
             TextRoomInput(
-              connection: widget.connection,
+              client: widget.client,
               channel: widget.channel,
             ),
           ],

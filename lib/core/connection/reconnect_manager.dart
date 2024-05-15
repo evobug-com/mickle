@@ -1,106 +1,116 @@
-// This class will try to reconnect to the server every x seconds if the connection is lost.
-
+import 'dart:async';
 import 'dart:math';
+import 'package:logging/logging.dart';
+import 'package:talk/core/connection/client.dart';
+import 'package:talk/core/connection/client_manager.dart';
+import 'package:talk/core/storage/secure_storage.dart';
 
-import 'package:talk/core/connection/connection.dart';
-import 'package:collection/collection.dart';
-
-import '../storage/secure_storage.dart';
-
-const int maxBackoff = 300;
-
-class ConnectionRetry {
-  int attempts = 0;
-  final Connection connection;
-  Future<void> reconnectFuture = Future.value();
-  bool stopped = false;
-
-  ConnectionRetry(this.connection);
-
-  void reconnect() async {
-
-    if(stopped) {
-      return;
-    }
-
-    if(connection.serverId == null) {
-      // No token, no server id, no connection
-      return;
-    }
-
-    final token = await SecureStorage().read("${connection.serverId}.token");
-    if(token == null) {
-      // No token, no connection
-      return;
-    }
-
-    if(attempts == 0) {
-      attempts++;
-      print("Reconnecting immediately. Attempt: $attempts");
-      // Try immediately
-      connection.connect(token: token);
-    } else {
-      num delay = pow(2, attempts);
-      // jitter
-      delay += Random().nextInt(2);
-      connection.state = ConnState.scheduledReconnect;
-      delay = min(delay, maxBackoff);
-      print("Scheduled reconnect. Attempt: $attempts. Delay: $delay");
-      reconnectFuture = Future.delayed(Duration(seconds: delay as int), () {
-        attempts++;
-        connection.connect(token: token);
-      });
-    }
-  }
-
-  void stop() {
-    // abort future
-    stopped = true;
-  }
-
-}
+const int maxBackoffSeconds = 300;
+final _logger = Logger('ReconnectManager');
 
 class ReconnectManager {
-  static final ReconnectManager _instance = ReconnectManager._internal();
-  List<ConnectionRetry> _connections = [];
+  final Map<Client, ReconnectInfo> _clients = {};
 
-  factory ReconnectManager() {
-    return _instance;
+  void enableReconnection(Client client) {
+    final info = _clients.putIfAbsent(client, () => ReconnectInfo());
+    info.serverId = client.serverId;
+    info.reconnectEnabled = true;
+    _logger.info('Reconnection enabled for ${client.address}');
   }
 
-  ReconnectManager._internal();
+  void disableReconnection(Client client) {
+    if (_clients.containsKey(client)) {
+      _clients[client]!.reconnectEnabled = false;
+      _clients[client]?.timer?.cancel();
+      _logger.info('Reconnection disabled for ${client.address}');
+    }
+  }
 
-  void onConnectionLost(Connection connection) {
-    // Add to the list of connections to reconnect
-    // If the connection is already in the list, schedule a reconnect
-    // Otherwise, create a new ConnectionRetry object and add it to the list
-    final existing = _connections.firstWhereOrNull((element) => element.connection == connection);
-    if(existing != null) {
-      if(existing.stopped) {
-        // Remove the stopped connection
-        _connections.remove(existing);
-        return;
+  // void addConnection(Connection connection) {
+  //   if (!_clients.containsKey(connection)) {
+  //     _clients[connection] = _ReconnectInfo();
+  //     _logger.info('Connection added: ${connection.serverAddress}');
+  //   }
+  // }
+  //
+  // void removeConnection(Connection connection) {
+  //   if (_clients.containsKey(connection)) {
+  //     _clients[connection]?.timer?.cancel();
+  //     _clients.remove(connection);
+  //     _logger.info('Connection removed: ${connection.serverAddress}');
+  //   }
+  // }
+
+  void onConnectionLost(Client client) {
+    final info = _clients[client];
+    if (info != null && info.reconnectEnabled) {
+      _attemptReconnect(client);
+    }
+  }
+
+  void _attemptReconnect(Client client) {
+    _logger.info('Attempting to reconnect to ${client.address}');
+    final info = _clients[client];
+    if (info == null || !info.reconnectEnabled || info.serverId == null) return;
+
+    final delay = min(pow(2, info.attempts) + Random().nextInt(2), maxBackoffSeconds);
+    _logger.info('Scheduled reconnect for ${client.address}. Attempt: ${info.attempts}. Delay: $delay seconds');
+
+    info.timer = Timer(Duration(seconds: delay.toInt()), () async {
+      try {
+        await client.connect();
+        _logger.info('Successfully reconnected to ${client.address}');
+        info.attempts = 0; // Reset attempts on successful reconnect
+
+        // Try logging in again with the stored credentials
+        // If failed, the user will be prompted to login again
+        final token = await SecureStorage().read("${info.serverId}.token");
+        if(token == null) {
+          _logger.warning('No token found for ${info.serverId}');
+
+          // TODO: Notify user to login again
+          ClientManager().removeClient(client);
+        } else {
+          final loginResult = await client.login(token: token);
+          if(loginResult.error != null) {
+            _logger.warning('Failed to login with token: ${loginResult.error}');
+
+            // TODO: Notify user to login again
+            ClientManager().removeClient(client);
+          } else {
+            _logger.info('Successfully logged in with token');
+          }
+        }
+      } catch (e) {
+        _logger.severe('Reconnection attempt failed for ${client.address}: $e');
+        info.attempts++;
+        if (info.reconnectEnabled) {
+          _attemptReconnect(client); // Retry only if reconnection is still enabled
+        }
       }
+    });
+  }
 
-      existing.reconnect();
-    } else {
-      final retry = ConnectionRetry(connection);
-      _connections.add(retry);
-      retry.reconnect();
+  ReconnectInfo get(Client client) {
+    return _clients.putIfAbsent(client, () => ReconnectInfo());
+  }
+
+  void remove(Client client) {
+    final info = _clients.remove(client);
+    info?.timer?.cancel();
+  }
+
+  void dispose() {
+    for (final client in _clients.keys) {
+      _clients[client]?.timer?.cancel();
     }
+    _clients.clear();
   }
+}
 
-  getReconnectRetry(Connection connection) {
-    return _connections.firstWhereOrNull((element) => element.connection == connection);
-  }
-
-  void removeConnection(Connection connection) {
-    _connections.removeWhere((element) => element.connection == connection);
-  }
-
-  void removeAll() {
-    for (var element in _connections) {
-      element.stop();
-    }
-  }
+class ReconnectInfo {
+  int attempts = 0;
+  bool reconnectEnabled = true;
+  Timer? timer;
+  String? serverId;
 }

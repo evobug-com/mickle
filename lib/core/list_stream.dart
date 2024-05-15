@@ -61,26 +61,36 @@ class ListStream<T> {
   }
 }
 
+addIfAbsent(List<dynamic> list, dynamic item) {
+  if (!list.contains(item)) {
+    list.add(item);
+  }
+}
+
 class RelationListStream {
-  List<Relation> _relations = [];
-  Map<String, List<Relation>> _inputIndex = {};
-  Map<String, List<Relation>> _outputIndex = {};
+  final Map<String, Relation> _relations = {};
+  final Map<String, List<Relation>> _inputIndex = {};
+  final Map<String, List<Relation>> _outputIndex = {};
 
   final _controller = StreamController<Relation>.broadcast();
 
   Stream<Relation> get stream => _controller.stream;
 
-  get items => _relations;
+  get items => _relations.values;
 
   void addRelation(Relation relation) {
-    _relations.add(relation);
+    if(_relations.containsKey(relation.id)) {
+      return;
+    }
+
+    _relations[relation.id] = relation;
     _inputIndex.putIfAbsent(relation.input, () => []).add(relation);
     _outputIndex.putIfAbsent(relation.output, () => []).add(relation);
     _controller.add(relation);
   }
 
   void removeRelation(Relation relation) {
-    _relations.remove(relation);
+    _relations.remove(relation.id);
     _inputIndex[relation.input]?.remove(relation);
     _outputIndex[relation.output]?.remove(relation);
     _controller.add(relation);
@@ -90,7 +100,7 @@ class RelationListStream {
     _relations.clear();
     _inputIndex.clear();
     _outputIndex.clear();
-    for (var relation in _relations) {
+    for (var relation in _relations.values) {
       _controller.add(relation);
     }
   }
@@ -116,20 +126,20 @@ class RelationListStream {
   void removeRelationInput(String id) {
     final removed = _inputIndex.remove(id);
     if (removed != null) {
-      removed.forEach((relation) {
+      for (var relation in removed) {
         removeRelation(relation);
-        _relations.remove(relation);
-      });
+        _relations.remove(relation.id);
+      }
     }
   }
 
   void removeRelationOutput(String id) {
     final removed = _outputIndex.remove(id);
     if (removed != null) {
-      removed.forEach((relation) {
+      for (var relation in removed) {
         removeRelation(relation);
-        _relations.remove(relation);
-      });
+        _relations.remove(relation.id);
+      }
     }
   }
 }

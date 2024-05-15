@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:talk/core/completer.dart';
-import 'package:talk/core/notifiers/current_connection.dart';
+import 'package:talk/core/notifiers/current_client_provider.dart';
 import 'package:talk/core/processor/packet_manager.dart';
 
 class ConsoleChangePasswordItem extends StatefulWidget {
@@ -33,7 +33,8 @@ class ConsoleChangePasswordItemState extends State<ConsoleChangePasswordItem> {
 
   @override
   Widget build(BuildContext context) {
-    final packetManager = PacketManager(CurrentSession().connection!);
+    final clientProvider = CurrentClientProvider.of(context);
+    final packetManager = clientProvider.packetManager!;
     return ListTile(
       leading: const Icon(Icons.lock),
       title: const Text("Změnit heslo"),

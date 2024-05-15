@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:talk/core/connection/connection.dart';
+import 'package:talk/core/connection/client.dart';
 import 'package:talk/core/network/utils.dart';
 
 import '../network/request.dart' as request;
@@ -8,10 +8,10 @@ import '../network/response.dart' as response;
 
 class PacketManager {
   // Each connection has own packet manager
-  static final Map<Connection, PacketManager> _packetManagers = {};
+  static final Map<Client, PacketManager> _packetManagers = {};
   final Map<int, Completer> _requests = {};
   int _requestId = 0;
-  Connection _connection;
+  Client _client;
 
   int _getNewRequestId() {
     if(_requestId >= 65535) {
@@ -21,9 +21,9 @@ class PacketManager {
     return _requestId++;
   }
 
-  PacketManager._(Connection connection) : _connection = connection;
+  PacketManager._(Client connection) : _client = connection;
 
-  factory PacketManager(Connection connection) {
+  factory PacketManager(Client connection) {
     if (_packetManagers.containsKey(connection)) {
       return _packetManagers[connection]!;
     } else {
@@ -38,7 +38,7 @@ class PacketManager {
     final completer = Completer<TRes>();
     _requests[req] = completer;
     final TReq reqPacket = requestBuilder(req);
-    _connection.send(reqPacket.serialize());
+    _client.send(reqPacket.serialize());
     return completer.future;
   }
 
@@ -54,6 +54,21 @@ class PacketManager {
     if (_requests.containsKey(requestId)) {
       _requests.remove(requestId)!.complete(response);
     }
+  }
+
+  Future<response.Login> sendLogin({
+    String? username,
+    String? password,
+    String? token
+  }) {
+    return runRequest((requestId) {
+      return request.Login(
+        requestId: requestId,
+        username: username,
+        password: password,
+        token: token,
+      );
+    });
   }
 
   Future<response.UserChangePresence> sendUserChangePresence({
@@ -140,6 +155,7 @@ class PacketManager {
   }
 
   Future<response.ChannelCreate> sendChannelCreate({
+    required String serverId,
     required String name,
     required String? description,
   }) {
@@ -147,7 +163,7 @@ class PacketManager {
       return request.ChannelCreate(
         requestId: requestId,
         name: name,
-        serverId: _connection.serverId,
+        serverId: serverId,
         description: description
       );
     });
