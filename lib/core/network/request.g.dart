@@ -246,3 +246,24 @@ class ChannelUpdate extends Request {
   } 
 
 }
+class ChannelAddUser extends Request {
+
+  int requestId;
+  String channelId;
+  String userId;
+  
+  ChannelAddUser({required this.requestId, required this.channelId, required this.userId});
+  
+    serialize() {
+    final builder = flex_buffers.Builder();
+   
+    builder.addMapWKey("ChannelAddUser", () {
+      builder.addIntWKey("requestId", requestId);
+      builder.addStringWKey("channelId", channelId);
+      builder.addStringWKey("userId", userId);
+    });
+    
+    return builder.finish(); 
+  } 
+
+}

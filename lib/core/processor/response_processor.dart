@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -9,10 +8,8 @@ import 'package:flat_buffers/flex_buffers.dart' as flex_buffers;
 import 'package:local_notifier/local_notifier.dart';
 import 'package:logging/logging.dart';
 import 'package:talk/core/audio/audio_manager.dart';
-import 'package:talk/core/connection/reconnect_manager.dart';
 import 'package:talk/core/database.dart';
 import 'package:talk/core/processor/packet_manager.dart';
-import 'package:talk/core/storage/secure_storage.dart';
 import 'package:window_manager/window_manager.dart';
 import '../connection/client.dart';
 import '../network/response.dart' as response;
@@ -88,8 +85,9 @@ Future<void> _handlePacket(response.PacketResponse key, flex_buffers.Reference v
     case response.ChannelUpdate.packetName:
       await _handleChannelUpdateResponse(value, client, packetManager);
       break;
-    default:
-      _logger.warning("Unhandled packet type: $key");
+    case response.ChannelAddUser.packetName:
+      await _handleChannelAddUser(value, client, packetManager);
+      break;
   }
 }
 
@@ -305,5 +303,18 @@ Future<void> _handleChannelUpdateResponse(flex_buffers.Reference value, Client c
     }
   } else {
     _logger.severe("ChannelUpdate error: ${packet.error}");
+  }
+}
+
+_handleChannelAddUser(flex_buffers.Reference value, Client client, PacketManager packetManager) {
+  final packet = response.ChannelAddUser.fromReference(value);
+  packetManager.runResolve(packet.requestId, packet);
+
+  if (packet.error == null) {
+    final db = Database(client.serverId!);
+    db.channelUsers.addRelation(packet.relation!);
+    _logger.info("ChannelAddUser success");
+  } else {
+    _logger.severe("ChannelAddUser error: ${packet.error}");
   }
 }

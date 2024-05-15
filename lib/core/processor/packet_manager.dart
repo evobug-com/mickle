@@ -194,4 +194,17 @@ class PacketManager {
       );
     });
   }
+
+  Future<response.ChannelAddUser> sendChannelAddUser({
+    required String channelId,
+    required String userId,
+  }) {
+    return runRequest((requestId) {
+      return request.ChannelAddUser(
+        requestId: requestId,
+        channelId: channelId,
+        userId: userId,
+      );
+    });
+  }
 }

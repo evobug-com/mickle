@@ -266,6 +266,23 @@ class ChannelUpdate {
       ..channel = data["channel"].isNull ? null : models.Channel.fromReference(data["channel"]);
   }
 }
+class ChannelAddUser {
+
+  static const PacketResponse packetName = PacketResponse.ChannelAddUser;
+
+  late int requestId;
+  String? error;
+  models.Relation? relation;
+  
+  ChannelAddUser();
+  
+  factory ChannelAddUser.fromReference(flex_buffers.Reference data) {
+    return ChannelAddUser()
+      ..requestId = data["requestId"].intValue!
+      ..error = data["error"].stringValue
+      ..relation = data["relation"].isNull ? null : models.Relation.fromReference(data["relation"]);
+  }
+}
 enum PacketResponse {
   Login,
   Ping,
@@ -280,6 +297,7 @@ enum PacketResponse {
   ChannelMessageFetch,
   ChannelCreate,
   ChannelDelete,
-  ChannelUpdate
+  ChannelUpdate,
+  ChannelAddUser
 }
   
