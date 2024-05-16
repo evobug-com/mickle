@@ -99,8 +99,8 @@ extension ServerExtension on Server {
     final serverChannelsRelations = database.serverChannels.inputs(id);
 
     // Get all channels for serverChannelsRelations by id
-    final serverChannels = serverChannelsRelations.map((relation) => database.channels.get("Channel:${relation.output}")!).toList();
-    return serverChannels;
+    final serverChannels = serverChannelsRelations.map((relation) => database.channels.get("Channel:${relation.output}")).toList();
+    return serverChannels.where((channel) => channel != null).map((channel) => channel!).toList();
   }
 
   /// Get all channels that the user is a member of
@@ -112,16 +112,20 @@ extension ServerExtension on Server {
     final serverChannelsRelations = database.serverChannels.inputs(id);
 
     // Get all channels for serverChannelsRelations by id
-    final channels = serverChannelsRelations.map((relation) => database.channels.get("Channel:${relation.output}")!).toList();
+    final channels = serverChannelsRelations.map((relation) => database.channels.get("Channel:${relation.output}")).toList();
+
     return channels.where((channel) {
+      if(channel == null) {
+        return false;
+      }
       // Filter channels with channelUsers relation
 
       // Get relations for channel;
-      final channelUsersRelations = database.channelUsers.inputs(channel.id);
+      final channelUsersRelations = database.channelUsers.inputs(channel!.id);
 
       // return true if user is a member of the channel
       return channelUsersRelations.any((relation) => relation.output == user.id);
-    }).toList();
+    }).map((channel) => channel!).toList();
   }
 
   containsChannel(Channel channel) {
