@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
+import 'package:talk/core/audio/audio_manager.dart';
 import 'package:talk/core/connection/client_manager.dart';
 import 'package:talk/core/connection/message_stream_handler.dart';
 import 'package:talk/core/processor/packet_manager.dart';
@@ -24,6 +26,11 @@ class ConnectionNotifier extends ChangeNotifier {
   ClientConnectionState get state => _state;
 
   void updateState(ClientConnectionState state) {
+    if(state == ClientConnectionState.connected) {
+      AudioManager.playSingleShot("Music", AssetSource("audio/connection_success.wav"));
+    } else if(_state != ClientConnectionState.none && state == ClientConnectionState.disconnected) {
+      AudioManager.playSingleShot("Music", AssetSource("audio/connection_lost.wav"));
+    }
     _state = state;
     notifyListeners();
   }

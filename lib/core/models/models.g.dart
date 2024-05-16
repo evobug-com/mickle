@@ -78,11 +78,8 @@ class Server extends ChangeNotifier {
 }
 class Permission extends ChangeNotifier {
   String id;
-  String name;
-  String category;
-  dynamic createdAt;
   
-  Permission({required this.id, required this.name, required this.category, required this.createdAt});
+  Permission({required this.id});
     
   onUpdated() {
     notifyListeners();
@@ -90,16 +87,13 @@ class Permission extends ChangeNotifier {
     
   factory Permission.fromReference(flex_buffers.Reference data) {
     return Permission(
-      id: data["id"].stringValue!,
-      name: data["name"].stringValue!,
-      category: data["category"].stringValue!,
-      createdAt: data["createdAt"].stringValue!
+      id: data["id"].stringValue!
     );
   }
   
   @override
   String toString() {
-    return 'Permission(id: $id, name: $name, category: $category, createdAt: $createdAt)';
+    return 'Permission(id: $id)';
   }
 }
 class Role extends ChangeNotifier {

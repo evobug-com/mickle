@@ -88,6 +88,9 @@ Future<void> _handlePacket(response.PacketResponse key, flex_buffers.Reference v
     case response.ChannelAddUser.packetName:
       await _handleChannelAddUser(value, client, packetManager);
       break;
+    case response.ChannelRemoveUser.packetName:
+      await _handleChannelRemoveUser(value, client, packetManager);
+      break;
   }
 }
 
@@ -316,5 +319,29 @@ _handleChannelAddUser(flex_buffers.Reference value, Client client, PacketManager
     _logger.info("ChannelAddUser success");
   } else {
     _logger.severe("ChannelAddUser error: ${packet.error}");
+  }
+}
+
+_handleChannelRemoveUser(flex_buffers.Reference value, Client client, PacketManager packetManager) {
+  final packet = response.ChannelRemoveUser.fromReference(value);
+  packetManager.runResolve(packet.requestId, packet);
+
+  if (packet.error == null) {
+    final db = Database(client.serverId!);
+    db.channelUsers.removeRelation(packet.relation!);
+
+    // IF we are the user being removed, remove the channel from our list
+    if (packet.relation!.output == client.userId) {
+      final channel = db.channels.get("Channel:${packet.relation!.input}");
+      if (channel != null) {
+        db.channels.removeItem(channel);
+        db.channelUsers.removeRelationInput(channel.id);
+        db.serverChannels.removeRelationOutput(channel.id);
+      }
+    }
+
+    _logger.info("ChannelRemoveUser success");
+  } else {
+    _logger.severe("ChannelRemoveUser error: ${packet.error}");
   }
 }

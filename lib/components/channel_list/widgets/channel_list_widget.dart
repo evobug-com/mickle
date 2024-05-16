@@ -19,7 +19,7 @@ class ChannelListWidget extends StatefulWidget {
 class _ChannelListWidgetState extends State<ChannelListWidget> {
   @override
   Widget build(BuildContext context) {
-    final channels = widget.server.getChannels();
+    final channels = widget.server.getChannelsForUser(widget.client.user!);
     final packetManager = PacketManager(widget.client);
 
     return Column(

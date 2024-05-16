@@ -90,10 +90,12 @@ class RelationListStream {
   }
 
   void removeRelation(Relation relation) {
-    _relations.remove(relation.id);
-    _inputIndex[relation.input]?.remove(relation);
-    _outputIndex[relation.output]?.remove(relation);
-    _controller.add(relation);
+    final removedRelation = _relations.remove(relation.id);
+    _inputIndex[relation.input]?.remove(removedRelation);
+    _outputIndex[relation.output]?.remove(removedRelation);
+    if(removedRelation != null) {
+      _controller.add(removedRelation);
+    }
   }
 
   void clear() {

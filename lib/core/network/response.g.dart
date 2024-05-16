@@ -283,6 +283,23 @@ class ChannelAddUser {
       ..relation = data["relation"].isNull ? null : models.Relation.fromReference(data["relation"]);
   }
 }
+class ChannelRemoveUser {
+
+  static const PacketResponse packetName = PacketResponse.ChannelRemoveUser;
+
+  late int requestId;
+  String? error;
+  models.Relation? relation;
+  
+  ChannelRemoveUser();
+  
+  factory ChannelRemoveUser.fromReference(flex_buffers.Reference data) {
+    return ChannelRemoveUser()
+      ..requestId = data["requestId"].intValue!
+      ..error = data["error"].stringValue
+      ..relation = data["relation"].isNull ? null : models.Relation.fromReference(data["relation"]);
+  }
+}
 enum PacketResponse {
   Login,
   Ping,
@@ -298,6 +315,7 @@ enum PacketResponse {
   ChannelCreate,
   ChannelDelete,
   ChannelUpdate,
-  ChannelAddUser
+  ChannelAddUser,
+  ChannelRemoveUser
 }
   

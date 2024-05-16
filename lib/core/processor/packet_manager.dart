@@ -133,10 +133,14 @@ class PacketManager {
     required String channelId,
   }) {
     return runRequest((requestId) {
+
+      final mentions = request.parseMessageMentions(value);
+
       return request.ChannelMessageCreate(
         requestId: requestId,
         channelId: channelId,
         message: value,
+        mentions: mentions,
       );
     });
   }
@@ -204,6 +208,19 @@ class PacketManager {
         requestId: requestId,
         channelId: channelId,
         userId: userId,
+      );
+    });
+  }
+
+  Future<response.ChannelRemoveUser> sendChannelRemoveUser({
+    required String channelId,
+    required String userId,
+  }) {
+    return runRequest((requestId) {
+      return request.ChannelRemoveUser(
+        requestId: requestId,
+        channelId: channelId,
+        userId: userId
       );
     });
   }

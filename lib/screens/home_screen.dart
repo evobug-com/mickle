@@ -107,6 +107,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                           },
                                         );
                                         break;
+                                      case "leave":
+                                        packetManager.sendChannelRemoveUser(
+                                          channelId: channel.id,
+                                          userId: client.user!.id,
+                                        ).then((value) {
+                                          if(value.error != null) {
+                                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                              content: Text(value.error!),
+                                              duration: const Duration(seconds: 10),
+                                            ));
+                                          } else {
+                                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                              content: Text('Odešel jste z místnosti'),
+                                              duration: Duration(seconds: 10),
+                                            ));
+                                            ChannelListSelectedRoom.of(context, listen: false).selectedChannel = null;
+                                          }
+                                        });
+                                        break;
                                       default:
                                         break;
                                     }

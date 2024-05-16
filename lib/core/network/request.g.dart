@@ -267,3 +267,24 @@ class ChannelAddUser extends Request {
   } 
 
 }
+class ChannelRemoveUser extends Request {
+
+  int requestId;
+  String channelId;
+  String userId;
+  
+  ChannelRemoveUser({required this.requestId, required this.channelId, required this.userId});
+  
+    serialize() {
+    final builder = flex_buffers.Builder();
+   
+    builder.addMapWKey("ChannelRemoveUser", () {
+      builder.addIntWKey("requestId", requestId);
+      builder.addStringWKey("channelId", channelId);
+      builder.addStringWKey("userId", userId);
+    });
+    
+    return builder.finish(); 
+  } 
+
+}

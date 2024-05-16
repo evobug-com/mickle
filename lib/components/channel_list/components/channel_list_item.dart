@@ -70,7 +70,7 @@ class ChannelListItem extends StatelessWidget {
               label: "Opustit",
               value: 'leave',
               icon: Icons.exit_to_app,
-              isDisabled: true
+              isDisabled: false
           ),
         ],
       ),

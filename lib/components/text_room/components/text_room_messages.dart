@@ -21,20 +21,13 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
   @override
   void initState() {
     super.initState();
-
     // Ask backend for messages if we don't have any
     final messages = widget.channel.getMessages();
     if(messages.isEmpty) {
-      PacketManager(widget.client).sendChannelMessageFetch(channelId: widget.channel.id, lastMessageId: null);
+      fetchMessages();
     }
 
-    final scrollController = Provider.of<TextRoomScrollController>(context, listen: false);
-    // Restore the scroll controller for the selected channel
-    if(scrollController.controllers.containsKey(widget.channel.id)) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        scrollController.controllers[widget.channel.id]!.jumpToCached();
-      });
-    }
+    restoreScrollPosition();
   }
 
   shouldFetchMessages() {
@@ -66,6 +59,32 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
     final chatScrollController = scrollController.controllers[widget.channel.id];
     if(chatScrollController != null && chatScrollController.hasClients) {
       chatScrollController.scrollToBottom();
+    }
+  }
+
+  fetchMessages() {
+    PacketManager(widget.client).sendChannelMessageFetch(channelId: widget.channel.id, lastMessageId: widget.channel.getMessages().firstOrNull?.id);
+  }
+
+  restoreScrollPosition() {
+    final scrollController = Provider.of<TextRoomScrollController>(context, listen: false);
+    // Restore the scroll controller for the selected channel
+    if(scrollController.controllers.containsKey(widget.channel.id)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        scrollController.controllers[widget.channel.id]!.jumpToCached();
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant TextRoomMessages oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if(oldWidget.channel != widget.channel) {
+      restoreScrollPosition();
+
+      // Fetch messages
+      fetchMessages();
     }
   }
 

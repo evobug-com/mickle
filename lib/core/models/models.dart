@@ -103,6 +103,27 @@ extension ServerExtension on Server {
     return serverChannels;
   }
 
+  /// Get all channels that the user is a member of
+  List<Channel> getChannelsForUser(User user) {
+    CurrentClientProvider clientProvider = CurrentClientProvider();
+    assert(clientProvider.selectedClient != null);
+    final database = clientProvider.database!;
+
+    final serverChannelsRelations = database.serverChannels.inputs(id);
+
+    // Get all channels for serverChannelsRelations by id
+    final channels = serverChannelsRelations.map((relation) => database.channels.get("Channel:${relation.output}")!).toList();
+    return channels.where((channel) {
+      // Filter channels with channelUsers relation
+
+      // Get relations for channel;
+      final channelUsersRelations = database.channelUsers.inputs(channel.id);
+
+      // return true if user is a member of the channel
+      return channelUsersRelations.any((relation) => relation.output == user.id);
+    }).toList();
+  }
+
   containsChannel(Channel channel) {
     CurrentClientProvider clientProvider = CurrentClientProvider();
     assert(clientProvider.selectedClient != null);

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +14,8 @@ import '../core/connection/client.dart';
 import '../core/notifiers/theme_controller.dart';
 import '../core/storage/secure_storage.dart';
 import '../main.dart';
+
+bool firstStart = true;
 
 final _logger = Logger('LoginScreen');
 
@@ -45,27 +48,34 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   _init() async {
+    if(!firstStart) {
+      return;
+    }
+
+    firstStart = false;
+
     List<dynamic> servers = jsonDecode(await SecureStorage().read("servers") ?? "[]");
     if(servers.isNotEmpty) {
       _logger.fine("Connecting to servers: $servers");
 
       // Get all servers and try to open a connection
-      final futures = <Completer>[];
+      final futures = <Completer<String?>>[];
       for(final server in servers) {
         final token = await SecureStorage().read("$server.token");
         final host = await SecureStorage().read("$server.host");
         if(token != null && host != null) {
-          Completer<bool> completer = Completer<bool>();
+          _logger.fine("Connecting to server $server");
+          final completer = Completer<String?>();
           await _connect(
               address: ClientAddress(
                   host: host,
                   port: 55000
               ),
-              onError: (message) {
-                completer.completeError(message);
+              onError: (client, message) {
+                completer.complete(message);
               },
               onSuccess: (client) {
-                completer.complete(true);
+                completer.complete(null);
               },
               token: token
           );
@@ -74,10 +84,16 @@ class LoginScreenState extends State<LoginScreen> {
       }
 
       // Wait for all connections to be established
-      await Future.wait(futures.map((e) => e.future));
-      if(mounted) {
-        CurrentClientProvider.of(context, listen: false).selectClient(ClientManager().clients.first);
-        context.go('/');
+      List<String?> results = await Future.wait(futures.map((e) => e.future));
+      _logger.fine("Connection results: $results");
+      if(mounted && results.any((element) => element == null)) {
+        final successClient = ClientManager().clients.firstWhereOrNull((element) => element.connection.state == ClientConnectionState.connected && element.userId != null);
+        if(successClient != null) {
+          CurrentClientProvider.of(context, listen: false).selectClient(successClient);
+          context.go('/');
+        } else {
+          _logger.warning("No client was successfully connected.");
+        }
       }
     }
   }
@@ -90,39 +106,20 @@ class LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  // setState(() {
-  //                               if(_connectingTo != null) {
-  //                                 ReconnectManager().removeConnection(_connectingTo!);
-  //                               }
-  //
-  //                               errorMessage.value = null;
-  //                               _connectingTo = SessionManager().addSession(
-  //                                 serverAddress: _serverHostController.text,
-  //                                 username: _usernameController.text,
-  //                                 password: _passwordController.text,
-  //                                 onError: (error) {
-  //                                   errorMessage.value = error;
-  //                                 },
-  //                                 onSuccess: () {
-  //                                   CurrentSession().client = _connectingTo;
-  //                                   _connectingTo = null;
-  //                                   context.go('/');
-  //                                 }
-  //                               );
-  //                             });
-
   Future<void> _connect({
     required ClientAddress address,
     String? username,
     String? password,
     String? token,
-    required void Function(String) onError,
+    required void Function(Client client, String) onError,
     required void Function(Client client) onSuccess,
   }) async {
-    final client = Client(
+    Client? client;
+
+    client = Client(
         address: address,
         onError: (error) {
-          onError(error.toString());
+          onError(client!, error.toString());
         }
     );
 
@@ -149,7 +146,7 @@ class LoginScreenState extends State<LoginScreen> {
       onSuccess(client);
     } catch (e, stacktrace) {
       client.disconnect();
-      onError(e.toString() + stacktrace.toString());
+      onError(client, e.toString() + stacktrace.toString());
     }
   }
 
@@ -165,7 +162,7 @@ class LoginScreenState extends State<LoginScreen> {
       ),
       username: _usernameController.text,
       password: _passwordController.text,
-      onError: (error) {
+      onError: (client, error) {
         setState(() {
           setErrorMessage(error);
           _isConnecting = false;
@@ -203,19 +200,6 @@ class LoginScreenState extends State<LoginScreen> {
         errorMessage: _errorMessage,
       ));
     }
-
-    // if(_connectingTo != null) {
-    //   return MyScaffold(body: ConnectionWidget(
-    //     connection: _connectingTo!,
-    //     errorMessage: errorMessage,
-    //     onCancel: () {
-    //       setState(() {
-    //         SessionManager().removeSession(_connectingTo!.serverAddress);
-    //         _connectingTo = null;
-    //       });
-    //     }
-    //   ));
-    // }
 
      return MyScaffold(body: Column(
       mainAxisAlignment: MainAxisAlignment.center,
