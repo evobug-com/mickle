@@ -26,32 +26,19 @@ class ReconnectManager {
     }
   }
 
-  // void addConnection(Connection connection) {
-  //   if (!_clients.containsKey(connection)) {
-  //     _clients[connection] = _ReconnectInfo();
-  //     _logger.info('Connection added: ${connection.serverAddress}');
-  //   }
-  // }
-  //
-  // void removeConnection(Connection connection) {
-  //   if (_clients.containsKey(connection)) {
-  //     _clients[connection]?.timer?.cancel();
-  //     _clients.remove(connection);
-  //     _logger.info('Connection removed: ${connection.serverAddress}');
-  //   }
-  // }
-
   void onConnectionLost(Client client) {
     final info = _clients[client];
     if (info != null && info.reconnectEnabled) {
       _attemptReconnect(client);
+    } else {
+      _logger.info('Reconnection disabled for ${client.address} - not attempting to reconnect');
     }
   }
 
   void _attemptReconnect(Client client) {
     _logger.info('Attempting to reconnect to ${client.address}');
     final info = _clients[client];
-    if (info == null || !info.reconnectEnabled || info.serverId == null) return;
+    if (info == null || !info.reconnectEnabled) return;
 
     final delay = min(pow(2, info.attempts) + Random().nextInt(2), maxBackoffSeconds);
     _logger.info('Scheduled reconnect for ${client.address}. Attempt: ${info.attempts}. Delay: $delay seconds');

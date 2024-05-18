@@ -72,12 +72,17 @@ class LoginScreenState extends State<LoginScreen> {
                   port: 55000
               ),
               onError: (client, message) {
+                // Add it to the list of clients and keep reconnecting
+                ClientManager().addClient(client);
+                ClientManager().onConnectionLost(client);
+
                 completer.complete(message);
               },
               onSuccess: (client) {
                 completer.complete(null);
               },
-              token: token
+              token: token,
+              disconnectOnError: false,
           );
           futures.add(completer);
         }
@@ -113,6 +118,7 @@ class LoginScreenState extends State<LoginScreen> {
     String? token,
     required void Function(Client client, String) onError,
     required void Function(Client client) onSuccess,
+    disconnectOnError = true,
   }) async {
     Client? client;
 
@@ -145,7 +151,9 @@ class LoginScreenState extends State<LoginScreen> {
       ClientManager().addClient(client);
       onSuccess(client);
     } catch (e, stacktrace) {
-      client.disconnect();
+      if(disconnectOnError) {
+        client.disconnect();
+      }
       onError(client, e.toString() + stacktrace.toString());
     }
   }
