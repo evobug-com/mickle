@@ -9,11 +9,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:talk/core/version.dart';
-import 'package:talk/main.dart';
 import 'package:http/http.dart' as http;
 import "package:path_provider/path_provider.dart";
 import 'package:window_manager/window_manager.dart';
 import 'package:talk/globals.dart' as globals;
+
+import '../layout/updater_scaffold.dart';
+import '../utils.dart';
 
 const String windowsBat = """
 @echo off

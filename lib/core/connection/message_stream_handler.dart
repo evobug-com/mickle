@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:logging/logging.dart';
@@ -149,4 +150,56 @@ class MessageStreamHandler {
 
   BytesBuilder get bytesBuilder => _bytesBuilder;
 
+  // For UDP
+  final Map<int, String> _receivedChunks = {};
+  int? _totalChunks;
+
+  void onUDPData(Uint8List data) {
+    try {
+      _bytesBuilder.add(data);
+
+      // Check for metadata (sequential order and total of fragments) kompletní
+      if (_totalChunks == null && _bytesBuilder.length >= 4 + 4) {
+        _setUDPMetadata();
+      }
+
+      // If we have metadata done, process the data
+      while (_totalChunks != null && _bytesBuilder.length >= 4 + 4) {
+        _processUDPData();
+      }
+    } catch (e, stackTrace) {
+      _logger.severe('Error in onUDPData: $e', [e, stackTrace]);
+      _resetBuffer();
+    }
+  }
+
+  void _setUDPMetadata() {
+    final metadataBytes = _bytesBuilder.toBytes().sublist(0, 8);
+    final sequenceNumber = ByteData.sublistView(metadataBytes, 0, 4).getUint32(0, Endian.big);
+    _totalChunks = ByteData.sublistView(metadataBytes, 4, 8).getUint32(0, Endian.big);
+
+    _bytesBuilder.clear();
+    _bytesBuilder.add(metadataBytes.sublist(8));
+
+    _logger.info('Metadata set: sequenceNumber=$sequenceNumber, totalChunks=$_totalChunks');
+  }
+
+  void _processUDPData() {
+    final data = _bytesBuilder.toBytes();
+    final sequenceNumber = ByteData.sublistView(data, 0, 4).getUint32(0, Endian.big);
+    final chunkData = data.sublist(8);
+
+    _receivedChunks[sequenceNumber] = utf8.decode(chunkData);
+
+    // Check if we have all fragments
+    if (_totalChunks != null && _receivedChunks.length == _totalChunks) {
+      final orderedChunks = List.generate(_totalChunks!, (index) => _receivedChunks[index]!);
+      final completeMessage = Uint8List.fromList(utf8.encode(orderedChunks.join('')));
+      _scheduleProcessing(completeMessage);
+      _receivedChunks.clear();
+      _totalChunks = null;
+    }
+
+    _bytesBuilder.clear();
+  }
 }

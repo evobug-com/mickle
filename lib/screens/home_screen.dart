@@ -12,8 +12,8 @@ import 'package:talk/ui/user_avatar.dart';
 
 import '../core/models/models.dart';
 import '../core/database.dart';
-import '../main.dart';
-import '../ui/edit_room_dialog.dart';
+import '../components/channel_list/components/channel_list_room_dialog.dart';
+import '../layout/my_scaffold.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -95,14 +95,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                         showDialog(
                                           context: context,
                                           builder: (context) {
-                                            return EditRoomDialog(
-                                              onSubmitted: (title, description) {
+                                            return ChannelListRoomDialog(
+                                              onSubmitted: (title, description, isPrivate) {
                                                 packetManager.sendChannelUpdate(channelId: channel.id, name: title, description: description);
                                               },
-                                              confirmLabel: 'Uložit',
-                                              title: "Editace místnosti ${channel.name}",
-                                              initialName: channel.name,
-                                              initialDescription: channel.description ?? '',
+                                              inputName: channel.name,
+                                              inputDescription: channel.description ?? '',
+                                              isEdit: true
                                             );
                                           },
                                         );
@@ -203,7 +202,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 IconButton(
                                   onPressed: () {
-                                    context.go("/settings");
+                                    context.goNamed("settings",
+                                      queryParameters: {"tab": "general"},
+                                    );
                                   },
                                   icon: const Icon(Icons.settings),
                                 )

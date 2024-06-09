@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logging/logging.dart';
 
@@ -20,6 +22,14 @@ class SecureStorage {
     final result = await _storage.read(key: key);
     _logger.fine('Reading from secure storage: $key -> $result');
     return result;
+  }
+  
+  readJSONArray(String key) async {
+    final result = await read(key);
+    if (result == null) {
+      return [];
+    }
+    return json.decode(result) ?? [];
   }
 
   Future<bool> containsKey(String key) async {

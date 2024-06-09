@@ -35,7 +35,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   diff_match_patch: ^0.4.1
-  go_router: ^14.1.1
+  go_router: ^14.1.4
 
   flat_buffers: 
     git:
@@ -48,12 +48,12 @@ dependencies:
   path_provider: ^2.1.3
   intl: ^0.19.0
   provider: ^6.1.2
-  tray_manager: ^0.2.2
-  window_manager: ^0.3.8
-  launch_at_startup: ^0.2.2
+  tray_manager: ^0.2.3
+  window_manager: ^0.3.9
+  launch_at_startup: ^0.3.0
   bot_toast: ^4.1.3
   local_notifier: ^0.1.6
-  archive: ^3.5.1
+  archive: ^3.6.1
   http: ^1.2.1
   collection: ^1.18.0
   equatable: ^2.0.5

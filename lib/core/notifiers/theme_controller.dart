@@ -21,18 +21,33 @@ class ThemeController extends ChangeNotifier {
     notifyListeners();
   }
 
-  static final themes = [
-    ThemeItem("Light", MaterialTheme(ThemeData.fallback(useMaterial3: true).textTheme).light()),
-    ThemeItem("Light High Contrast", MaterialTheme(ThemeData.fallback(useMaterial3: true).textTheme).lightHighContrast()),
-    ThemeItem("Light Medium Contrast", MaterialTheme(ThemeData.fallback(useMaterial3: true).textTheme).lightMediumContrast()),
-    ThemeItem("Dark", MaterialTheme(ThemeData.fallback(useMaterial3: true).textTheme).dark()),
-    ThemeItem("Dark High Contrast", MaterialTheme(ThemeData.fallback(useMaterial3: true).textTheme).darkHighContrast()),
-    ThemeItem("Dark Medium Contrast", MaterialTheme(ThemeData.fallback(useMaterial3: true).textTheme).darkMediumContrast()),
+  static TextTheme get textThemeDark {
+    return Typography.englishLike2021;
+  }
 
-    ThemeItem("Light Green", MaterialTheme(ThemeData.fallback(useMaterial3: true).textTheme).lightGreen()),
-    ThemeItem("Dark Green", MaterialTheme(ThemeData.fallback(useMaterial3: true).textTheme).darkGreen()),
-    ThemeItem("Light Blue", MaterialTheme(ThemeData.fallback(useMaterial3: true).textTheme).lightBlue()),
-    ThemeItem("Dark Blue", MaterialTheme(ThemeData.fallback(useMaterial3: true).textTheme).darkBlue()),
+  static TextTheme get textThemeLight {
+    return Typography.englishLike2021;
+  }
+  
+  static final themes = [
+
+    ThemeItem("Dark", MaterialTheme(textThemeDark).dark()),
+    ThemeItem("Dark High Contrast", MaterialTheme(textThemeDark).darkHighContrast()),
+    ThemeItem("Dark Medium Contrast", MaterialTheme(textThemeDark).darkMediumContrast()),
+
+    ThemeItem("M3 Dark", ThemeData.dark(useMaterial3: true)),
+    ThemeItem("M2 Dark", ThemeData.dark(useMaterial3: false)),
+    ThemeItem("M3 Light", ThemeData.light(useMaterial3: true)),
+    ThemeItem("M2 Light", ThemeData.light(useMaterial3: false)),
+
+    ThemeItem("Light", MaterialTheme(textThemeLight).light()),
+    ThemeItem("Light High Contrast", MaterialTheme(textThemeLight).lightHighContrast()),
+    ThemeItem("Light Medium Contrast", MaterialTheme(textThemeLight).lightMediumContrast()),
+
+    ThemeItem("Light Green", MaterialTheme(textThemeLight).lightGreen()),
+    ThemeItem("Dark Green", MaterialTheme(textThemeDark).darkGreen()),
+    ThemeItem("Light Blue", MaterialTheme(textThemeLight).lightBlue()),
+    ThemeItem("Dark Blue", MaterialTheme(textThemeDark).darkBlue()),
   ];
 
   static ColorScheme scheme(BuildContext context, {bool listen = true}) {

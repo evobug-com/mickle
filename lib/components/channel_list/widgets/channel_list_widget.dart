@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:talk/components/channel_list/components/channel_list_item.dart';
+import 'package:talk/components/channel_list/components/channel_list_room_dialog.dart';
 import 'package:talk/core/connection/client.dart';
 import 'package:talk/core/models/models.dart';
 import 'package:talk/core/processor/packet_manager.dart';
-
-import '../../../ui/edit_room_dialog.dart';
 
 class ChannelListWidget extends StatefulWidget {
   final Client client;
@@ -45,12 +44,11 @@ class _ChannelListWidgetState extends State<ChannelListWidget> {
             showDialog(
               context: context,
               builder: (context) {
-                return EditRoomDialog(
-                  onSubmitted: (title, description) {
+                return ChannelListRoomDialog(
+                  onSubmitted: (title, description, isPrivate) {
                     packetManager.sendChannelCreate(serverId: widget.server.id, name: title, description: description);
                   },
-                  confirmLabel: 'Vytvořit',
-                  title: 'Vytvoření nové místnosti',
+                  isEdit: false,
                 );
               },
             );

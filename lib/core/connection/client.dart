@@ -86,12 +86,12 @@ class ServerData extends ChangeNotifier {
 final _logger = Logger('Client');
 
 class Client {
-  late SecureSocket _socket;
+  SecureSocket? _socket;
   final ClientAddress _address;
   final ConnectionNotifier _connectionNotifier;
   late final MessageStreamHandler _messageStreamHandler;
   final Function(String) onError;
-  ServerData _serverData = ServerData();
+  final ServerData _serverData = ServerData();
 
   Client({
     required ClientAddress address,
@@ -119,33 +119,36 @@ class Client {
       keyLog: (line) => log.writeAsStringSync(line, mode: FileMode.append),
       timeout: const Duration(seconds: 5),
     );
-    _socket.setOption(SocketOption.tcpNoDelay, true);
 
-    _socket.listen((data) {
-      _messageStreamHandler.onData(data);
-    }, onDone: () {
-      _logger.info('onDone: Connection closed');
-      _connectionNotifier.updateState(ClientConnectionState.disconnected);
-      ClientManager().onConnectionLost(this);
-    }, onError: (e) {
-      _logger.severe('Connection error: $e');
-      onError(e);
-      _connectionNotifier.updateState(ClientConnectionState.disconnected);
-    }, cancelOnError: true);
+    if(_socket != null) {
+      _socket!.setOption(SocketOption.tcpNoDelay, true);
 
-    _logger.info('Connected');
-    _connectionNotifier.updateState(ClientConnectionState.connected);
+      _socket!.listen((data) {
+        _messageStreamHandler.onData(data);
+      }, onDone: () {
+        _logger.info('onDone: Connection closed');
+        _connectionNotifier.updateState(ClientConnectionState.disconnected);
+        ClientManager().onConnectionLost(this);
+      }, onError: (e) {
+        _logger.severe('Connection error: $e');
+        onError(e);
+        _connectionNotifier.updateState(ClientConnectionState.disconnected);
+      }, cancelOnError: true);
+
+      _logger.info('Connected');
+      _connectionNotifier.updateState(ClientConnectionState.connected);
+    }
   }
 
   Future disconnect() async {
     _logger.info('Disconnected');
     _connectionNotifier.updateState(ClientConnectionState.disconnected);
-    await _socket.close();
+    await _socket?.close();
   }
 
   void send(Uint8List data) {
     try {
-      _socket.add(data);
+      _socket?.add(data);
     } catch (e) {
       _logger.severe('Failed to send data: $e');
     }

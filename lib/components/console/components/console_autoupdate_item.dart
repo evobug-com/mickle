@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:talk/globals.dart' as globals;
-import '../../../main.dart';
+import '../../../utils.dart';
 
 class ConsoleAutoUpdateItem extends StatelessWidget {
   const ConsoleAutoUpdateItem({super.key});
