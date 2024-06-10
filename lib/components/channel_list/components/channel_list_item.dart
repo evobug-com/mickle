@@ -19,6 +19,7 @@ class ChannelListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final permissions = user.getPermissionsForChannel(channel.id);
     final selectedRoom = ChannelListSelectedRoom.of(context);
+    final scheme = Theme.of(context).colorScheme;
 
     return ContextMenuRegion(
       onItemSelected: (value) {
@@ -78,6 +79,7 @@ class ChannelListItem extends StatelessWidget {
         title: Text(channel.name),
         leading: const Icon(Icons.tag),
         selected: channel.id == selectedRoom.selectedChannel?.id,
+        selectedTileColor: scheme.surfaceContainerHigh,
         // Show badge in trailing
         // trailing: roomId == widget.controller.selectedRoomId
         //     ? const CircleAvatar(

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
@@ -42,6 +43,9 @@ FutureOr<String?> _redirect(BuildContext context, GoRouterState state) async {
 
 /// The route configuration.
 final GoRouter router = GoRouter(
+    observers: [
+      BotToastNavigatorObserver(),
+    ],
     routes: <RouteBase>[
       GoRoute(
         name: 'splash',

@@ -7,6 +7,7 @@ import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:local_notifier/local_notifier.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
+import 'package:talk/components/voice_room/core/models/voice_room_current.dart';
 import 'package:talk/core/audio/audio_manager.dart';
 import 'package:talk/core/connection/client_manager.dart';
 import 'package:talk/core/storage/secure_storage.dart';
@@ -47,6 +48,7 @@ Future<void> main() async {
 
   // Wait until the window is ready to show
   windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.setPreventClose(true);
     await windowManager.show();
     await windowManager.focus();
   });
@@ -66,6 +68,7 @@ Future<void> main() async {
   // Initialize lunch at startup
   launchAtStartup.setup(
     appName: appName,
+    packageName: 'SIOCOM',
     appPath: Platform.resolvedExecutable,
   );
 
@@ -78,6 +81,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (context) => ThemeController(theme: theme), lazy: false),
         ChangeNotifierProvider(create: (context) => ClientManager(), lazy: false),
         ChangeNotifierProvider(create: (context) => CurrentClientProvider(), lazy: false),
+        ChangeNotifierProvider(create: (context) => VoiceRoomCurrent())
       ],
       child: const AppWidget(),
     ),

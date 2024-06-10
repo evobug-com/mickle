@@ -18,17 +18,17 @@ class Storage {
     storage.write(key, value);
   }
 
-  Future<String?> read(String key) async {
+  String? read(String key) {
     final result = storage.read(key);
     _logger.fine('Reading from storage: $key -> $result');
     return result;
   }
 
-  Future<bool> containsKey(String key) async {
+  bool containsKey(String key) {
     return storage.hasData(key);
   }
 
-  Future<void> delete(String key) async {
+  void delete(String key) {
     _logger.fine('Deleting from storage: $key');
     storage.remove(key);
   }
@@ -38,5 +38,21 @@ class Storage {
     _logger.fine("Storage path: $path");
     Storage._instance.storage = GetStorage("siocom_talk", path);
     await Storage._instance.storage.initStorage;
+  }
+
+  bool readBoolean(String key, {required bool defaultValue}) {
+    final value = storage.read(key);
+    if (value == null) {
+      return defaultValue;
+    }
+    return value == "true" || value == '1' || value == 'yes' || value == 'on' || value == 'enabled' || value == 'active';
+  }
+
+  String readString(String key, {required String defaultValue}) {
+    final value = storage.read(key);
+    if (value == null) {
+      return defaultValue;
+    }
+    return value;
   }
 }

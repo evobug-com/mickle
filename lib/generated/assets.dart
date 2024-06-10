@@ -2,16 +2,17 @@
 class Assets {
   Assets._();
 
-  static const String assetsGuildedImage0fd8f84d37f422a10db15feebecc442b = 'assets/guilded_image_0fd8f84d37f422a10db15feebecc442b.ico';
+  static const String assetsAppIcon = 'assets/app_icon.ico';
   static const String audioConnectionLost = 'assets/audio/connection_lost.wav';
   static const String audioConnectionSuccess = 'assets/audio/connection_success.wav';
   static const String audioEasterEgg = 'assets/audio/easter_egg.wav';
+  static const String audioEnterVoice = 'assets/audio/enter_voice.wav';
   static const String audioError = 'assets/audio/error.wav';
+  static const String audioLeaveVoice = 'assets/audio/leave_voice.wav';
   static const String audioMention = 'assets/audio/mention.wav';
-  static const String audioNewMessage = 'assets/audio/new_message.wav';
   static const String audioNewMessageReceived = 'assets/audio/new_message_received.wav';
   static const String imagesDefaultAvatar = 'assets/images/default_avatar.png';
-  static const String talkAssetsGuildedImage0fd8f84d37f422a10db15feebecc442b = 'assets/guilded_image_0fd8f84d37f422a10db15feebecc442b.png';
+  static const String talkAssetsAppIcon = 'assets/app_icon.png';
   static const String voiceJingleCollectItemPiano = 'assets/audio/voice/Jingle_CollectItem_Piano.wav';
   static const String voiceJingleCollectItemVibraphone = 'assets/audio/voice/Jingle_CollectItem_Vibraphone.wav';
   static const String voiceJingleCorrectAnswer = 'assets/audio/voice/Jingle_CorrectAnswer.wav';

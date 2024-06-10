@@ -1,6 +1,12 @@
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:launch_at_startup/launch_at_startup.dart';
+import 'package:talk/core/audio/audio_manager.dart';
 import 'package:talk/core/notifiers/theme_controller.dart';
+import 'package:talk/core/version.dart';
+import '../core/storage/storage.dart';
 import '../layout/my_scaffold.dart';
 
 class KeyedTextEditingController extends TextEditingController {
@@ -9,40 +15,45 @@ class KeyedTextEditingController extends TextEditingController {
   KeyedTextEditingController(this.key, {String? text}) : super(text: text);
 }
 
-class SettingsData extends ChangeNotifier {
-  final Map<String, TextEditingController> _controllers = {};
-  final Map<String, String> _initialValues = {};
-  final List<String> keys;
+class Settings extends ChangeNotifier {
+  static final Settings _singleton = Settings._internal();
+  factory Settings() => _singleton;
+  Settings._internal();
 
-  SettingsData(this.keys, Map<String, String> initialValues) {
-    for (var key in keys) {
-      _controllers[key] = KeyedTextEditingController(key, text: initialValues[key]);
-      _initialValues[key] = initialValues[key] ?? '';
-      _controllers[key]!.addListener(() {
-        notifyListeners();
-      });
-    }
+  bool get replaceTextEmoji => Storage().readBoolean('replaceTextEmoji', defaultValue: false);
+  set replaceTextEmoji(bool value) {
+    Storage().write('replaceTextEmoji', value.toString());
+    notifyListeners();
   }
 
-  TextEditingController getController(String key) {
-    return _controllers[key]!;
+  bool get autostartup => Storage().readBoolean('autostartup', defaultValue: false);
+  set autostartup(bool value) {
+    Storage().write('autostartup', value.toString());
+    notifyListeners();
   }
 
-  void saveChanges() {
-    final changedValues = <String, String>{};
-    _controllers.forEach((key, controller) {
-      if (_initialValues[key] != controller.text) {
-        changedValues[key] = controller.text;
-      }
-    });
-
-    print('Changed values: $changedValues');
+  bool get exitToTray => Storage().readBoolean('exitToTray', defaultValue: true);
+  set exitToTray(bool value) {
+    Storage().write('exitToTray', value.toString());
+    notifyListeners();
   }
 
-  void cancelChanges() {
-    _controllers.forEach((key, controller) {
-      controller.text = _initialValues[key]!;
-    });
+  String? get microphoneDevice => Storage().read('microphoneDevice');
+  set microphoneDevice(value) {
+    Storage().write('microphoneDevice', value);
+    notifyListeners();
+  }
+
+  String get theme => Storage().readString('theme', defaultValue: ThemeController().currentThemeName);
+  set theme(String value) {
+    Storage().write('theme', value);
+    notifyListeners();
+  }
+
+  String get language => Storage().readString('locale', defaultValue: 'en-us');
+  set language(String value) {
+    Storage().write('locale', value);
+    notifyListeners();
   }
 }
 
@@ -58,13 +69,11 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool isSearching = false;
-  late SettingsData settingsData;
 
   @override
   void initState() {
     super.initState();
     print('SettingsScreen: tab=${widget.tab}, item=${widget.item}');
-    // settingsData = SettingsData(context);
 
     final currentCategory = settingsCategories.firstWhere((element) => element.tab == widget.tab);
     if(widget.item != null && currentCategory.items.containsKey(widget.item)) {
@@ -83,23 +92,60 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: AnimatedContainer(
         padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
         duration: const Duration(milliseconds: 300),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SettingsSidebar(
-              tab: widget.tab,
-              isSearching: isSearching,
-              onSearch: (isSearching) {
-                setState(() {
-                  this.isSearching = isSearching;
-                });
-              },
+        child: Shortcuts(
+          shortcuts: {
+            LogicalKeySet(LogicalKeyboardKey.escape): const ActivateIntent(),
+          },
+          child: Actions(
+            actions: {
+              ActivateIntent: CallbackAction<ActivateIntent>(
+                onInvoke: (intent) {
+                  if(isSearching) {
+                    setState(() {
+                      isSearching = false;
+                    });
+                  } else {
+                    context.pop();
+                  }
+                },
+              ),
+            },
+            child: Stack(
+              alignment: Alignment.topRight,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SettingsSidebar(
+                      tab: widget.tab,
+                      isSearching: isSearching,
+                      onSearch: (isSearching) {
+                        setState(() {
+                          this.isSearching = isSearching;
+                        });
+                      },
+                    ),
+                    if (!isSearching) ...[
+                      const SizedBox(width: 30),
+                      Expanded(child: ListenableBuilder(
+                        listenable: Settings(),
+                        builder: (context, child) {
+                          return SettingsContent(tab: widget.tab, item: widget.item);
+                        }
+                      )),
+                    ]
+                  ],
+                ),
+                IconButton(onPressed: () {
+                  if(context.canPop()) {
+                    context.pop();
+                  } else {
+                    context.go('/');
+                  }
+                }, icon: const Icon(Icons.close)),
+              ],
             ),
-            if (!isSearching) ...[
-              const SizedBox(width: 30),
-              Expanded(child: SettingsContent(tab: widget.tab, item: widget.item, settingsData: settingsData)),
-            ]
-          ],
+          ),
         ),
       ),
     );
@@ -131,14 +177,27 @@ final List<SettingMetadata> settingsCategories = [
       icon: Icons.home,
       title: 'Home',
       items: {
+        'home-autostartup': SettingItem(tab: 'general', key: 'home-autostartup', name: 'Autostartup'),
+        'home-exit-to-tray': SettingItem(tab: 'general', key: 'home-exit-to-tray', name: 'Exit to Tray'),
         'display-name': SettingItem(tab: 'general', key: 'display-name', name: 'Display Name'),
         // 'account-email': SettingItem(tab: 'general', key: 'account-email', name: 'Account Email'),
         'account-password': SettingItem(tab: 'general', key: 'account-password', name: 'Account Password'),
         'account-logout': SettingItem(tab: 'general', key: 'account-logout', name: 'Account Logout'),
       }
   ),
-  SettingMetadata(tab: 'appearance', icon: Icons.color_lens, title: 'Appearance', items: {}),
-  SettingMetadata(tab: 'about', icon: Icons.info, title: 'About', items: {}),
+  SettingMetadata(tab: 'audio', icon: Icons.audiotrack, title: 'Audio', items: {
+    'audio-microphone': SettingItem(tab: 'audio', key: 'audio-microphone', name: 'Microphone'),
+    'audio-speaker': SettingItem(tab: 'audio', key: 'audio-speaker', name: 'Speaker'),
+  }),
+  SettingMetadata(tab: 'appearance', icon: Icons.color_lens, title: 'Appearance', items: {
+    'appearance-theme': SettingItem(tab: 'appearance', key: 'appearance-theme', name: 'Theme'),
+  }),
+  SettingMetadata(tab: 'experimental', icon: Icons.science, title: 'Experimental', items: {
+    'experimental-text-emoji': SettingItem(tab: 'experimental', key: 'experimental-text-emoji', name: 'Text Emoji'),
+  }),
+  SettingMetadata(tab: 'about', icon: Icons.info, title: 'About', items: {
+    'about-version': SettingItem(tab: 'about', key: 'about-version', name: 'Version'),
+  }),
 ];
 
 class SettingsSidebar extends StatefulWidget {
@@ -371,21 +430,24 @@ class _SettingsSidebarState extends State<SettingsSidebar> {
 class SettingsContent extends StatelessWidget {
   final String? tab;
   final String? item;
-  final SettingsData settingsData;
 
-  const SettingsContent({super.key, this.tab, this.item, required this.settingsData});
+  const SettingsContent({super.key, this.tab, this.item});
 
   @override
   Widget build(BuildContext context) {
     switch (tab) {
       case 'general':
-        return GeneralSettingsTab(item: item, settingsData: settingsData);
+        return GeneralSettingsTab(item: item);
+      case 'audio':
+        return AudioSettingsTab(item: item);
       case 'appearance':
-
+        return AppearanceSettingsTab(item: item);
+      case 'experimental':
+        return ExperimentalSettingsTab(item: item);
       case 'about':
-
+        return AboutSettingsTab(item: item);
       default:
-        return GeneralSettingsTab(item: item, settingsData: settingsData);
+        return GeneralSettingsTab(item: item);
     }
   }
 }
@@ -440,8 +502,7 @@ class Highlightable extends StatelessWidget {
 
 class GeneralSettingsTab extends StatefulWidget {
   final String? item;
-  final SettingsData settingsData;
-  const GeneralSettingsTab({super.key, this.item, required this.settingsData});
+  const GeneralSettingsTab({super.key, this.item});
 
   @override
   State<GeneralSettingsTab> createState() => _GeneralSettingsTabState();
@@ -456,6 +517,76 @@ class _GeneralSettingsTabState extends State<GeneralSettingsTab> {
       children: [
         SettingTitle(title: settingsCategories.firstWhere((element) => element.tab == 'general').title),
         const SizedBox(height: 20),
+
+        const Text("Behaviour", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 10),
+
+        FutureBuilder(
+          future: launchAtStartup.isEnabled(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const CircularProgressIndicator();
+            }
+            if(snapshot.hasError) {
+              return FormField<String>(builder: (FormFieldState<String> state) {
+                return Text('Error: ${snapshot.error}');
+              }, key: const Key('home-autostartup-error'));
+            }
+
+            return Highlightable(
+              highlight: widget.item == items['home-autostartup']!.key,
+              child: SwitchListTile(
+                key: items['home-autostartup']!.keyRef,
+                title: Text(items['home-autostartup']!.name),
+                subtitle: const Text('Automatically start the app when the system starts'),
+                value: snapshot.data as bool,
+                onChanged: (value) {
+                  final scheme = ThemeController.scheme(context, listen: false);
+                  // Save autostartup to settings
+                  if(value) {
+                    // Enable autostartup and show a toast message when enabled or with an error
+                    launchAtStartup.enable().then((value) {
+                      Settings().autostartup = true;
+                    }).catchError((error) {
+                      // Show a toast message
+                      BotToast.showNotification(
+                        title: (_) => Text('Error enabling autostartup', style: TextStyle(color: scheme.onErrorContainer)),
+                        subtitle: (_) => Text(error.toString(), style: TextStyle(color: scheme.onErrorContainer)),
+                        duration: const Duration(seconds: 6),
+                        backgroundColor: scheme.errorContainer,
+                      );
+                    });
+                  } else {
+                    launchAtStartup.disable().then((value) {
+                      Settings().autostartup = false;
+                    }).catchError((error) {
+                      // Show a toast message
+                      BotToast.showNotification(
+                        title: (_) => Text('Error disabling autostartup', style: TextStyle(color: scheme.onErrorContainer)),
+                        subtitle: (_) => Text(error.toString(), style: TextStyle(color: scheme.onErrorContainer)),
+                        duration: const Duration(seconds: 6),
+                        backgroundColor: scheme.errorContainer,
+                      );
+                    });
+                  }
+                },
+              ),
+            );
+          }
+        ),
+        Highlightable(
+          highlight: widget.item == items['home-exit-to-tray']!.key,
+          child: SwitchListTile(
+            key: items['home-exit-to-tray']!.keyRef,
+            title: Text(items['home-exit-to-tray']!.name),
+            subtitle: const Text('Minimize to tray when closing the app'),
+            value: Settings().exitToTray,
+            onChanged: (value) {
+              // Save exit to tray to settings
+              Settings().exitToTray = value;
+            },
+          ),
+        ),
 
         // Highlightable(
         //   highlight: widget.item == widget.settingsData.accountNameController.key,
@@ -479,6 +610,243 @@ class _GeneralSettingsTabState extends State<GeneralSettingsTab> {
         //   ),
         // ),
 
+      ],
+    );
+  }
+}
+
+class AudioSettingsTab extends StatefulWidget {
+  final String? item;
+  const AudioSettingsTab({super.key, this.item});
+
+  @override
+  State<AudioSettingsTab> createState() => _AudioSettingsTabState();
+}
+
+class _AudioSettingsTabState extends State<AudioSettingsTab> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SettingTitle(title: settingsCategories.firstWhere((element) => element.tab == 'audio').title),
+        const SizedBox(height: 20),
+
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Input settings
+                  const Text('Input', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  // Microphone device
+                  Highlightable(highlight: widget.item == 'audio-microphone', child:
+                    FutureBuilder(
+                      future: AudioManager.getInputDevices(),
+                      builder: (context, snapshot) {
+
+                        if (!snapshot.hasData) {
+                          return const CircularProgressIndicator();
+                        }
+
+                        if(snapshot.hasError) {
+                          return FormField<String>(builder: (FormFieldState<String> state) {
+                            return Text('Error: ${snapshot.error}');
+                          }, key: const Key('audio-microphone-error'));
+                        }
+
+                        if(snapshot.data!.length <= 0) {
+                          return const Text('No microphone devices found');
+                        }
+
+                        final defaultMicrophone = snapshot.data!.firstWhere((element) => element.isDefault);
+
+                        return DropdownButtonFormField<String>(
+                          decoration: const InputDecoration(labelText: 'Microphone'),
+                          key: const Key('audio-microphone'),
+                          value: Settings().microphoneDevice ?? defaultMicrophone.id,
+                          items: snapshot.data!.map((device) {
+                            return DropdownMenuItem<String>(
+                              value: device.id,
+                              child: Text(device.name),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            // Save microphone device to settings
+                          },
+                        );
+                      }
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Output settings
+                  const Text('Output', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  // Speaker device
+                  Highlightable(
+                    highlight: widget.item == 'audio-speaker',
+                    child: FutureBuilder(
+                        future: AudioManager.getOutputDevices(),
+                        builder: (context, snapshot) {
+
+                          if (!snapshot.hasData) {
+                            return const CircularProgressIndicator();
+                          }
+
+                          if(snapshot.hasError) {
+                            return FormField<String>(builder: (FormFieldState<String> state) {
+                              return Text('Error: ${snapshot.error}');
+                            }, key: const Key('audio-speaker-error'));
+                          }
+
+                          if(snapshot.data!.length <= 0) {
+                            return const Text('No speaker devices found');
+                          }
+
+                          final defaultSpeaker = snapshot.data!.firstWhere((element) => element.isDefault);
+
+                          return DropdownButtonFormField<String>(
+                            decoration: const InputDecoration(labelText: 'Speaker'),
+                            key: const Key('audio-speaker'),
+                            value: defaultSpeaker.id,
+                            items: snapshot.data!.map((device) {
+                              return DropdownMenuItem<String>(
+                                value: device.id,
+                                child: Text(device.name),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              // Save speaker device to settings
+                            },
+                          );
+                        }
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ],
+        ),
+
+      ],
+    );
+  }
+}
+
+class AppearanceSettingsTab extends StatefulWidget {
+  final String? item;
+  const AppearanceSettingsTab({super.key, this.item});
+
+  @override
+  State<AppearanceSettingsTab> createState() => _AppearanceSettingsTabState();
+}
+
+class _AppearanceSettingsTabState extends State<AppearanceSettingsTab> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SettingTitle(title: settingsCategories.firstWhere((element) => element.tab == 'appearance').title),
+        const SizedBox(height: 20),
+
+        Highlightable(
+          highlight: widget.item == 'appearance-theme',
+          child: DropdownButtonFormField<String>(
+            padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+            decoration: const InputDecoration(labelText: 'Theme'),
+            key: const Key('appearance-theme'),
+            value: Settings().theme,
+            items: ThemeController.themes.map((theme) {
+              return DropdownMenuItem<String>(
+                value: theme.name,
+                child: Text(theme.name),
+              );
+            }).toList(),
+            onChanged: (value) {
+              final theme = ThemeController.themes.firstWhere((element) => element.name == value);
+
+              // Set theme
+              ThemeController.of(context, listen: false)
+                  .setTheme(theme.value);
+
+              // Save theme to settings
+              Settings().theme = value!;
+            },
+          ),
+        )
+      ],
+    );
+  }
+}
+
+class ExperimentalSettingsTab extends StatefulWidget {
+  final String? item;
+  const ExperimentalSettingsTab({super.key, this.item});
+
+  @override
+  State<ExperimentalSettingsTab> createState() => _ExperimentalSettingsTabState();
+}
+
+class _ExperimentalSettingsTabState extends State<ExperimentalSettingsTab> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SettingTitle(title: settingsCategories.firstWhere((element) => element.tab == 'experimental').title),
+        const Text('Settings that are experimental and may not work as expected. They may not be available in the final version.', style: TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 20),
+
+        // Replace text-emoji with emoji such as :D to 😃 and :P to 😛, etc.
+        Highlightable(
+          highlight: widget.item == 'experimental-text-emoji',
+          child: SwitchListTile(
+            title: const Text('Text Emoji'),
+            subtitle: const Text('Replace text-emoji with emoji, such as \':D\' or \':grinning_face:\' to 😃 and \':P\' to 😛, etc.'),
+            value: Settings().replaceTextEmoji,
+            onChanged: (value) {
+              // Save text-emoji to settings
+              Settings().replaceTextEmoji = value;
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class AboutSettingsTab extends StatefulWidget {
+  final String? item;
+  const AboutSettingsTab({super.key, this.item});
+
+  @override
+  State<AboutSettingsTab> createState() => _AboutSettingsTabState();
+}
+
+class _AboutSettingsTabState extends State<AboutSettingsTab> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SettingTitle(title: settingsCategories.firstWhere((element) => element.tab == 'about').title),
+        const SizedBox(height: 20),
+
+        Highlightable(
+          highlight: widget.item == 'about-version',
+          child: const ListTile(
+            title: Text('Version'),
+            subtitle: Text(version),
+          ),
+        )
       ],
     );
   }

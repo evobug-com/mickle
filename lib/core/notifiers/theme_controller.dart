@@ -35,11 +35,6 @@ class ThemeController extends ChangeNotifier {
     ThemeItem("Dark High Contrast", MaterialTheme(textThemeDark).darkHighContrast()),
     ThemeItem("Dark Medium Contrast", MaterialTheme(textThemeDark).darkMediumContrast()),
 
-    ThemeItem("M3 Dark", ThemeData.dark(useMaterial3: true)),
-    ThemeItem("M2 Dark", ThemeData.dark(useMaterial3: false)),
-    ThemeItem("M3 Light", ThemeData.light(useMaterial3: true)),
-    ThemeItem("M2 Light", ThemeData.light(useMaterial3: false)),
-
     ThemeItem("Light", MaterialTheme(textThemeLight).light()),
     ThemeItem("Light High Contrast", MaterialTheme(textThemeLight).lightHighContrast()),
     ThemeItem("Light Medium Contrast", MaterialTheme(textThemeLight).lightMediumContrast()),

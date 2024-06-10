@@ -6,6 +6,7 @@ import 'package:window_manager/window_manager.dart';
 
 
 import '../core/notifiers/theme_controller.dart';
+import '../core/storage/storage.dart';
 import '../router.dart';
 
 class AppWidget extends StatefulWidget {
@@ -50,8 +51,9 @@ class _AppWidgetState extends State<AppWidget> with TrayListener, WindowListener
   }
 
   @override
-  void onTrayIconMouseDown() {
-
+  void onTrayIconMouseDown() async {
+    await windowManager.show();
+    await windowManager.focus();
   }
 
   @override
@@ -68,7 +70,17 @@ class _AppWidgetState extends State<AppWidget> with TrayListener, WindowListener
   void onTrayMenuItemClick(MenuItem menuItem) {
     if (menuItem.key == 'exit_app') {
       // do something
-      windowManager.close();
+      windowManager.destroy();
+    }
+  }
+
+  @override
+  Future<void> onWindowClose() async {
+    final storage = Storage();
+    if(storage.readBoolean("closeToTray", defaultValue: true)) {
+      await windowManager.hide();
+    } else {
+      await windowManager.destroy();
     }
   }
 }
