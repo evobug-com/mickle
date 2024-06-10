@@ -78,7 +78,7 @@ SELF=\$(basename "\$0")
 
 # Delete the contents of the destination directory except for the script itself
 echo "Deleting contents of \$DEST_DIR except for \$SELF"
-find "\$DEST_DIR" -mindepth 1 -maxdepth 1 ! -name "\$SELF" -exec rm -rf {} \;
+find "\$DEST_DIR" -mindepth 1 -maxdepth 1 ! -name "\$SELF" -exec rm -rf {} ;
 
 # Move new content to destination directory
 echo "Moving contents from \$SOURCE_DIR to \$DEST_DIR"
@@ -356,10 +356,10 @@ class _UpdaterScreenState extends State<UpdaterScreen> {
                   if(value.done && phase == UpdatePhase.fetching) {
                     return Column(
                       children: [
-                        Text("Jste na nejnovější verzi aplikace"),
+                        const Text("Jste na nejnovější verzi aplikace"),
                         ElevatedButton(onPressed: () {
                           goToMain(context);
-                        }, child: Text("Zavřít"))
+                        }, child: const Text("Zavřít"))
                       ],
                     );
                   }
@@ -367,7 +367,7 @@ class _UpdaterScreenState extends State<UpdaterScreen> {
                   if(value.currentPhase == phase) {
                     return Column(
                       children: [
-                        if(snapshot.connectionState == ConnectionState.active || snapshot.connectionState == ConnectionState.waiting) CircularProgressIndicator(),
+                        if(snapshot.connectionState == ConnectionState.active || snapshot.connectionState == ConnectionState.waiting) const CircularProgressIndicator(),
                         if(snapshot.hasError) Text("Chyba: ${snapshot.error}"),
                       ],
                     );

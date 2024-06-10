@@ -12,7 +12,7 @@ import '../layout/my_scaffold.dart';
 class KeyedTextEditingController extends TextEditingController {
   final String key;
 
-  KeyedTextEditingController(this.key, {String? text}) : super(text: text);
+  KeyedTextEditingController(this.key, {super.text});
 }
 
 class Settings extends ChangeNotifier {
@@ -107,6 +107,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   } else {
                     context.pop();
                   }
+                  return null;
                 },
               ),
             },
@@ -294,7 +295,7 @@ class _SettingsSidebarState extends State<SettingsSidebar> {
 
   Widget _buildHighlightedText(String text, List<int> matchIndices, BuildContext context) {
     final scheme = ThemeController.scheme(context, listen: false);
-    final defaultText = scheme.onSurface!;
+    final defaultText = scheme.onSurface;
 
     final textSpans = <TextSpan>[];
     int lastMatchIndex = -1;
@@ -656,7 +657,7 @@ class _AudioSettingsTabState extends State<AudioSettingsTab> {
                           }, key: const Key('audio-microphone-error'));
                         }
 
-                        if(snapshot.data!.length <= 0) {
+                        if(snapshot.data!.isEmpty) {
                           return const Text('No microphone devices found');
                         }
 
@@ -706,7 +707,7 @@ class _AudioSettingsTabState extends State<AudioSettingsTab> {
                             }, key: const Key('audio-speaker-error'));
                           }
 
-                          if(snapshot.data!.length <= 0) {
+                          if(snapshot.data!.isEmpty) {
                             return const Text('No speaker devices found');
                           }
 
@@ -760,7 +761,7 @@ class _AppearanceSettingsTabState extends State<AppearanceSettingsTab> {
         Highlightable(
           highlight: widget.item == 'appearance-theme',
           child: DropdownButtonFormField<String>(
-            padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
             decoration: const InputDecoration(labelText: 'Theme'),
             key: const Key('appearance-theme'),
             value: Settings().theme,

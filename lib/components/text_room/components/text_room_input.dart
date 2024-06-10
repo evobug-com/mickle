@@ -112,7 +112,7 @@ class TextRoomInputState extends State<TextRoomInput> {
       focusNode: _chatTextFocus,
       controller: _chatTextController,
       decoration: InputDecoration(
-        border: UnderlineInputBorder(),
+        border: const UnderlineInputBorder(),
         labelText: 'Message #${widget.channel.name}',
       ),
       onChanged: (value) {

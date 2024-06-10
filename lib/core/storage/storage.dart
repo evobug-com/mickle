@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:get_storage/get_storage.dart';
 import 'package:logging/logging.dart';
@@ -7,7 +6,7 @@ import 'package:path_provider/path_provider.dart';
 final _logger = Logger('Storage');
 
 class Storage {
-  static Storage _instance = Storage._internal();
+  static final Storage _instance = Storage._internal();
   factory Storage() => _instance;
   Storage._internal();
 

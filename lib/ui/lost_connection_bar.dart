@@ -24,8 +24,8 @@ class LostConnectionBarWidget extends StatelessWidget {
         return ColoredBox(
           color: connectionState == ClientConnectionState.connecting ? Colors.orange : Colors.red,
           child: Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text(getMessageFromState(connectionState), style: TextStyle(color: Colors.white))
+            padding: const EdgeInsets.all(8.0),
+            child: Text(getMessageFromState(connectionState), style: const TextStyle(color: Colors.white))
           ),
         );
       });

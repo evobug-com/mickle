@@ -128,11 +128,9 @@ Future<void> _handleLoginWelcomeResponse(flex_buffers.Reference value, Client cl
 void _handleUpdatePresenceResponse(flex_buffers.Reference value, Client client) {
   final updatePresence = response.UpdatePresence.fromReference(value);
   final user = Database(client.serverId!).users.firstWhere((element) => element.id == updatePresence.userId);
-  if (user != null) {
-    user.presence = updatePresence.presence;
-    user.onUpdated();
-    _logger.info("User presence updated: ${user.displayName} to ${user.presence}");
-  }
+  user.presence = updatePresence.presence;
+  user.onUpdated();
+  _logger.info("User presence updated: ${user.displayName} to ${user.presence}");
 }
 
 Future<void> _handleChannelMessageCreateResponse(flex_buffers.Reference value, Client client, PacketManager packetManager) async {
@@ -162,7 +160,7 @@ Future<void> _handleChannelMessageCreateResponse(flex_buffers.Reference value, C
       AudioManager.playSingleShot("Message", AssetSource("audio/new_message_received.wav"));
     }
 
-    if (message.message!.content!.contains("porno")) {
+    if (message.message!.content.contains("porno")) {
       AudioManager.playSingleShot("EasterEgg", AssetSource("audio/easter_egg.wav"));
     }
   }

@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 
 String snakeToCamel(String snake) {
@@ -115,7 +114,7 @@ String generateRequest() {
   // Remap the fields to Dart types
 
 
-  packetRequestVariants.forEach((match) {
+  for (var match in packetRequestVariants) {
     // Group 1: Class name, Group 2: Fields
     final className = match.group(1)!;
     print('Class Name: $className');
@@ -154,7 +153,7 @@ class $className extends Request {
   ${constructSerializeFunction(className, fields)}
 }
 ''';
-  });
+  }
   return generatedCode;
 }
 
@@ -181,7 +180,7 @@ String generateResponse() {
 
   String generatedCode = "part of 'response.dart';\n\n";
 
-  packetResponseVariants.forEach((match) {
+  for (var match in packetResponseVariants) {
     // Group 1: Class name, Group 2: Fields
     final className = match.group(1)!;
 
@@ -253,7 +252,7 @@ class $className {
   }
 }
 ''';
-  });
+  }
 
   generatedCode += '''
 enum PacketResponse {
@@ -285,7 +284,7 @@ String generateModels() {
 
   String generatedCode = "part of 'models.dart';\n\n";
 
-  structDefinitions.forEach((match) {
+  for (var match in structDefinitions) {
     // Group 1: Struct name, Group 2: Fields
     final structName = match.group(1)!;
     print('Struct Name: $structName');
@@ -330,7 +329,7 @@ String generateModels() {
       return element;
     }).toList();
 
-    print('Struct Fields: ${fields}');
+    print('Struct Fields: $fields');
 
     // Remap the field types and convert to camelCase
     fields = fields.map((field) {
@@ -340,7 +339,7 @@ String generateModels() {
       return '$fieldType ${snakeToCamel(fieldName)}';
     }).toList();
 
-    print('Struct Remapped Fields: ${fields}');
+    print('Struct Remapped Fields: $fields');
 
     // Generate the Model class
     generatedCode += '''
@@ -393,7 +392,7 @@ class $structName extends ChangeNotifier {
       }
 
       // If not optional, then add required keyword
-      return '${fieldName}: data["${snakeToCamel(fieldName)}"].${fieldType[0].toLowerCase()}${fieldType.substring(1)}Value${parts[0].endsWith("?") ? '' : '!'}';
+      return '$fieldName: data["${snakeToCamel(fieldName)}"].${fieldType[0].toLowerCase()}${fieldType.substring(1)}Value${parts[0].endsWith("?") ? '' : '!'}';
 
     }).join(',\n      ')}
     );
@@ -409,7 +408,7 @@ class $structName extends ChangeNotifier {
   }
 }
 ''';
-  });
+  }
 
   return generatedCode;
 }
@@ -457,7 +456,7 @@ String generatePermissions() {
     final permissionMatch = permissionRegex.firstMatch(line);
     if(permissionMatch != null) {
       final permission = permissionMatch.group(1)!;
-      print("Generating permission ${permission}");
+      print("Generating permission $permission");
       generatedCode += '''
   '$permission': const Permission("$category", "$permission", "${generatePermissionName(permission)}", "$description"),
 ''';

@@ -1,7 +1,4 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:talk/core/models/models.dart';
-import '../../../core/database.dart';
 import '../../../core/notifiers/current_client_provider.dart';
 
 class ConsoleListRolesItem extends StatelessWidget {

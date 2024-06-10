@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:talk/core/notifiers/current_client_provider.dart';
-import 'package:talk/core/processor/packet_manager.dart';
 import 'package:talk/core/completer.dart';
 
 class ConsoleChangeAvatarItem extends StatefulWidget {

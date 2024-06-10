@@ -121,7 +121,7 @@ extension ServerExtension on Server {
       // Filter channels with channelUsers relation
 
       // Get relations for channel;
-      final channelUsersRelations = database.channelUsers.inputs(channel!.id);
+      final channelUsersRelations = database.channelUsers.inputs(channel.id);
 
       // return true if user is a member of the channel
       return channelUsersRelations.any((relation) => relation.output == user.id);

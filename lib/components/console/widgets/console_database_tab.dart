@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:talk/core/notifiers/current_client_provider.dart';
 
-import '../../../core/database.dart';
 
 class ConsoleDatabaseTab extends StatefulWidget {
   const ConsoleDatabaseTab({super.key});

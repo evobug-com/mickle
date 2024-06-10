@@ -126,7 +126,7 @@ _initializeStorage() async {
   await SecureStorage.init();
   await Storage.init();
 
-  final masterVolume = await Storage().read('masterVolume');
+  final masterVolume = Storage().read('masterVolume');
   if(masterVolume != null) {
     AudioManager().masterVolume.value = double.parse(masterVolume);
   }
@@ -134,7 +134,7 @@ _initializeStorage() async {
 
 Future<ThemeData> _loadThemeFromStorage() async {
   // Load the theme from storage
-  final scheme = await Storage().read('theme');
+  final scheme = Storage().read('theme');
   if(scheme != null) {
     return ThemeController.themes.firstWhere((element) => element.name == scheme).value;
   }

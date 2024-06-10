@@ -51,7 +51,7 @@ class Database {
     return _servers[serverId]!;
   }
 
-  Database._internal() {}
+  Database._internal();
 
   final ListStream<Server> servers = ListStream<Server>();
   final ListStream<User> users = ListStream<User>();

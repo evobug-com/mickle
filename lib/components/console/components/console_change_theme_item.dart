@@ -10,7 +10,7 @@ class ConsoleChangeThemeItem extends StatelessWidget {
   Widget build(BuildContext context) {
     // List tile to change theme
     return ListTile(
-      leading: Icon(Icons.palette),
+      leading: const Icon(Icons.palette),
       title: const Text('Změnit vzhled'),
       onTap: () {
         // Show dialog with themes

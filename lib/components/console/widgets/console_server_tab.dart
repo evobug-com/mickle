@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:talk/core/notifiers/current_client_provider.dart';
 
 class ConsoleServerTab extends StatefulWidget {
-  const ConsoleServerTab({Key? key}) : super(key: key);
+  const ConsoleServerTab({super.key});
 
   @override
   ConsoleServerTabState createState() => ConsoleServerTabState();

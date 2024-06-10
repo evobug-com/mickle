@@ -13,6 +13,9 @@ class VoiceRoomCurrent extends ChangeNotifier {
     AudioManager.playSingleShot("SFX", AssetSource("audio/enter_voice.wav"));
     _currentChannel = channel;
     notifyListeners();
+
+    // Request to join the voice channel
+
   }
 
   void leaveVoice() {

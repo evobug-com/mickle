@@ -77,7 +77,7 @@ class _ChannelListRoomDialogState extends State<ChannelListRoomDialog> {
             subtitle: const Text('Pokud je zaškrtnuto, místnost bude viditelná pouze pro Vás. Ostatní uživatelé musíte pozvat ručně.'),
             contentPadding: const EdgeInsets.all(0),
             hoverColor: Colors.transparent,
-            overlayColor: MaterialStateProperty.all(Colors.transparent),
+            overlayColor: WidgetStateProperty.all(Colors.transparent),
             tileColor: Colors.transparent,
             splashRadius: 0.0,
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,

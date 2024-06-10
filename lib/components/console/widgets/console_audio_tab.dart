@@ -4,7 +4,7 @@ import '../../../core/audio/audio_manager.dart';
 import '../../../core/storage/storage.dart';
 
 class ConsoleAudioTab extends StatefulWidget {
-  const ConsoleAudioTab({Key? key}) : super(key: key);
+  const ConsoleAudioTab({super.key});
 
   @override
   ConsoleAudioTabState createState() => ConsoleAudioTabState();

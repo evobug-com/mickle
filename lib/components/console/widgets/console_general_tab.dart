@@ -20,16 +20,16 @@ class ConsoleGeneralTabState extends State<ConsoleGeneralTab> {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      children: [
-        const ConsoleAutoStartupItem(),
-        const ConsoleAutoUpdateItem(),
-        const ConsoleChangeAvatarItem(),
-        const ConsoleChangeDisplayNameItem(),
-        const ConsoleChangePasswordItem(),
-        const ConsoleChangePresenceItem(),
-        const ConsoleChangeStatusItem(),
-        const ConsoleChangeThemeItem(),
-        const ConsoleListRolesItem()
+      children: const [
+        ConsoleAutoStartupItem(),
+        ConsoleAutoUpdateItem(),
+        ConsoleChangeAvatarItem(),
+        ConsoleChangeDisplayNameItem(),
+        ConsoleChangePasswordItem(),
+        ConsoleChangePresenceItem(),
+        ConsoleChangeStatusItem(),
+        ConsoleChangeThemeItem(),
+        ConsoleListRolesItem()
       ],
     );
   }

@@ -47,10 +47,10 @@ class TextRoomHeaderState extends State<TextRoomHeader> {
               Consumer<VoiceRoomCurrent>(
                 builder: (BuildContext context, VoiceRoomCurrent value, Widget? child) {
                   if(value.currentChannel != null && value.currentChannel!.id == widget.channel.id) {
-                    return IconButton(onPressed: () => VoiceRoomCurrent.of(context, listen: false).leaveVoice(), icon: Icon(Icons.call_end));
+                    return IconButton(onPressed: () => VoiceRoomCurrent.of(context, listen: false).leaveVoice(), icon: const Icon(Icons.call_end));
                   }
 
-                  return IconButton(onPressed: () => VoiceRoomCurrent.of(context, listen: false).joinVoice(widget.channel), icon: Icon(Icons.call));
+                  return IconButton(onPressed: () => VoiceRoomCurrent.of(context, listen: false).joinVoice(widget.channel), icon: const Icon(Icons.call));
                 },
               ),
             // Colored Box with icon on left, number on right
@@ -69,7 +69,7 @@ class TextRoomHeaderState extends State<TextRoomHeader> {
             //         ])))
             ]
           ),
-          Divider(),
+          const Divider(),
           Text(
              widget.channel.description ?? "<No description>",
             style: ThemeController.theme(context).textTheme.bodySmall,
