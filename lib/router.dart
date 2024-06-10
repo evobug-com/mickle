@@ -9,7 +9,7 @@ import 'package:talk/services/auth_service.dart';
 import 'package:talk/utils.dart';
 import 'core/notifiers/current_client_provider.dart';
 import 'globals.dart' as globals;
-import 'screens/home_screen.dart';
+import 'screens/chat_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/updater_screen.dart';
@@ -53,9 +53,9 @@ final GoRouter router = GoRouter(
         pageBuilder: (context, state) => NoTransitionPage(key: state.pageKey, child: const SplashScreen()),
       ),
       GoRoute(
-        name: 'home',
-        path: '/',
-        pageBuilder: (context, state) => NoTransitionPage(key: state.pageKey, child: const HomeScreen()),
+        name: 'chat',
+        path: '/chat',
+        pageBuilder: (context, state) => NoTransitionPage(key: state.pageKey, child: const ChatScreen()),
       ),
       GoRoute(
         name: 'login',

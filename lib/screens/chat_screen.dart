@@ -17,14 +17,14 @@ import '../core/database.dart';
 import '../components/channel_list/components/channel_list_room_dialog.dart';
 import '../layout/my_scaffold.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class ChatScreen extends StatefulWidget {
+  const ChatScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _createChannelNameController = TextEditingController();
   final TextEditingController _createChannelDescriptionController = TextEditingController();
 

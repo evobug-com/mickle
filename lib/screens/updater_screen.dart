@@ -175,7 +175,7 @@ Future<void> swapAssets() async {
 }
 
 void goToMain(BuildContext context) {
-  context.go("/");
+  context.go('/chat');
   globals.isUpdater = false;
   updateWindowStyle();
 }

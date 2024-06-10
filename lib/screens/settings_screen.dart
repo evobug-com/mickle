@@ -140,7 +140,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   if(context.canPop()) {
                     context.pop();
                   } else {
-                    context.go('/');
+                    context.go('/chat');
                   }
                 }, icon: const Icon(Icons.close)),
               ],

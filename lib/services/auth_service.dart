@@ -44,7 +44,7 @@ class AuthService with ChangeNotifier {
       final bool success = await _performAutologin();
       _isDone = true;
       if (success) {
-        _navigateToHome(context);
+        _navigateToChat(context);
       }
       return success;
     } catch (e) {
@@ -69,7 +69,7 @@ class AuthService with ChangeNotifier {
       _connectToServer(completer, address.host, username: username, password: password);
       final result = await completer.future;
       if (result == null || result.isEmpty) {
-        _navigateToHome(context);
+        _navigateToChat(context);
       }
     } catch (e) {
       _errorMessage = 'Login failed: ${e.toString()}';
@@ -173,8 +173,8 @@ class AuthService with ChangeNotifier {
     return false;
   }
 
-  void _navigateToHome(BuildContext context) {
-    context.go('/');
+  void _navigateToChat(BuildContext context) {
+    context.go('/chat');
   }
 
   abortLogin() {
