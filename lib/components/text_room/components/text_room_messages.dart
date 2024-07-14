@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:talk/core/connection/client.dart';
 import 'package:talk/core/database.dart';
 import 'package:talk/core/managers/packet_manager.dart';
+import 'package:talk/core/providers/scoped/connection_provider.dart';
 
 import '../../../core/models/models.dart';
 import 'text_room_message.dart';
@@ -10,8 +10,8 @@ import '../core/models/text_room_scroll_controller.dart';
 
 class TextRoomMessages extends StatefulWidget {
   final Channel channel;
-  final Client client;
-  const TextRoomMessages({super.key, required this.channel, required this.client});
+  final ConnectionProvider connection;
+  const TextRoomMessages({super.key, required this.channel, required this.connection});
 
   @override
   State<TextRoomMessages> createState() => TextRoomMessagesState();
@@ -22,7 +22,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
   void initState() {
     super.initState();
     // Ask backend for messages if we don't have any
-    final messages = widget.channel.getMessages();
+    final messages = widget.channel.getMessages(database: widget.connection.database);
     if(messages.isEmpty) {
       fetchMessages();
     }
@@ -63,7 +63,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
   }
 
   fetchMessages() {
-    PacketManager(widget.client).sendChannelMessageFetch(channelId: widget.channel.id, lastMessageId: widget.channel.getMessages().firstOrNull?.id);
+    widget.connection.packetManager.sendChannelMessageFetch(channelId: widget.channel.id, lastMessageId: widget.channel.getMessages(database: widget.connection.database).firstOrNull?.id);
   }
 
   restoreScrollPosition() {
@@ -90,18 +90,14 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
 
   @override
   Widget build(BuildContext context) {
-    assert(widget.client.serverId != null);
-
-    final packetManager = PacketManager(widget.client);
-    final database = Database(widget.client.serverId!);
-    final messages = widget.channel.getMessages();
+    final messages = widget.channel.getMessages(database: widget.connection.database);
     final textRoomScrollController = Provider.of<TextRoomScrollController>(context);
     return StreamBuilder(
-      stream: database.messages.stream.where((message) => widget.channel.containsMessage(message)),
+      stream: widget.connection.database.messages.stream.where((message) => widget.channel.containsMessage(message, database: widget.connection.database)),
       initialData: messages,
       builder: (context, snapshot) {
         // Get fresh messages
-        final messages = widget.channel.getMessages();
+        final messages = widget.channel.getMessages(database: widget.connection.database);
 
         if (snapshot.hasData) {
 
@@ -124,7 +120,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
                 textRoomScrollController.nextRenderScrollToBottom = shouldScrollToBottom();
 
                 if(shouldFetchMessages()) {
-                  packetManager.sendChannelMessageFetch(channelId: widget.channel.id, lastMessageId: widget.channel.getMessages().first.id);
+                  widget.connection.packetManager.sendChannelMessageFetch(channelId: widget.channel.id, lastMessageId: widget.channel.getMessages(database: widget.connection.database).first.id);
                 }
               });
               return controller;
@@ -132,7 +128,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
             itemCount: messages.length,
             itemBuilder: (context, index) {
               final message = messages[index];
-              final user = database.users.get("User:${message.user}");
+              final user = widget.connection.database.users.get("User:${message.user}");
 
               return TextRoomMessage(
                 message: message,

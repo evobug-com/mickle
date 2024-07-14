@@ -9,7 +9,8 @@ import '../components/server_list_client_context_menu.dart';
 import '../components/server_list_clients_listener.dart';
 
 class ServerListWidget extends StatefulWidget {
-  const ServerListWidget({super.key});
+  final bool showAddServerButton;
+  const ServerListWidget({super.key, required this.showAddServerButton}) : super();
 
   @override
   State<ServerListWidget> createState() => _ServerListWidgetState();
@@ -86,7 +87,7 @@ class _ServerListWidgetState extends State<ServerListWidget> {
               backgroundColor: colorScheme.surfaceContainerLow,
               labelType: NavigationRailLabelType.all,
               onDestinationSelected: onDestinationSelected,
-              leading: Tooltip(
+              leading: widget.showAddServerButton ? Tooltip(
                 message: "Add server",
                 child: IconButton(
                   icon: const Icon(Icons.add_circle_outline_rounded),
@@ -94,7 +95,7 @@ class _ServerListWidgetState extends State<ServerListWidget> {
                     context.go("/login");
                   },
                 ),
-              ),
+              ) : null,
               destinations: _getDestinations(),
             );
           }

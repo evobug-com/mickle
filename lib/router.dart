@@ -4,9 +4,9 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
+import 'package:talk/core/providers/global/selected_server_provider.dart';
 import 'package:talk/screens/splash_screen.dart';
 import 'package:talk/services/auth_service.dart';
-import 'core/notifiers/current_client_provider.dart';
 import 'screens/chat_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/settings_screen.dart';
@@ -17,17 +17,16 @@ FutureOr<String?> _redirect(BuildContext context, GoRouterState state) async {
   final authService = AuthService();
 
   if(!authService.isDone) {
-    _logger.fine("Redirecting to splash screen");
+    _logger.fine("Auto-login in progress, redirecting to splash screen");
     return '/splash';
   }
 
-  final client = CurrentClientProvider.of(context, listen: false);
-  if(client.selectedClient == null) {
-    _logger.fine("Redirecting to login screen");
+  final selectedServerProvider = SelectedServerProvider.of(context, listen: false);
+  if(selectedServerProvider.serverId == null) {
+    _logger.fine("No server selected, redirecting to login screen");
     return '/login';
   }
 
-  _logger.fine("Redirecting to ${state.path}");
   return null;
 }
 

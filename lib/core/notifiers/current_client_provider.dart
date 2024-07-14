@@ -8,6 +8,7 @@ import '../managers/packet_manager.dart';
 
 final _logger = Logger('CurrentClientProvider');
 
+@Deprecated('Use ConnectionProvider instead')
 class CurrentClientProvider extends ChangeNotifier {
   static CurrentClientProvider? _instance;
   Client? _selectedClient;

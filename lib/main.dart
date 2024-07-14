@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:talk/components/voice_room/core/models/voice_room_current.dart';
 import 'package:talk/core/managers/audio_manager.dart';
 import 'package:talk/core/managers/client_manager.dart';
+import 'package:talk/core/providers/global/selected_server_provider.dart';
 import 'package:talk/core/storage/secure_storage.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart' hide WindowCaption, kWindowCaptionHeight;
@@ -75,10 +76,15 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: [
+
+        // Deprecated below
         ChangeNotifierProvider(create: (context) => ThemeController(theme: theme), lazy: false),
         ChangeNotifierProvider(create: (context) => ClientManager(), lazy: false),
         ChangeNotifierProvider(create: (context) => CurrentClientProvider(), lazy: false),
-        ChangeNotifierProvider(create: (context) => VoiceRoomCurrent())
+        ChangeNotifierProvider(create: (context) => VoiceRoomCurrent()),
+
+        // Global providers
+        ChangeNotifierProvider(create: (context) => SelectedServerProvider()),
       ],
       child: const AppWidget(),
     ),
@@ -156,96 +162,3 @@ _configureErrorHandling() {
 
   Errors.initialize();
 }
-
-// _autologin() async {
-//   List<dynamic> servers = await SecureStorage().readJSONArray("servers");
-//   if(servers.isEmpty) {
-//     _logger.fine("No servers to autologin");
-//     return;
-//   }
-//
-//   _logger.fine("Autologin to servers: $servers");
-//   final futures = <Completer<String?>>[];
-//
-//   for (var server in servers) {
-//
-//     if(server == null || server.toString().isEmpty) {
-//       continue;
-//     }
-//
-//     final [host, token] = await Future.wait([
-//       SecureStorage().read("$server.host"),
-//       SecureStorage().read("$server.token"),
-//     ], eagerError: true);
-//
-//     if(host == null || token == null) {
-//       continue;
-//     }
-//
-//     _logger.fine("Connecting to server $server");
-//     final completer = Completer<String?>();
-//
-//     ((Completer<String?> completer) async {
-//       final client = Client(
-//           address: ClientAddress(
-//               host: host,
-//               port: 55000
-//           ),
-//           onError: (error) {
-//             completer.completeError(error);
-//           }
-//       );
-//
-//       SecureStorage storage = SecureStorage();
-//
-//       try {
-//         // Throws an error if connection fails
-//         await client.connect();
-//
-//         final loginResult = await client.login(token: token);
-//
-//         // Throws an error if login fails
-//         if(loginResult.error != null) {
-//           throw loginResult.error!;
-//         }
-//
-//         await storage.write("${loginResult.serverId}.token", loginResult.token!);
-//         await storage.write("${loginResult.serverId}.userId", loginResult.userId!);
-//         await storage.write("${loginResult.serverId}.host", client.address.host);
-//         await storage.write("${loginResult.serverId}.port", client.address.port.toString());
-//
-//         ClientManager().addClient(client);
-//         completer.complete(null);
-//       } catch (e, stacktrace) {
-//         completer.completeError(e, stacktrace);
-//         ClientManager().onConnectionLost(client);
-//       }
-//     })(completer);
-//     futures.add(completer);
-//   }
-//
-//   // Wait for all connections to be established
-//   List<String?> results = await Future.wait(futures.map((e) => e.future));
-//   _logger.fine("Connection results: $results");
-//   if(results.any((element) => element == null)) {
-//     final successClient = ClientManager().clients.firstWhereOrNull((element) => element.connection.state == ClientConnectionState.connected && element.userId != null);
-//     if(successClient != null) {
-//       CurrentClientProvider().selectClient(successClient);
-//     } else {
-//       _logger.warning("No client was successfully connected.");
-//     }
-//   }
-// }
-
-// // RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
-// // Isolate.spawn((rootIsolateToken) async {
-// //   BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
-// //
-//   AudioManager.setAudioDataHandler((deviceId, data) {
-//     print('AudioData: $deviceId, $data');
-//   });
-//   final deviceId = (await AudioManager.getInputDevices()).firstWhere((item) => item.isDefault).id;
-//   print('Default Device: $deviceId');
-//   dynamic result = await AudioManager.startCaptureStream(deviceId);
-//   print('StartCaptureStream: $result');
-// // }, rootIsolateToken);

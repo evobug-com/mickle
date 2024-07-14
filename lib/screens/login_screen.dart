@@ -2,8 +2,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:talk/core/notifiers/current_client_provider.dart';
+import 'package:talk/core/providers/global/selected_server_provider.dart';
 
 import '../core/connection/client.dart';
 import '../core/notifiers/theme_controller.dart';
@@ -190,8 +192,12 @@ class LoginScreenState extends State<LoginScreen> {
                                      username: _usernameController.text,
                                      password: _passwordController.text
                                  ).then((client) {
+                                   // If client is not null, the login was successful
                                    if(client != null) {
-                                     CurrentClientProvider().selectClient(client);
+                                     // If login is success, select the server
+                                     SelectedServerProvider.of(context, listen: false).selectServer(client.address.host, client.address.port, client.serverId!, client);
+                                     // Go to chat screen
+                                      context.goNamed('chat');
                                      _logger.fine("Logged in successfully.");
                                    }
                                  }).catchError((e) {

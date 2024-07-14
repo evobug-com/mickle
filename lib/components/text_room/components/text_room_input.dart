@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:talk/core/connection/client.dart';
+import 'package:talk/core/providers/scoped/connection_provider.dart';
 import 'package:talk/screens/settings_screen.dart';
 
 import '../../../core/models/models.dart';
@@ -8,11 +9,11 @@ import '../../../core/managers/packet_manager.dart';
 import '../core/models/text_room_scroll_controller.dart';
 
 class TextRoomInput extends StatefulWidget {
-  final Client client;
+  final ConnectionProvider connection;
   final Channel channel;
 
   const TextRoomInput(
-      {super.key, required this.client, required this.channel});
+      {super.key, required this.connection, required this.channel});
 
   @override
   State<StatefulWidget> createState() => TextRoomInputState();
@@ -107,7 +108,6 @@ class TextRoomInputState extends State<TextRoomInput> {
 
   @override
   Widget build(BuildContext context) {
-    final packetManager = PacketManager(widget.client);
     return TextField(
       focusNode: _chatTextFocus,
       controller: _chatTextController,
@@ -132,7 +132,7 @@ class TextRoomInputState extends State<TextRoomInput> {
           return;
         }
 
-        packetManager.sendChannelMessageCreate(value: value, channelId: widget.channel.id);
+        widget.connection.packetManager.sendChannelMessageCreate(value: value, channelId: widget.channel.id);
 
         Provider.of<TextRoomScrollController>(context, listen: false)
             .nextRenderScrollToBottom = true;

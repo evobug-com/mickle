@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:talk/core/models/models.dart';
+import 'package:talk/core/providers/scoped/connection_provider.dart';
 
 import '../../context_menu/components/menu_header.dart';
 import '../../context_menu/components/menu_item.dart';
@@ -11,13 +12,14 @@ import '../core/models/channel_list_selected_room.dart';
 class ChannelListItem extends StatelessWidget {
   final User user;
   final Channel channel;
+  final ConnectionProvider connection;
   final Function(Channel channel, String action) contextMenuHandler;
 
-  const ChannelListItem({super.key, required this.contextMenuHandler, required this.channel, required this.user});
+  const ChannelListItem({super.key, required this.contextMenuHandler, required this.channel, required this.user, required this.connection});
 
   @override
   Widget build(BuildContext context) {
-    final permissions = user.getPermissionsForChannel(channel.id);
+    final permissions = user.getPermissionsForChannel(channel.id, database: connection.database);
     final selectedRoom = ChannelListSelectedRoom.of(context);
     final scheme = Theme.of(context).colorScheme;
 

@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:talk/components/channel_list/components/channel_list_item.dart';
 import 'package:talk/components/channel_list/components/channel_list_room_dialog.dart';
-import 'package:talk/core/connection/client.dart';
 import 'package:talk/core/models/models.dart';
 import 'package:talk/core/managers/packet_manager.dart';
+import 'package:talk/core/providers/scoped/connection_provider.dart';
 
 class ChannelListWidget extends StatefulWidget {
-  final Client client;
+  final ConnectionProvider connection;
   final Server server;
   final void Function(Channel channel, String action) contextMenuHandler;
-  const ChannelListWidget({super.key, required this.client, required this.server, required this.contextMenuHandler});
+  const ChannelListWidget({super.key, required this.connection, required this.server, required this.contextMenuHandler});
 
   @override
   State<ChannelListWidget> createState() => _ChannelListWidgetState();
@@ -18,8 +18,7 @@ class ChannelListWidget extends StatefulWidget {
 class _ChannelListWidgetState extends State<ChannelListWidget> {
   @override
   Widget build(BuildContext context) {
-    final channels = widget.server.getChannelsForUser(widget.client.user!);
-    final packetManager = PacketManager(widget.client);
+    final channels = widget.server.getChannelsForUser(widget.connection.user, database: widget.connection.database);
 
     return Column(
       children: [
@@ -32,7 +31,8 @@ class _ChannelListWidgetState extends State<ChannelListWidget> {
                 return ChannelListItem(
                     contextMenuHandler: widget.contextMenuHandler,
                     channel: channel,
-                    user: widget.client.user!
+                    user: widget.connection.user,
+                    connection: widget.connection
                 );
               }
           )
@@ -46,7 +46,7 @@ class _ChannelListWidgetState extends State<ChannelListWidget> {
               builder: (context) {
                 return ChannelListRoomDialog(
                   onSubmitted: (title, description, isPrivate) {
-                    packetManager.sendChannelCreate(serverId: widget.server.id, name: title, description: description);
+                    widget.connection.packetManager.sendChannelCreate(serverId: widget.server.id, name: title, description: description);
                   },
                   isEdit: false,
                 );

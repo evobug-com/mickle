@@ -5,12 +5,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
+import 'package:talk/core/storage/preferences.dart';
 
 import '../core/connection/client.dart';
 import '../core/managers/client_manager.dart';
-import '../core/network/response.dart';
 import '../core/notifiers/current_client_provider.dart';
-import '../core/storage/secure_storage.dart';
 
 class AuthService with ChangeNotifier {
   final Logger _logger = Logger('AuthService');
@@ -71,10 +70,7 @@ class AuthService with ChangeNotifier {
     try {
       final Completer<String?> completer = Completer();
       _connectToServer(completer, address.host, username: username, password: password);
-      final result = await completer.future;
-      if (result == null || result.isEmpty) {
-        _navigateToChat(context);
-      }
+      await completer.future;
     } catch (e) {
       _errorMessage = 'Login failed: ${e.toString()}';
       _logger.severe(_errorMessage);
@@ -86,14 +82,13 @@ class AuthService with ChangeNotifier {
   }
 
   Future<bool> _performAutologin() async {
-    final List<dynamic> servers = await SecureStorage().readJSONArray("servers");
+    final servers = await Preferences.getServerList();
     if (servers.isEmpty) {
-      _logger.fine("No servers to autologin");
+      _logger.fine("No servers to autologin to.");
       return false;
     }
 
-    _logger.fine("Autologin to servers: $servers");
-
+    _logger.fine("Attempting to autologin to servers: $servers");
     final List<Completer<String?>> futures = [];
 
     for (var server in servers) {
@@ -108,17 +103,15 @@ class AuthService with ChangeNotifier {
   }
 
   Future<void> _attemptServerLogin(dynamic server, List<Completer<String?>> futures) async {
-    final String? host = await SecureStorage().read("$server.host");
-    final String? token = await SecureStorage().read("$server.token");
 
-    if (host == null || token == null) {
+    if (server.host == null || server.token == null) {
       return;
     }
 
     _logger.fine("Connecting to server $server");
     final completer = Completer<String?>();
 
-    _connectToServer(completer, host, token: token);
+    _connectToServer(completer, server.host, token: server.token);
     futures.add(completer);
   }
 
@@ -141,21 +134,13 @@ class AuthService with ChangeNotifier {
         throw loginResult.error!;
       }
 
-      await _storeLoginData(loginResult, client);
+      await Preferences.addServer(serverId: loginResult.serverId!, host: host, token: loginResult.token!, userId: loginResult.userId!, port: 55000);
       ClientManager().addClient(client);
       completer?.complete(null);
     } catch (e, stacktrace) {
       completer?.completeError(e, stacktrace);
       ClientManager().onConnectionLost(client);
     }
-  }
-
-  Future<void> _storeLoginData(Login loginResult, Client client) async {
-    final SecureStorage storage = SecureStorage();
-    await storage.write("${loginResult.serverId}.token", loginResult.token!);
-    await storage.write("${loginResult.serverId}.userId", loginResult.userId!);
-    await storage.write("${loginResult.serverId}.host", client.address.host);
-    await storage.write("${loginResult.serverId}.port", client.address.port.toString());
   }
 
   Future<bool> _handleLoginResults(List<Completer<String?>> futures) async {
@@ -178,7 +163,7 @@ class AuthService with ChangeNotifier {
   }
 
   void _navigateToChat(BuildContext context) {
-    context.go('/chat');
+    context.goNamed('chat');
   }
 
   abortLogin() {

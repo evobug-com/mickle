@@ -1,6 +1,7 @@
 import 'package:flat_buffers/flex_buffers.dart' as flex_buffers;
 import 'package:flutter/foundation.dart';
 import 'package:talk/core/notifiers/current_client_provider.dart';
+import 'package:talk/core/providers/scoped/connection_provider.dart';
 
 import '../database.dart';
 part 'models.g.dart';
@@ -23,18 +24,15 @@ class RoomPermissions {
 
 
 extension UserExtension on User {
-  List<Role> getRoles() {
-    CurrentClientProvider clientProvider = CurrentClientProvider();
-    assert(clientProvider.selectedClient != null);
-    Database database = Database(clientProvider.selectedClient!.serverId!);
+  List<Role> getRoles({required Database database}) {
 
     final roles = database.roleUsers.outputs(id);
     return roles.map((relation) => database.roles.get("Role:${relation.input}")!).toList();
   }
 
-  getPermissionsForChannel(String roomId) {
-    final roles = getRoles();
-    final permissions = roles.map((role) => role.getPermissions()).expand((element) => element).toList();
+  getPermissionsForChannel(String roomId, {required Database database}) {
+    final roles = getRoles(database: database);
+    final permissions = roles.map((role) => role.getPermissions(database: database)).expand((element) => element).toList();
 
     return RoomPermissions(
       canSendMessages: permissions.any((permission) => permission.id == 'channel_send_message'),
@@ -47,31 +45,19 @@ extension UserExtension on User {
 }
 
 extension RoleExtension on Role {
-  List<Permission> getPermissions() {
-    CurrentClientProvider clientProvider = CurrentClientProvider();
-    assert(clientProvider.selectedClient != null);
-    Database database = Database(clientProvider.selectedClient!.serverId!);
-
+  List<Permission> getPermissions({required Database database}) {
     final permissions = database.rolePermissions.inputs(id);
     return permissions.map((relation) => database.permissions.get("Permission:${relation.output}")!).toList();
   }
 
-  List<User> getUsers() {
-    CurrentClientProvider clientProvider = CurrentClientProvider();
-    assert(clientProvider.selectedClient != null);
-    Database database = Database(clientProvider.selectedClient!.serverId!);
-
+  List<User> getUsers({required Database database}) {
     final users = database.roleUsers.inputs(id);
     return users.map((relation) => database.users.get("User:${relation.output}")!).toList();
   }
 }
 
 extension ChannelExtension on Channel {
-  List<Message> getMessages() {
-    CurrentClientProvider clientProvider = CurrentClientProvider();
-    assert(clientProvider.selectedClient != null);
-    Database database = Database(clientProvider.selectedClient!.serverId!);
-
+  List<Message> getMessages({required Database database}) {
     final channelMessagesRelations = database.channelMessages.inputs(id);
 
     // Get all messages for channelMessagesRelations by id
@@ -80,22 +66,14 @@ extension ChannelExtension on Channel {
     return channelMessages;
   }
 
-  containsMessage(Message message) {
-    CurrentClientProvider clientProvider = CurrentClientProvider();
-    assert(clientProvider.selectedClient != null);
-    Database database = Database(clientProvider.selectedClient!.serverId!);
-
+  containsMessage(Message message, {required Database database}) {
     final channelMessagesRelations = database.channelMessages.outputs(message.id);
     return channelMessagesRelations.any((relation) => relation.input == id);
   }
 }
 
 extension ServerExtension on Server {
-  List<Channel> getChannels() {
-    CurrentClientProvider clientProvider = CurrentClientProvider();
-    assert(clientProvider.selectedClient != null);
-    final database = clientProvider.database!;
-
+  List<Channel> getChannels({required Database database}) {
     final serverChannelsRelations = database.serverChannels.inputs(id);
 
     // Get all channels for serverChannelsRelations by id
@@ -104,11 +82,7 @@ extension ServerExtension on Server {
   }
 
   /// Get all channels that the user is a member of
-  List<Channel> getChannelsForUser(User user) {
-    CurrentClientProvider clientProvider = CurrentClientProvider();
-    assert(clientProvider.selectedClient != null);
-    final database = clientProvider.database!;
-
+  List<Channel> getChannelsForUser(User user, {required Database database}) {
     final serverChannelsRelations = database.serverChannels.inputs(id);
 
     // Get all channels for serverChannelsRelations by id
@@ -128,11 +102,7 @@ extension ServerExtension on Server {
     }).map((channel) => channel!).toList();
   }
 
-  containsChannel(Channel channel) {
-    CurrentClientProvider clientProvider = CurrentClientProvider();
-    assert(clientProvider.selectedClient != null);
-    Database database = Database(clientProvider.selectedClient!.serverId!);
-
+  containsChannel(Channel channel, {required Database database}) {
     final serverChannelsRelations = database.serverChannels.outputs(channel.id);
     return serverChannelsRelations.any((relation) => relation.input == id);
   }
