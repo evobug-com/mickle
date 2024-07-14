@@ -126,7 +126,7 @@ class AuthService with ChangeNotifier {
   void _connectToServer(Completer<String?>? completer, String host,
       {String? token, String? username, String? password}) async {
     final client = Client(
-      address: ClientAddress(host: host, port: 3000),
+      address: ClientAddress(host: host, port: 55000),
       onError: (error) {
         completer?.completeError(error);
       },

@@ -6,13 +6,10 @@ import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:talk/screens/splash_screen.dart';
 import 'package:talk/services/auth_service.dart';
-import 'package:talk/utils.dart';
 import 'core/notifiers/current_client_provider.dart';
-import 'globals.dart' as globals;
 import 'screens/chat_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/settings_screen.dart';
-import 'screens/updater_screen.dart';
 
 final _logger = Logger('Router');
 
@@ -22,13 +19,6 @@ FutureOr<String?> _redirect(BuildContext context, GoRouterState state) async {
   if(!authService.isDone) {
     _logger.fine("Redirecting to splash screen");
     return '/splash';
-  }
-
-  if(const String.fromEnvironment("UPDATER").isNotEmpty) {
-    _logger.fine("Redirecting to updater screen");
-    globals.isUpdater = true;
-    updateWindowStyle();
-    return '/updater';
   }
 
   final client = CurrentClientProvider.of(context, listen: false);
@@ -61,11 +51,6 @@ final GoRouter router = GoRouter(
         name: 'login',
         path: '/login',
         pageBuilder: (context, state) => NoTransitionPage(key: state.pageKey, child: const LoginScreen()),
-      ),
-      GoRoute(
-        name: 'updater',
-        path: '/updater',
-        pageBuilder: (context, state) => NoTransitionPage(key: state.pageKey, child: const UpdaterScreen()),
       ),
       GoRoute(
         name: 'settings',

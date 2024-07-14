@@ -3,7 +3,6 @@ class Assets {
   Assets._();
 
   static const String assetsAppIcon = 'assets/app_icon.ico';
-  static const String assetsLibrariesQuiche = 'assets/libraries/quiche.lib';
   static const String audioConnectionLost = 'assets/audio/connection_lost.wav';
   static const String audioConnectionSuccess = 'assets/audio/connection_success.wav';
   static const String audioEasterEgg = 'assets/audio/easter_egg.wav';
@@ -15,7 +14,6 @@ class Assets {
   static const String debugQuiche = 'assets/libraries/debug/quiche.d';
   static const String imagesDefaultAvatar = 'assets/images/default_avatar.png';
   static const String librariesDebugQuiche = 'assets/libraries/debug/quiche.lib';
-  static const String librariesQuiche = 'assets/libraries/quiche.d';
   static const String talkAssetsAppIcon = 'assets/app_icon.png';
   static const String voiceJingleCollectItemPiano = 'assets/audio/voice/Jingle_CollectItem_Piano.wav';
   static const String voiceJingleCollectItemVibraphone = 'assets/audio/voice/Jingle_CollectItem_Vibraphone.wav';

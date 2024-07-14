@@ -20,7 +20,6 @@ import 'core/notifiers/theme_controller.dart';
 import 'core/storage/storage.dart';
 import 'core/version.dart';
 import 'layout/app_widget.dart';
-import 'utils.dart';
 
 final _logger = Logger('Main');
 
@@ -43,8 +42,6 @@ Future<void> main() async {
     fullScreen: false,
     windowButtonVisibility: false,
   );
-
-  updateWindowStyle();
 
   // Wait until the window is ready to show
   windowManager.waitUntilReadyToShow(windowOptions, () async {

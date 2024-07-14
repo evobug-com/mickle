@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:talk/components/console/components/console_autostartup_item.dart';
-import 'package:talk/components/console/components/console_autoupdate_item.dart';
 import 'package:talk/components/console/components/console_change_avatar_item.dart';
 import 'package:talk/components/console/components/console_change_display_name_item.dart';
 import 'package:talk/components/console/components/console_change_password_item.dart';
@@ -22,7 +21,6 @@ class ConsoleGeneralTabState extends State<ConsoleGeneralTab> {
     return ListView(
       children: const [
         ConsoleAutoStartupItem(),
-        ConsoleAutoUpdateItem(),
         ConsoleChangeAvatarItem(),
         ConsoleChangeDisplayNameItem(),
         ConsoleChangePasswordItem(),
