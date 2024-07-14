@@ -38,4 +38,12 @@ class Preferences {
   static getServerList() {
     return SecureStorage().readJSONArray("servers");
   }
+
+  static bool getIsServerListExpanded() {
+    return Storage().readBool("isServerListExpanded", defaultValue: false);
+  }
+
+  static void setIsServerListExpanded(bool isExpanded) {
+    Storage().writeBool("isServerListExpanded", isExpanded);
+  }
 }

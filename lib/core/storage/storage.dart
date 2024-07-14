@@ -54,4 +54,16 @@ class Storage {
     }
     return value;
   }
+
+  bool readBool(String key, {required bool defaultValue}) {
+    final value = storage.read(key);
+    if (value == null) {
+      return defaultValue;
+    }
+    return value == "true";
+  }
+
+  void writeBool(String key, bool value) {
+    write(key, value.toString());
+  }
 }

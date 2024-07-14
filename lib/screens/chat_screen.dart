@@ -72,7 +72,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: Row(
                   children: <Widget>[
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: EdgeInsets.fromLTRB(0, 8, 8, 8),
                       child: Sidebar(
                         // Left sidebar will have top and bottom parts
                         // Top is channel list and bottom is private channel list
