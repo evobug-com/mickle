@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:talk/core/audio/audio_manager.dart';
@@ -11,6 +12,7 @@ import 'package:talk/core/connection/message_stream_handler.dart';
 import 'package:talk/core/processor/packet_manager.dart';
 import 'package:talk/core/processor/response_processor.dart';
 import 'package:talk/core/network/response.dart' as response;
+import 'package:talk/core/quic/quic_bridge.dart';
 
 import '../models/models.dart';
 
@@ -86,7 +88,8 @@ class ServerData extends ChangeNotifier {
 final _logger = Logger('Client');
 
 class Client {
-  SecureSocket? _socket;
+  QuicheClient? _quicheClient;
+  // SecureSocket? _socket;
   final ClientAddress _address;
   final ConnectionNotifier _connectionNotifier;
   late final MessageStreamHandler _messageStreamHandler;
@@ -108,47 +111,85 @@ class Client {
     _connectionNotifier.updateState(ClientConnectionState.connecting);
 
     final log = File('keylog.txt');
-    _socket = await SecureSocket.connect(
-        _address.host,
-        _address.port,
-        onBadCertificate: (cert) {
-          _logger.warning('Bad certificate: $cert');
-          return true;
+    // _socket = await SecureSocket.connect(
+    //     _address.host,
+    //     _address.port,
+    //     onBadCertificate: (cert) {
+    //       _logger.warning('Bad certificate: $cert');
+    //       return true;
+    //     },
+    //   context: SecurityContext.defaultContext,
+    //   keyLog: (line) => log.writeAsStringSync(line, mode: FileMode.append),
+    //   timeout: const Duration(seconds: 5),
+    // );
+    //
+    // if(_socket != null) {
+    //   _socket!.setOption(SocketOption.tcpNoDelay, true);
+    //
+    //   _socket!.listen((data) {
+    //     print("Received data from server: ${this.address.host}");
+    //     _messageStreamHandler.onData(data);
+    //   }, onDone: () {
+    //     _logger.info('onDone: Connection closed');
+    //     _connectionNotifier.updateState(ClientConnectionState.disconnected);
+    //     ClientManager().onConnectionLost(this);
+    //   }, onError: (e) {
+    //     _logger.severe('Connection error: $e');
+    //     onError(e);
+    //     _connectionNotifier.updateState(ClientConnectionState.disconnected);
+    //   }, cancelOnError: true);
+    //
+    //   _logger.info('Connected');
+    //   _connectionNotifier.updateState(ClientConnectionState.connected);
+    // }
+
+
+    try {
+      final quicheClientManager = QuicheClientManager();
+      await quicheClientManager.initialize();
+      _quicheClient = await quicheClientManager.createClient(_address.host, _address.port);
+
+      _quicheClient!.dataStream.listen(
+            (data) {
+          _logger.info('Received data from server: ${_address.host}');
+          _messageStreamHandler.onData(data);
         },
-      context: SecurityContext.defaultContext,
-      keyLog: (line) => log.writeAsStringSync(line, mode: FileMode.append),
-      timeout: const Duration(seconds: 5),
-    );
-
-    if(_socket != null) {
-      _socket!.setOption(SocketOption.tcpNoDelay, true);
-
-      _socket!.listen((data) {
-        _messageStreamHandler.onData(data);
-      }, onDone: () {
-        _logger.info('onDone: Connection closed');
-        _connectionNotifier.updateState(ClientConnectionState.disconnected);
-        ClientManager().onConnectionLost(this);
-      }, onError: (e) {
-        _logger.severe('Connection error: $e');
-        onError(e);
-        _connectionNotifier.updateState(ClientConnectionState.disconnected);
-      }, cancelOnError: true);
+        onDone: () {
+          _logger.info('onDone: Connection closed');
+          _connectionNotifier.updateState(ClientConnectionState.disconnected);
+          ClientManager().onConnectionLost(this);
+        },
+        onError: (e) {
+          _logger.severe('Connection error: $e');
+          onError(e.toString());
+          _connectionNotifier.updateState(ClientConnectionState.disconnected);
+        },
+        cancelOnError: true,
+      );
 
       _logger.info('Connected');
       _connectionNotifier.updateState(ClientConnectionState.connected);
+    } catch (e) {
+      _logger.severe('Failed to connect: $e');
+      onError(e.toString());
+      _connectionNotifier.updateState(ClientConnectionState.disconnected);
+      if(!kReleaseMode) {
+        rethrow;
+      }
     }
   }
 
-  Future disconnect() async {
+  void disconnect() {
     _logger.info('Disconnected');
     _connectionNotifier.updateState(ClientConnectionState.disconnected);
-    await _socket?.close();
+    // await _socket?.close();
+    _quicheClient?.close();
   }
 
   void send(Uint8List data) {
     try {
-      _socket?.add(data);
+      _quicheClient?.send(data);
+      // _socket?.add(data);
     } catch (e) {
       _logger.severe('Failed to send data: $e');
     }

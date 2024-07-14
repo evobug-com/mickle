@@ -185,7 +185,7 @@ class LoginScreenState extends State<LoginScreen> {
                                      context,
                                      address: ClientAddress(
                                          host: _serverHostController.text,
-                                         port: 55000
+                                         port: 3000
                                      ),
                                      username: _usernameController.text,
                                      password: _passwordController.text

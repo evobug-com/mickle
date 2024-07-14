@@ -192,7 +192,7 @@ _configureErrorHandling() {
 //       final client = Client(
 //           address: ClientAddress(
 //               host: host,
-//               port: 55000
+//               port: 3000
 //           ),
 //           onError: (error) {
 //             completer.completeError(error);

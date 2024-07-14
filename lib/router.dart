@@ -37,7 +37,7 @@ FutureOr<String?> _redirect(BuildContext context, GoRouterState state) async {
     return '/login';
   }
 
-  _logger.fine("Redirecting to ${state.path}");
+  _logger.fine("Redirecting to ${state.fullPath}");
   return null;
 }
 
