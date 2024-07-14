@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 
 import '../core/connection/client.dart';
-import '../core/connection/client_manager.dart';
+import '../core/managers/client_manager.dart';
 import '../core/network/response.dart';
 import '../core/notifiers/current_client_provider.dart';
 import '../core/storage/secure_storage.dart';

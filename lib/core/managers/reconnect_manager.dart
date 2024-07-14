@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:logging/logging.dart';
 import 'package:talk/core/connection/client.dart';
-import 'package:talk/core/connection/client_manager.dart';
+import 'package:talk/core/managers/client_manager.dart';
 import 'package:talk/core/storage/secure_storage.dart';
 
 const int maxBackoffSeconds = 300;

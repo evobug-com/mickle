@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:talk/core/connection/client.dart';
 import 'package:talk/core/database.dart';
-import 'package:talk/core/processor/packet_manager.dart';
+import 'package:talk/core/managers/packet_manager.dart';
 
 import '../../../core/models/models.dart';
 import 'text_room_message.dart';

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
-import 'package:talk/core/audio/audio_manager.dart';
+import 'package:talk/core/managers/audio_manager.dart';
 import 'package:talk/core/notifiers/theme_controller.dart';
 import 'package:talk/core/version.dart';
 import '../core/storage/storage.dart';

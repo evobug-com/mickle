@@ -1,7 +1,7 @@
 
 import 'package:flutter/widgets.dart';
 
-import '../../../core/connection/client_manager.dart';
+import '../../../core/managers/client_manager.dart';
 
 class ServerListClientsListener extends StatelessWidget {
   final Widget Function(BuildContext context) builder;

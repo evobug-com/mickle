@@ -4,7 +4,7 @@ import 'package:talk/core/connection/client.dart';
 import 'package:talk/screens/settings_screen.dart';
 
 import '../../../core/models/models.dart';
-import '../../../core/processor/packet_manager.dart';
+import '../../../core/managers/packet_manager.dart';
 import '../core/models/text_room_scroll_controller.dart';
 
 class TextRoomInput extends StatefulWidget {

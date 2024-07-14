@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:talk/core/connection/client_manager.dart';
+import 'package:talk/core/managers/client_manager.dart';
 import 'package:talk/core/notifiers/current_client_provider.dart';
 import 'package:talk/core/notifiers/theme_controller.dart';
 

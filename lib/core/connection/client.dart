@@ -5,10 +5,10 @@ import 'dart:typed_data';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
-import 'package:talk/core/audio/audio_manager.dart';
-import 'package:talk/core/connection/client_manager.dart';
+import 'package:talk/core/managers/audio_manager.dart';
+import 'package:talk/core/managers/client_manager.dart';
 import 'package:talk/core/connection/message_stream_handler.dart';
-import 'package:talk/core/processor/packet_manager.dart';
+import 'package:talk/core/managers/packet_manager.dart';
 import 'package:talk/core/processor/response_processor.dart';
 import 'package:talk/core/network/response.dart' as response;
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/audio/audio_manager.dart';
+import '../../../core/managers/audio_manager.dart';
 import '../../../core/storage/storage.dart';
 
 class ConsoleAudioTab extends StatefulWidget {

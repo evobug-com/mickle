@@ -11,9 +11,9 @@ import 'package:provider/provider.dart';
 import 'package:talk/core/models/models.dart';
 import 'package:talk/core/notifiers/theme_controller.dart';
 
-import '../../../../core/audio/audio_manager.dart';
+import '../../../../core/managers/audio_manager.dart';
 import '../../../../core/connection/client.dart';
-import '../../../../core/processor/packet_manager.dart';
+import '../../../../core/managers/packet_manager.dart';
 final _logger = Logger("VoiceRoomCurrent");
 
 class VoiceRoomCurrent extends ChangeNotifier {

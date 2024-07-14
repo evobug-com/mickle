@@ -2,7 +2,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../../core/audio/audio_manager.dart';
+import '../../../core/managers/audio_manager.dart';
 import '../core/models/error_item.dart';
 
 class Errors {

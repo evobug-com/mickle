@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:talk/core/connection/client.dart';
-import 'package:talk/core/connection/client_manager.dart';
+import 'package:talk/core/managers/client_manager.dart';
 import '../../context_menu/context_menu.dart' as context_menu;
 
 class ServerListClientContextMenu extends StatelessWidget {

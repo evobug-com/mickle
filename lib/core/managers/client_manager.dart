@@ -4,10 +4,10 @@ import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
-import 'package:talk/core/connection/reconnect_manager.dart';
+import 'package:talk/core/managers/reconnect_manager.dart';
 
 import '../storage/secure_storage.dart';
-import 'client.dart';
+import '../connection/client.dart';
 
 class ClientManager extends ChangeNotifier {
   final LinkedHashMap<String, Client> _clients = LinkedHashMap();

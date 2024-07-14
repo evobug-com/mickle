@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:talk/core/models/models.dart';
 import '../connection/client.dart';
 import '../database.dart';
-import '../processor/packet_manager.dart';
+import '../managers/packet_manager.dart';
 
 final _logger = Logger('CurrentClientProvider');
 

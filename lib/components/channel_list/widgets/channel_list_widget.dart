@@ -3,7 +3,7 @@ import 'package:talk/components/channel_list/components/channel_list_item.dart';
 import 'package:talk/components/channel_list/components/channel_list_room_dialog.dart';
 import 'package:talk/core/connection/client.dart';
 import 'package:talk/core/models/models.dart';
-import 'package:talk/core/processor/packet_manager.dart';
+import 'package:talk/core/managers/packet_manager.dart';
 
 class ChannelListWidget extends StatefulWidget {
   final Client client;
