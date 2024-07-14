@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:talk/core/connection/client.dart';
 import 'package:talk/core/network/utils.dart';
 
+import '../database.dart';
 import '../network/request.dart' as request;
 import '../network/response.dart' as response;
 
@@ -134,7 +135,7 @@ class PacketManager {
   }) {
     return runRequest((requestId) {
 
-      final mentions = request.parseMessageMentions(value);
+      final mentions = request.parseMessageMentions(value, database: Database(_client.serverId!));
 
       return request.ChannelMessageCreate(
         requestId: requestId,

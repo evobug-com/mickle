@@ -18,7 +18,7 @@ class SecureStorage {
     _logger.fine('Wrote to secure storage: $key -> ${await read(key)}');
   }
 
-  writeJSONArray(String key, List<dynamic> value) async {
+  writeJSONArray(String key, dynamic value) async {
     await write(key, json.encode(value));
   }
 

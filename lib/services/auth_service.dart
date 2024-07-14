@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
+import 'package:talk/core/providers/global/selected_server_provider.dart';
 import 'package:talk/core/storage/preferences.dart';
 
 import '../core/connection/client.dart';
@@ -35,13 +36,13 @@ class AuthService with ChangeNotifier {
 
   get currentLoggingClient => _currentLoggingClient;
 
-  Future<bool> autoLogin(BuildContext context) async {
+  Future<bool> autoLogin(BuildContext context, {required SelectedServerProvider selectedServerProvider}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final bool success = await _performAutologin();
+      final bool success = await _performAutologin(selectedServerProvider: selectedServerProvider);
       _isDone = true;
       if (success) {
         _navigateToChat(context);
@@ -81,7 +82,7 @@ class AuthService with ChangeNotifier {
     return _currentLoggingClient;
   }
 
-  Future<bool> _performAutologin() async {
+  Future<bool> _performAutologin({required SelectedServerProvider selectedServerProvider}) async {
     final servers = await Preferences.getServerList();
     if (servers.isEmpty) {
       _logger.fine("No servers to autologin to.");
@@ -99,19 +100,19 @@ class AuthService with ChangeNotifier {
       await _attemptServerLogin(server, futures);
     }
 
-    return await _handleLoginResults(futures);
+    return await _handleLoginResults(futures, selectedServerProvider: selectedServerProvider);
   }
 
   Future<void> _attemptServerLogin(dynamic server, List<Completer<String?>> futures) async {
 
-    if (server.host == null || server.token == null) {
+    if (server['host'] == null || server['token'] == null) {
       return;
     }
 
     _logger.fine("Connecting to server $server");
     final completer = Completer<String?>();
 
-    _connectToServer(completer, server.host, token: server.token);
+    _connectToServer(completer, server['host'], token: server['token']);
     futures.add(completer);
   }
 
@@ -143,7 +144,8 @@ class AuthService with ChangeNotifier {
     }
   }
 
-  Future<bool> _handleLoginResults(List<Completer<String?>> futures) async {
+  Future<bool> _handleLoginResults(List<Completer<String?>> futures,
+      {required SelectedServerProvider selectedServerProvider}) async {
     final List<String?> results = await Future.wait(futures.map((e) => e.future));
     _logger.fine("Connection results: $results");
 
@@ -153,10 +155,26 @@ class AuthService with ChangeNotifier {
       );
 
       if (successClient != null) {
-        CurrentClientProvider().selectClient(successClient);
+        // Check for last logged server
+        final lastVisitedServerId = Preferences.getLastVisitedServerId();
+
+        // Check if the last visited server is still connected
+        final lastVisitedServer = ClientManager().clients.firstWhereOrNull(
+              (client) => client.serverId == lastVisitedServerId,
+        );
+
+        if (lastVisitedServer != null) {
+          _logger.fine("Selecting last visited server: $lastVisitedServer");
+          selectedServerProvider.selectServer(lastVisitedServer);
+          return true;
+        }
+
+        // Server is not available, select the first available server
+        _logger.fine("Selecting first available server: $successClient");
+        selectedServerProvider.selectServer(successClient);
         return true;
       } else {
-        _logger.warning("No client was successfully connected.");
+        _logger.warning("Autologin failed, no client connected.");
       }
     }
     return false;

@@ -1,6 +1,5 @@
 import 'package:flat_buffers/flex_buffers.dart' as flex_buffers;
 import 'package:talk/core/database.dart';
-import 'package:talk/core/notifiers/current_client_provider.dart';
 import 'utils.dart';
 
 part 'request.g.dart';
@@ -11,11 +10,7 @@ part 'request.g.dart';
 * */
 
 
-List<String> parseMessageMentions(String message) {
-  CurrentClientProvider clientProvider = CurrentClientProvider();
-  assert(clientProvider.selectedClient != null);
-  Database database = Database(clientProvider.selectedClient!.serverId!);
-
+List<String> parseMessageMentions(String message, {required Database database}) {
   // Parse message mentions
   List<String> rawMentions = RegExp(r'@(\w+)').allMatches(message).map((e) => e.group(1)).where((e) => e != null).toList().cast();
 

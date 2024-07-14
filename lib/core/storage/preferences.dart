@@ -13,9 +13,7 @@ class Preferences {
   }
 
   static Future<void> addServer({required String serverId, required String host, required String token, required String userId, required int port}) async {
-    return;
-
-    final servers = SecureStorage().readJSONArray("servers") as List<dynamic>;
+    final servers = (await SecureStorage().readJSONArray("servers")) as List<dynamic>;
     final server = servers.firstWhereOrNull((server) => server["serverId"] == serverId && server["host"] == host);
     if (server != null) {
       servers.remove(server);
