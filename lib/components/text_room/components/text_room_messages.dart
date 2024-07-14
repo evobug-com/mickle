@@ -93,6 +93,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
   Widget build(BuildContext context) {
     final messages = widget.channel.getMessages(database: widget.connection.database);
     final textRoomScrollController = Provider.of<TextRoomScrollController>(context);
+    var previousDate = DateTime.now();
     return FutureBuilder(
       future: fetchingMessages,
       builder: (context, messagesFetchSnapshot) {
@@ -121,7 +122,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
               }
             });
 
-            return ListView.separated(
+            return ListView.builder(
               controller: Provider.of<TextRoomScrollController>(context, listen: false).controllers.putIfAbsent(widget.channel.id, () {
                 final controller = CachedScrollController();
                 controller.controller.addListener(() {
@@ -135,34 +136,39 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
                 return controller;
               }).controller,
               itemCount: messages.length,
-              separatorBuilder: (context, index) {
-                final currentMessage = messages[index];
-                final previousMessage = index > 0 ? messages[index - 1] : null;
+              itemBuilder: (context, index) {
+                final message = messages[index];
+                final user = widget.connection.database.users.get("User:${message.user}");
 
+                final currentMessage = messages[index];
 
                 // Date is: 2024-05-10T22:41:50.173955362Z
                 final currentMessageDate = DateTime.parse(currentMessage.createdAt);
-                final previousMessageDate = previousMessage != null ? DateTime.parse(previousMessage.createdAt) : null;
+                final todayDate = DateTime.now();
+                final diffToToday = todayDate.difference(currentMessageDate);
+                String text;
 
-                if(previousMessageDate != null && currentMessageDate.day != previousMessageDate.day) {
-                  final diff = currentMessageDate.difference(previousMessageDate);
-                  String text;
-                  if(diff.inDays <= 6) {
-                    if(diff.inDays == 1) {
-                      text = "Yesterday";
-                    } else {
-                      // Show the week day name
-                      text = currentMessageDate.toLocal().weekday == 1 ? "Monday" : currentMessageDate.toLocal().weekday == 2 ? "Tuesday" : currentMessageDate.toLocal().weekday == 3 ? "Wednesday" : currentMessageDate.toLocal().weekday == 4 ? "Thursday" : currentMessageDate.toLocal().weekday == 5 ? "Friday" : currentMessageDate.toLocal().weekday == 6 ? "Saturday" : "Sunday";
-                    }
+                if(diffToToday.inDays <= 6) {
+                  if(diffToToday.inDays == 0) {
+                    text = "Today";
+                  } else if(diffToToday.inDays == 1) {
+                    text = "Yesterday";
                   } else {
-                    text = currentMessageDate.toLocal().toIso8601String().substring(0, 10);
+                    // Show the week day name
+                    text = currentMessageDate.toLocal().weekday == 1 ? "Monday" : currentMessageDate.toLocal().weekday == 2 ? "Tuesday" : currentMessageDate.toLocal().weekday == 3 ? "Wednesday" : currentMessageDate.toLocal().weekday == 4 ? "Thursday" : currentMessageDate.toLocal().weekday == 5 ? "Friday" : currentMessageDate.toLocal().weekday == 6 ? "Saturday" : "Sunday";
                   }
+                } else {
+                  text = currentMessageDate.toLocal().toIso8601String().substring(0, 10);
+                }
 
+                Widget? daySeparatorWidget;
+                if(currentMessageDate.day != previousDate.day || currentMessageDate.month != previousDate.month || currentMessageDate.year != previousDate.year) {
+                  previousDate = currentMessageDate;
                   final decoration = BoxDecoration(
                     color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(4),
                   );
-                  return Container(
+                  daySeparatorWidget = Container(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Row(
                       children: [
@@ -170,7 +176,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
                         Padding(
                           padding: const EdgeInsets.fromLTRB(50, 0, 50, 0),
                           child: Text(
-                            currentMessageDate.toLocal().toIso8601String().substring(0, 10),
+                            text,
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                               fontSize: 12,
@@ -183,18 +189,16 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
                   );
                 }
 
-                // If day has changed, show separator with date
-                return const SizedBox(height: 0);
-              },
-              itemBuilder: (context, index) {
-                final message = messages[index];
-                final user = widget.connection.database.users.get("User:${message.user}");
-
-                return TextRoomMessage(
-                  message: message,
-                  user: user,
-                  onEdit: null,
-                  onDelete: null,
+                return Column(
+                  children: [
+                    if(daySeparatorWidget != null) daySeparatorWidget,
+                    TextRoomMessage(
+                      message: message,
+                      user: user,
+                      onEdit: null,
+                      onDelete: null,
+                    ),
+                  ],
                 );
               },
             );
