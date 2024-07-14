@@ -34,8 +34,7 @@ class _MyScaffoldState extends State<MyScaffold> {
       backgroundColor: colorScheme.surfaceContainerLow,
       body: Row(
         children: [
-          if (kDebugMode)
-            const ServerListWidget(),
+          const ServerListWidget(),
 
           Expanded(
             child: Stack(

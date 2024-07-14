@@ -8,13 +8,13 @@ import 'package:talk/ui/user_avatar.dart';
 // This component will render a message in a room
 // The message will have Avatar, name, time and message
 // It will support editing and deleting messages
-class ChannelMessage extends StatefulWidget {
+class TextRoomMessage extends StatefulWidget {
   final models.Message message;
   final models.User? user;
   final void Function()? onEdit;
   final void Function()? onDelete;
 
-  const ChannelMessage({
+  const TextRoomMessage({
     super.key,
     required this.message,
     required this.user,
@@ -23,10 +23,10 @@ class ChannelMessage extends StatefulWidget {
   });
 
   @override
-  ChannelMessageState createState() => ChannelMessageState();
+  TextRoomMessageState createState() => TextRoomMessageState();
 }
 
-class ChannelMessageState extends State<ChannelMessage> {
+class TextRoomMessageState extends State<TextRoomMessage> {
   bool _isHovered = false;
 
   getBackgroundColor() {

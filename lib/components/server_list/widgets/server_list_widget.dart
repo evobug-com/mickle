@@ -16,7 +16,7 @@ class ServerListWidget extends StatefulWidget {
 }
 
 class _ServerListWidgetState extends State<ServerListWidget> {
-  int _selectedServerIndex = 0;
+  int _selectedServerIndex = -1;
 
   void setCurrentClient(Client client) {
     CurrentClientProvider.of(context, listen: false).selectClient(client);
@@ -82,15 +82,18 @@ class _ServerListWidgetState extends State<ServerListWidget> {
                   borderRadius: BorderRadius.all(Radius.circular(4))
               ),
               indicatorColor: colorScheme.surfaceContainerHigh,
-              selectedIndex: _selectedServerIndex,
+              selectedIndex: _selectedServerIndex <= 0 ? null : _selectedServerIndex,
               backgroundColor: colorScheme.surfaceContainerLow,
               labelType: NavigationRailLabelType.all,
               onDestinationSelected: onDestinationSelected,
-              leading: IconButton(
-                icon: const Icon(Icons.add_circle_outline_rounded),
-                onPressed: () {
-                  context.go("/login");
-                },
+              leading: Tooltip(
+                message: "Add server",
+                child: IconButton(
+                  icon: const Icon(Icons.add_circle_outline_rounded),
+                  onPressed: () {
+                    context.go("/login");
+                  },
+                ),
               ),
               destinations: _getDestinations(),
             );

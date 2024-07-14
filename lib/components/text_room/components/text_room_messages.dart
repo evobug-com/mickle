@@ -5,7 +5,7 @@ import 'package:talk/core/database.dart';
 import 'package:talk/core/processor/packet_manager.dart';
 
 import '../../../core/models/models.dart';
-import '../../../ui/channel_message.dart';
+import 'text_room_message.dart';
 import '../core/models/text_room_scroll_controller.dart';
 
 class TextRoomMessages extends StatefulWidget {
@@ -134,7 +134,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
               final message = messages[index];
               final user = database.users.get("User:${message.user}");
 
-              return ChannelMessage(
+              return TextRoomMessage(
                 message: message,
                 user: user,
                 onEdit: null,
