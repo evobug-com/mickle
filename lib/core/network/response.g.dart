@@ -300,6 +300,27 @@ class ChannelRemoveUser {
       ..relation = data["relation"].isNull ? null : models.Relation.fromReference(data["relation"]);
   }
 }
+class JoinVoiceChannel {
+
+  static const PacketResponse packetName = PacketResponse.JoinVoiceChannel;
+
+  late int requestId;
+  String? userId;
+  String? channelId;
+  String? token;
+  String? error;
+  
+  JoinVoiceChannel();
+  
+  factory JoinVoiceChannel.fromReference(flex_buffers.Reference data) {
+    return JoinVoiceChannel()
+      ..requestId = data["requestId"].intValue!
+      ..userId = data["userId"].stringValue
+      ..channelId = data["channelId"].stringValue
+      ..token = data["token"].stringValue
+      ..error = data["error"].stringValue;
+  }
+}
 enum PacketResponse {
   Login,
   Ping,
@@ -316,6 +337,7 @@ enum PacketResponse {
   ChannelDelete,
   ChannelUpdate,
   ChannelAddUser,
-  ChannelRemoveUser
+  ChannelRemoveUser,
+  JoinVoiceChannel
 }
   

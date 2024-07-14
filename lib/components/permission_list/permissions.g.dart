@@ -18,6 +18,7 @@ final Map<String, Permission> permissions = {
   'channel_delete': const Permission("Channel", "channel_delete", "Channel Delete", "Allows the user to delete channels"),
   'channel_add_users': const Permission("Channel", "channel_add_users", "Channel Add Users", "Allows the user to add users to channels"),
   'channel_remove_users': const Permission("Channel", "channel_remove_users", "Channel Remove Users", "Allows the user to remove users from channels"),
+  'channel_join_voice': const Permission("Channel", "channel_join_voice", "Channel Join Voice", "Allows the user to join voice in channels"),
   'channel_send_messages': const Permission("Chat", "channel_send_messages", "Channel Send Messages", "Allows the user to send messages"),
   'channel_read_messages': const Permission("Chat", "channel_read_messages", "Channel Read Messages", "Allows the user to read messages"),
   'channel_upload_media': const Permission("Chat", "channel_upload_media", "Channel Upload Media", "Allows the user to upload images and videos to chat messages"),

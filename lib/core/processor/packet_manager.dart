@@ -224,4 +224,15 @@ class PacketManager {
       );
     });
   }
+
+  Future<response.JoinVoiceChannel> sendJoinVoiceChannel({
+    required String channelId,
+  }) {
+    return runRequest((requestId) {
+      return request.JoinVoiceChannel(
+        requestId: requestId,
+        channelId: channelId,
+      );
+    });
+  }
 }

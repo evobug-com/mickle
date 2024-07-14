@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:talk/core/notifiers/current_client_provider.dart';
 
 import '../../../core/models/models.dart';
 import '../../../core/notifiers/theme_controller.dart';
@@ -19,6 +20,8 @@ class TextRoomHeaderState extends State<TextRoomHeader> {
 
   @override
   Widget build(BuildContext context) {
+    CurrentClientProvider currentClientProvider = Provider.of<CurrentClientProvider>(context);
+
     // First line: Title with badge of how many pinned messages is there
     // Second line: Description of the current room
     // On hover, it will show Row with pinned messages
@@ -50,7 +53,7 @@ class TextRoomHeaderState extends State<TextRoomHeader> {
                     return IconButton(onPressed: () => VoiceRoomCurrent.of(context, listen: false).leaveVoice(), icon: const Icon(Icons.call_end));
                   }
 
-                  return IconButton(onPressed: () => VoiceRoomCurrent.of(context, listen: false).joinVoice(widget.channel), icon: const Icon(Icons.call));
+                  return IconButton(onPressed: () => VoiceRoomCurrent.of(context, listen: false).joinVoice(currentClientProvider.selectedClient, widget.channel), icon: const Icon(Icons.call));
                 },
               ),
             // Colored Box with icon on left, number on right

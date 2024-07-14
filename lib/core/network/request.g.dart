@@ -288,3 +288,22 @@ class ChannelRemoveUser extends Request {
   } 
 
 }
+class JoinVoiceChannel extends Request {
+
+  int requestId;
+  String channelId;
+  
+  JoinVoiceChannel({required this.requestId, required this.channelId});
+  
+    serialize() {
+    final builder = flex_buffers.Builder();
+   
+    builder.addMapWKey("JoinVoiceChannel", () {
+      builder.addIntWKey("requestId", requestId);
+      builder.addStringWKey("channelId", channelId);
+    });
+    
+    return builder.finish(); 
+  } 
+
+}

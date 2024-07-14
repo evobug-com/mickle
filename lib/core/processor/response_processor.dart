@@ -38,6 +38,7 @@ Future<void> processResponse(Client client, Uint8List data) async {
   } catch (e) {
     _logger.severe("Error processing response: $e");
     _logger.severe("String data: ${String.fromCharCodes(data)}");
+    _logger.severe("Buffer data: ${data}");
   }
 }
 
@@ -90,6 +91,9 @@ Future<void> _handlePacket(response.PacketResponse key, flex_buffers.Reference v
       break;
     case response.ChannelRemoveUser.packetName:
       await _handleChannelRemoveUser(value, client, packetManager);
+      break;
+    case response.PacketResponse.JoinVoiceChannel:
+      await _handleJoinVoiceChannelResponse(value, client, packetManager);
       break;
   }
 }
@@ -341,5 +345,16 @@ _handleChannelRemoveUser(flex_buffers.Reference value, Client client, PacketMana
     _logger.info("ChannelRemoveUser success");
   } else {
     _logger.severe("ChannelRemoveUser error: ${packet.error}");
+  }
+}
+
+_handleJoinVoiceChannelResponse(flex_buffers.Reference value, Client client, PacketManager packetManager) {
+  final packet = response.JoinVoiceChannel.fromReference(value);
+  packetManager.runResolve(packet.requestId, packet);
+
+  if (packet.error == null) {
+    _logger.info("JoinVoiceChannel success");
+  } else {
+    _logger.severe("JoinVoiceChannel error: ${packet.error}");
   }
 }

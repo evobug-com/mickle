@@ -20,7 +20,7 @@ class _ServerListWidgetState extends State<ServerListWidget> {
 
   void setCurrentClient(Client client) {
     CurrentClientProvider.of(context, listen: false).selectClient(client);
-    context.go("/");
+    context.go("/chat");
   }
 
   Color _getColorForConnectionState(ClientConnectionState state) {

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
@@ -50,6 +51,9 @@ class AuthService with ChangeNotifier {
     } catch (e) {
       _errorMessage = 'Autologin failed: ${e.toString()}';
       _logger.severe(_errorMessage);
+      if(!kReleaseMode) {
+        rethrow;
+      }
     } finally {
       _isLoading = false;
       _isDone = true;
@@ -122,7 +126,7 @@ class AuthService with ChangeNotifier {
   void _connectToServer(Completer<String?>? completer, String host,
       {String? token, String? username, String? password}) async {
     final client = Client(
-      address: ClientAddress(host: host, port: 55000),
+      address: ClientAddress(host: host, port: 3000),
       onError: (error) {
         completer?.completeError(error);
       },
