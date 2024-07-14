@@ -19,6 +19,15 @@ class ConnectionProvider extends ChangeNotifier {
     packetManager = PacketManager(client);
   }
 
+  update(Client client) {
+    this.client = client;
+    user = client.serverData.user!;
+    server = client.serverData.server!;
+    database = Database(client.serverData.serverId!);
+    packetManager = PacketManager(client);
+    notifyListeners();
+  }
+
   static ConnectionProvider of(BuildContext context, {bool listen = true}) {
     return Provider.of<ConnectionProvider>(context, listen: listen);
   }

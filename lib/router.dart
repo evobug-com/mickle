@@ -22,7 +22,7 @@ FutureOr<String?> _redirect(BuildContext context, GoRouterState state) async {
   }
 
   final selectedServerProvider = SelectedServerProvider.of(context, listen: false);
-  if(selectedServerProvider.serverId == null) {
+  if(selectedServerProvider.client == null) {
     _logger.fine("No server selected, redirecting to login screen");
     return '/login';
   }

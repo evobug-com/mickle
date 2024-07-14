@@ -195,7 +195,7 @@ class LoginScreenState extends State<LoginScreen> {
                                    // If client is not null, the login was successful
                                    if(client != null) {
                                      // If login is success, select the server
-                                     SelectedServerProvider.of(context, listen: false).selectServer(client.address.host, client.address.port, client.serverId!, client);
+                                     SelectedServerProvider.of(context, listen: false).selectServer(client);
                                      // Go to chat screen
                                       context.goNamed('chat');
                                      _logger.fine("Logged in successfully.");

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:talk/core/managers/client_manager.dart';
-import 'package:talk/core/notifiers/current_client_provider.dart';
 import 'package:talk/core/notifiers/theme_controller.dart';
+import 'package:talk/core/providers/global/selected_server_provider.dart';
+import 'package:talk/core/providers/scoped/connection_provider.dart';
 
 import '../../../core/connection/client.dart';
 import '../components/server_list_client_context_menu.dart';
@@ -20,7 +21,7 @@ class _ServerListWidgetState extends State<ServerListWidget> {
   int _selectedServerIndex = -1;
 
   void setCurrentClient(Client client) {
-    CurrentClientProvider.of(context, listen: false).selectClient(client);
+    SelectedServerProvider.of(context, listen: false).selectServer(client);
     context.go("/chat");
   }
 
