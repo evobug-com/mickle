@@ -79,16 +79,16 @@ class ChannelListItem extends StatelessWidget {
       ),
       child: ListTile(
         title: Text(channel.name),
-        leading: const Icon(Icons.tag),
+        // leading: const Icon(Icons.tag),
         selected: channel.id == selectedRoom.selectedChannel?.id,
         selectedTileColor: scheme.surfaceContainerHigh,
         // Show badge in trailing
-        // trailing: roomId == widget.controller.selectedRoomId
-        //     ? const CircleAvatar(
-        //         backgroundColor: Colors.red,
-        //         radius: 4,
-        //       )
-        //     : null,
+        trailing: channel.id == selectedRoom.selectedChannel?.id
+            ? const CircleAvatar(
+                backgroundColor: Colors.red,
+                radius: 4,
+              )
+            : null,
         onTap: () {
           ChannelListSelectedRoom.of(context, listen: false).selectedChannel = channel;
         },

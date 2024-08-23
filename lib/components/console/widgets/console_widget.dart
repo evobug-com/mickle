@@ -5,7 +5,6 @@ import 'package:talk/components/console/widgets/console_database_tab.dart';
 import 'package:talk/components/console/widgets/console_general_tab.dart';
 
 import '../../../core/notifiers/current_client_provider.dart';
-import '../../../core/notifiers/theme_controller.dart';
 import 'console_audio_tab.dart';
 import 'console_errors_tab.dart';
 import 'console_network_tab.dart';
@@ -43,7 +42,7 @@ class ConsoleWidgetState extends State<ConsoleWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = ThemeController.scheme(context);
+    final scheme = Theme.of(context).colorScheme;
     final clientProvider = CurrentClientProvider.of(context);
     final Map<String, Widget> tabs = {};
 

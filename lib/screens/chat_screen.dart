@@ -72,7 +72,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: Row(
                   children: <Widget>[
                     Padding(
-                      padding: EdgeInsets.fromLTRB(0, 8, 8, 8),
+                      padding: const EdgeInsets.fromLTRB(0, 8, 8, 8),
                       child: Sidebar(
                         // Left sidebar will have top and bottom parts
                         // Top is channel list and bottom is private channel list
@@ -250,10 +250,10 @@ class _ChatScreenState extends State<ChatScreen> {
                             AnimatedSwitcher(
                               duration: const Duration(milliseconds: 200),
                               child: currentVoiceRoom.currentChannel != null
-                                  ? Column(
+                                  ? const Column(
                                       key: ValueKey("control-panel"),
                                       children: [
-                                        const SizedBox(height: 8.0),
+                                        SizedBox(height: 8.0),
                                         VoiceRoomControlPanel()
                                       ],
                                     )
@@ -363,7 +363,7 @@ class SidebarBox extends StatelessWidget {
     return Material(
         child: Surface.surfaceContainer(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: child));
   }

@@ -75,7 +75,7 @@ class TextRoomHeaderState extends State<TextRoomHeader> {
           const Divider(),
           Text(
              widget.channel.description ?? "<No description>",
-            style: ThemeController.theme(context).textTheme.bodySmall,
+            style: Theme.of(context).textTheme.bodySmall,
           ),
           // const Divider(height: 1),
           // Row with pinned messages

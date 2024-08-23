@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:talk/core/models/models.dart' as models;
 import 'package:talk/core/notifiers/current_client_provider.dart';
-import 'package:talk/core/notifiers/theme_controller.dart';
 import 'package:talk/ui/user_avatar.dart';
 
 // This component will render a message in a room
@@ -30,20 +29,20 @@ class TextRoomMessageState extends State<TextRoomMessage> {
   bool _isHovered = false;
 
   getBackgroundColor() {
+    final colorScheme = Theme.of(context).colorScheme;
     final clientProvider = CurrentClientProvider.of(context);
     // if is current user
     if (widget.user?.id == clientProvider.userId) {
       if (_isHovered) {
-        return ThemeController
-            .scheme(context)
+        return colorScheme
             .surfaceContainerHigh;
       } else {
-        return ThemeController.scheme(context).surfaceContainer;
+        return colorScheme.surfaceContainer;
       }
     }
 
     if(_isHovered) {
-      return ThemeController.scheme(context).surfaceContainerHigh;
+      return colorScheme.surfaceContainerHigh;
     } else {
       return Colors.transparent;
     }
@@ -51,7 +50,7 @@ class TextRoomMessageState extends State<TextRoomMessage> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = ThemeController.scheme(context);
+    final colorScheme = Theme.of(context).colorScheme;
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),

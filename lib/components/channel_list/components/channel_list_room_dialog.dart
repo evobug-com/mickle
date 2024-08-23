@@ -46,7 +46,6 @@ class _ChannelListRoomDialogState extends State<ChannelListRoomDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ThemeController.theme(context);
     return SimpleDialog(
       title: Text(dialogLabelTitle),
       contentPadding: const EdgeInsets.all(16),

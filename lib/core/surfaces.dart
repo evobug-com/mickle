@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:talk/core/notifiers/theme_controller.dart';
 
 enum SurfaceType {
   lowest,
@@ -17,32 +16,34 @@ class Surface extends StatelessWidget {
   const Surface({super.key, required this.surfaceType, required this.child, this.decoration});
 
   getColor(BuildContext context, SurfaceType type) {
+    final theme = Theme.of(context);
     switch (type) {
       case SurfaceType.lowest:
-        return ThemeController.scheme(context).surfaceContainerLowest;
+        return theme.colorScheme.surfaceContainerLowest;
       case SurfaceType.low:
-        return ThemeController.scheme(context).surfaceContainerLow;
+        return theme.colorScheme.surfaceContainerLow;
       case SurfaceType.normal:
-        return ThemeController.scheme(context).surfaceContainer;
+        return theme.colorScheme.surfaceContainer;
       case SurfaceType.high:
-        return ThemeController.scheme(context).surfaceContainerHigh;
+        return theme.colorScheme.surfaceContainerHigh;
       case SurfaceType.highest:
-        return ThemeController.scheme(context).surfaceContainerHighest;
+        return theme.colorScheme.surfaceContainerHighest;
     }
   }
 
   getTextColor(BuildContext context, SurfaceType type) {
+    final theme = Theme.of(context);
     switch (type) {
       case SurfaceType.lowest:
-        return ThemeController.scheme(context).onSurface;
+        return theme.colorScheme.onSurface;
       case SurfaceType.low:
-        return ThemeController.scheme(context).onSurface;
+        return theme.colorScheme.onSurface;
       case SurfaceType.normal:
-        return ThemeController.scheme(context).onSurface;
+        return theme.colorScheme.onSurface;
       case SurfaceType.high:
-        return ThemeController.scheme(context).onSurface;
+        return theme.colorScheme.onSurface;
       case SurfaceType.highest:
-        return ThemeController.scheme(context).onSurface;
+        return theme.colorScheme.onSurface;
     }
   }
 

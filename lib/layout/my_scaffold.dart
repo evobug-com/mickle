@@ -24,7 +24,7 @@ class MyScaffold extends StatefulWidget {
 class _MyScaffoldState extends State<MyScaffold> {
   @override
   Widget build(BuildContext context) {
-    final colorScheme = ThemeController.scheme(context);
+    final colorScheme = Theme.of(context).colorScheme;
     final router = GoRouter.of(context);
     final isLoginScreen = router.routeInformationProvider.value.uri.path == '/login';
 

@@ -47,42 +47,47 @@ class _ServerListNavigatorState extends State<ServerListNavigator> {
   List<Widget> _getDestinations() {
     final clients = ClientManager.of(context, listen: false).clients;
     return clients.mapIndexed((index, client) {
-      return ServerListClientContextMenu(
-        client: client,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 5),
-          child: TooltipVisibility(
-            visible: !_isExpanded,
-            child: Tooltip(
-              message: client.address.toString(),
-              child: ListTile(
-                dense: true,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                contentPadding: EdgeInsets.zero,
-                selectedTileColor: Theme.of(context).colorScheme.surfaceContainer,
-                title: Icon(
-                  Icons.computer,
-                  color: _getColorForConnectionState(client.connection.state),
-                ),
-                subtitle: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 150),
-                  child: _isExpanded ? Center(
-                    child: Text(
-                      client.address.toString(),
-                      style: TextStyle(
-                          overflow: TextOverflow.ellipsis,
-                          color: _getColorForConnectionState(client.connection.state)),
+      return ListenableBuilder(
+        listenable: client.connection,
+        builder: (context, _) {
+          return ServerListClientContextMenu(
+            client: client,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              child: TooltipVisibility(
+                visible: !_isExpanded,
+                child: Tooltip(
+                  message: client.address.toString(),
+                  child: ListTile(
+                    dense: true,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4),
                     ),
-                  ) : null,
+                    contentPadding: EdgeInsets.zero,
+                    selectedTileColor: Theme.of(context).colorScheme.surfaceContainer,
+                    title: Icon(
+                      Icons.computer,
+                      color: _getColorForConnectionState(client.connection.state),
+                    ),
+                    subtitle: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 150),
+                      child: _isExpanded ? Center(
+                        child: Text(
+                          client.address.toString(),
+                          style: TextStyle(
+                              overflow: TextOverflow.ellipsis,
+                              color: _getColorForConnectionState(client.connection.state)),
+                        ),
+                      ) : null,
+                    ),
+                    selected: index == _selectedServerIndex,
+                    onTap: () => onDestinationSelected(index),
+                  ),
                 ),
-                selected: index == _selectedServerIndex,
-                onTap: () => onDestinationSelected(index),
               ),
             ),
-          ),
-        ),
+          );
+        }
       );
     }).toList();
   }

@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 import 'package:talk/core/models/models.dart';
-import 'package:talk/core/notifiers/theme_controller.dart';
 
 import '../../../../core/managers/audio_manager.dart';
 import '../../../../core/connection/client.dart';
@@ -23,8 +22,8 @@ class VoiceRoomCurrent extends ChangeNotifier {
   // DtlsClient? _dtlsClient;
   // DtlsConnection? _dtlsConnection;
 
-  _showError(String message) {
-    final scheme = ThemeController().currentTheme.colorScheme;
+  _showError(String message, BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
 
     BotToast.showNotification(
       title: (_) => Text("Failed to join voice channel", style: TextStyle(color: scheme.onError)),
