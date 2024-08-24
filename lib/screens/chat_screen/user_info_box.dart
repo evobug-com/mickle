@@ -2,12 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:talk/core/database.dart';
 import 'package:talk/core/providers/scoped/connection_provider.dart';
+import 'package:talk/screens/chat_screen/sidebar_box.dart';
 import 'package:talk/ui/user_avatar.dart';
-import 'package:talk/core/notifiers/current_client_provider.dart';
 import 'package:talk/core/completer.dart';
-import 'package:provider/provider.dart';
-
-import 'sidebar_box.dart';
 
 enum AvatarUploadMethod { url, localFile }
 
@@ -20,26 +17,40 @@ class UserInfoBox extends StatefulWidget {
   _UserInfoBoxState createState() => _UserInfoBoxState();
 }
 
-class _UserInfoBoxState extends State<UserInfoBox> {
+class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStateMixin {
+  late TextEditingController _displayNameController;
   late TextEditingController _statusController;
   late TextEditingController _avatarUrlController;
   String? _newPresence;
   bool _isLoading = false;
   String? _errorMessage;
   AvatarUploadMethod _avatarUploadMethod = AvatarUploadMethod.url;
+  late AnimationController _animationController;
+  late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
+    _displayNameController = TextEditingController(text: widget.connection.user.displayName);
     _statusController = TextEditingController(text: widget.connection.user.status);
     _avatarUrlController = TextEditingController(text: widget.connection.user.avatar);
     _newPresence = widget.connection.user.presence;
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 300),
+    );
+    _animation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
   void dispose() {
+    _displayNameController.dispose();
     _statusController.dispose();
     _avatarUrlController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -94,148 +105,272 @@ class _UserInfoBoxState extends State<UserInfoBox> {
 
   void _showEditPopup(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final clientProvider = Provider.of<CurrentClientProvider>(context, listen: false);
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
-            return AlertDialog(
-              backgroundColor: colorScheme.surface,
-              title: Text('Edit Profile', style: TextStyle(color: colorScheme.onSurface)),
-              content: SingleChildScrollView(
-                child: ListBody(
-                  children: <Widget>[
-                    _buildStatusField(colorScheme),
-                    const SizedBox(height: 16),
-                    _buildPresenceDropdown(colorScheme),
-                    const SizedBox(height: 16),
-                    _buildAvatarUploadOptions(colorScheme, setState),
-                    if (_isLoading)
-                      CircularProgressIndicator(color: colorScheme.primary)
-                    else if (_errorMessage != null)
-                      Text(_errorMessage!, style: TextStyle(color: colorScheme.error)),
-                  ],
-                ),
-              ),
-              actions: <Widget>[
-                TextButton(
-                  child: Text('Cancel', style: TextStyle(color: colorScheme.primary)),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-                TextButton(
-                  child: Text('Apply', style: TextStyle(color: colorScheme.primary)),
-                  onPressed: _isLoading ? null : () => _applyChanges(context, clientProvider),
-                ),
-              ],
+            return AnimatedBuilder(
+              animation: _animation,
+              builder: (context, child) {
+                return Transform.scale(
+                  scale: 0.8 + 0.2 * _animation.value,
+                  child: Opacity(
+                    opacity: _animation.value,
+                    child: Dialog(
+                      backgroundColor: Colors.transparent,
+                      child: Container(
+                        width: 400,
+                        decoration: BoxDecoration(
+                          color: colorScheme.surface,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: colorScheme.shadow.withOpacity(0.1),
+                              blurRadius: 10,
+                              offset: Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: SingleChildScrollView(
+                          padding: EdgeInsets.all(24),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Edit Profile',
+                                style: TextStyle(
+                                  color: colorScheme.onSurface,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 24),
+                              _buildAvatarSection(colorScheme, setState),
+                              SizedBox(height: 24),
+                              _buildInfoField('Display Name', _buildDisplayNameField(colorScheme)),
+                              SizedBox(height: 16),
+                              _buildInfoField('Status', _buildStatusField(colorScheme)),
+                              SizedBox(height: 16),
+                              _buildInfoField('Presence', _buildPresenceDropdown(colorScheme, setState)),
+                              SizedBox(height: 24),
+                              if (_isLoading)
+                                Center(child: CircularProgressIndicator(color: colorScheme.primary))
+                              else if (_errorMessage != null)
+                                Text(_errorMessage!, style: TextStyle(color: colorScheme.error)),
+                              SizedBox(height: 24),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  _buildAnimatedButton('Cancel', colorScheme, () => Navigator.of(context).pop()),
+                                  SizedBox(width: 16),
+                                  _buildAnimatedButton('Apply', colorScheme, _isLoading ? null : () => _applyChanges(context, widget.connection)),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
             );
           },
         );
       },
     );
+    _animationController.forward();
   }
 
-  Widget _buildStatusField(ColorScheme colorScheme) {
-    return TextField(
-      controller: _statusController,
-      style: TextStyle(color: colorScheme.onSurface),
-      decoration: InputDecoration(
-        labelText: 'Status',
-        labelStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
-        enabledBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: colorScheme.onSurface.withOpacity(0.7)),
-        ),
-        focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: colorScheme.primary),
-        ),
+  Widget _buildAvatarSection(ColorScheme colorScheme, StateSetter setState) {
+    return Center(
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 50,
+            backgroundColor: colorScheme.primary,
+            backgroundImage: NetworkImage(_avatarUrlController.text),
+            child: _avatarUrlController.text.isEmpty
+                ? Icon(Icons.person, size: 50, color: colorScheme.onPrimary)
+                : null,
+          ),
+          SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('URL', style: TextStyle(color: colorScheme.onSurface)),
+              Switch(
+                value: _avatarUploadMethod == AvatarUploadMethod.url,
+                onChanged: (value) {
+                  setState(() {
+                    _avatarUploadMethod = value ? AvatarUploadMethod.url : AvatarUploadMethod.localFile;
+                  });
+                },
+                activeColor: colorScheme.primary,
+              ),
+              Text('Local File', style: TextStyle(color: colorScheme.onSurface.withOpacity(0.5))),
+            ],
+          ),
+          if (_avatarUploadMethod == AvatarUploadMethod.url) ...[
+            SizedBox(height: 8),
+            _buildCustomTextField(
+              controller: _avatarUrlController,
+              hint: 'Enter avatar URL',
+              colorScheme: colorScheme,
+            ),
+          ],
+        ],
       ),
     );
   }
 
-  Widget _buildPresenceDropdown(ColorScheme colorScheme) {
-    return DropdownButtonFormField<String>(
-      value: _newPresence,
-      dropdownColor: colorScheme.surface,
-      style: TextStyle(color: colorScheme.onSurface),
-      decoration: InputDecoration(
-        labelText: 'Presence',
-        labelStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
-        enabledBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: colorScheme.onSurface.withOpacity(0.7)),
-        ),
-        focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: colorScheme.primary),
-        ),
-      ),
-      items: ['online', 'offline', 'away', 'busy', 'invisible']
-          .map((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value, style: TextStyle(color: colorScheme.onSurface)),
-        );
-      }).toList(),
-      onChanged: (String? newValue) {
-        setState(() => _newPresence = newValue);
-      },
-    );
-  }
-
-  Widget _buildAvatarUploadOptions(ColorScheme colorScheme, StateSetter setState) {
+  Widget _buildInfoField(String title, Widget content) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Avatar Upload Method', style: TextStyle(color: colorScheme.onSurface)),
-        Row(
-          children: [
-            Radio<AvatarUploadMethod>(
-              value: AvatarUploadMethod.url,
-              groupValue: _avatarUploadMethod,
-              onChanged: (AvatarUploadMethod? value) {
-                setState(() {
-                  _avatarUploadMethod = value!;
-                });
-              },
-            ),
-            Text('URL', style: TextStyle(color: colorScheme.onSurface)),
-            Radio<AvatarUploadMethod>(
-              value: AvatarUploadMethod.localFile,
-              groupValue: _avatarUploadMethod,
-              onChanged: null, // Disabled
-            ),
-            Text('Local File (Disabled)',
-                style: TextStyle(color: colorScheme.onSurface.withOpacity(0.5))
-            ),
-          ],
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         ),
-        if (_avatarUploadMethod == AvatarUploadMethod.url)
-          TextField(
-            controller: _avatarUrlController,
-            style: TextStyle(color: colorScheme.onSurface),
-            decoration: InputDecoration(
-              labelText: 'Avatar URL',
-              hintText: 'Enter the URL of your avatar image',
-              labelStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: colorScheme.onSurface.withOpacity(0.7)),
-              ),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: colorScheme.primary),
-              ),
-            ),
-          ),
-        if (_avatarUploadMethod == AvatarUploadMethod.localFile)
-          Text('Local file upload is currently disabled',
-              style: TextStyle(color: colorScheme.error)
-          ),
+        SizedBox(height: 8),
+        content,
       ],
     );
   }
 
-  void _applyChanges(BuildContext context, CurrentClientProvider clientProvider) async {
-    final packetManager = clientProvider.packetManager!;
+  Widget _buildCustomTextField({
+    required TextEditingController controller,
+    required String hint,
+    required ColorScheme colorScheme,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: colorScheme.onSurface.withOpacity(0.1)),
+      ),
+      child: TextField(
+        controller: controller,
+        style: TextStyle(color: colorScheme.onSurface),
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.5)),
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDisplayNameField(ColorScheme colorScheme) {
+    return _buildCustomTextField(
+      controller: _displayNameController,
+      hint: 'Enter display name',
+      colorScheme: colorScheme,
+    );
+  }
+
+  Widget _buildStatusField(ColorScheme colorScheme) {
+    return _buildCustomTextField(
+      controller: _statusController,
+      hint: 'Enter status',
+      colorScheme: colorScheme,
+    );
+  }
+
+  Widget _buildPresenceDropdown(ColorScheme colorScheme, StateSetter setState) {
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: colorScheme.onSurface.withOpacity(0.1)),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: _newPresence,
+          dropdownColor: colorScheme.surface,
+          style: TextStyle(color: colorScheme.onSurface),
+          icon: Icon(Icons.arrow_drop_down, color: colorScheme.onSurface),
+          isExpanded: true,
+          onChanged: (String? newValue) {
+            setState(() => _newPresence = newValue);
+          },
+          items: ['online', 'offline', 'away', 'busy', 'invisible']
+              .map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.circle,
+                    size: 12,
+                    color: _getPresenceColor(value, colorScheme),
+                  ),
+                  SizedBox(width: 8),
+                  Text(value),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Color _getPresenceColor(String presence, ColorScheme colorScheme) {
+    switch (presence) {
+      case 'online':
+        return Colors.green;
+      case 'away':
+        return Colors.orange;
+      case 'busy':
+        return Colors.red;
+      case 'invisible':
+        return Colors.grey;
+      default:
+        return colorScheme.onSurface;
+    }
+  }
+
+  Widget _buildAnimatedButton(String text, ColorScheme colorScheme, VoidCallback? onPressed) {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 300),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(8),
+          child: Ink(
+            decoration: BoxDecoration(
+              color: text == 'Apply' ? colorScheme.primary : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Text(
+                text,
+                style: TextStyle(
+                  color: text == 'Apply' ? colorScheme.onPrimary : colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _applyChanges(BuildContext context, ConnectionProvider connection) async {
+    final packetManager = connection.packetManager;
 
     setState(() {
       _isLoading = true;
@@ -243,6 +378,14 @@ class _UserInfoBoxState extends State<UserInfoBox> {
     });
 
     try {
+      if (_displayNameController.text.isEmpty) {
+        _errorMessage = "Display name cannot be empty";
+        return;
+      }
+
+      if (_displayNameController.text != widget.connection.user.displayName) {
+        await packetManager.sendUserChangeDisplayName(displayName: _displayNameController.text).wrapInCompleter().future;
+      }
       if (_statusController.text != widget.connection.user.status) {
         await packetManager.sendUserChangeStatus(status: _statusController.text).wrapInCompleter().future;
       }
@@ -254,11 +397,10 @@ class _UserInfoBoxState extends State<UserInfoBox> {
         await packetManager.sendUserChangeAvatar(avatar: _avatarUrlController.text).wrapInCompleter().future;
       }
 
-      Navigator.of(context).pop(); // Close the dialog on success
+      await _animationController.reverse();
+      Navigator.of(context).pop();
     } catch (e) {
-      setState(() {
-        _errorMessage = "Error updating profile: $e";
-      });
+      _errorMessage = "Unable to update profile. Please try again.";
     } finally {
       setState(() {
         _isLoading = false;
