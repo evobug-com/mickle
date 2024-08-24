@@ -13,8 +13,9 @@ import '../ui/window_caption.dart';
 
 class MyScaffold extends StatefulWidget {
   final Widget body;
+  final bool showSidebar;
 
-  const MyScaffold({super.key, required this.body});
+  const MyScaffold({super.key, required this.body, this.showSidebar = true});
 
   @override
   State<MyScaffold> createState() => _MyScaffoldState();
@@ -47,7 +48,7 @@ class _MyScaffoldState extends State<MyScaffold> {
             backgroundColor: colorScheme.surfaceContainerLow,
             body: Row(
               children: [
-                ServerListWidget(showAddServerButton: !isLoginScreen),
+                if(widget.showSidebar) ServerListWidget(showAddServerButton: !isLoginScreen),
                 Expanded(
                   child: Stack(
                     alignment: Alignment.topCenter,

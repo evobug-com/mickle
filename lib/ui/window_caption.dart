@@ -1,24 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:talk/components/server_list/components/server_list_navigator.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:provider/provider.dart';
+import '../core/providers/global/update_provider.dart';
 
 const double kWindowCaptionHeight = 32;
 
-/// A widget to simulate the title bar of windows 11.
-///
-/// {@tool snippet}
-///
-/// ```dart
-/// Scaffold(
-///   appBar: PreferredSize(
-///     child: WindowCaption(
-///       brightness: Theme.of(context).brightness,
-///       title: Text('window_manager_example'),
-///     ),
-///     preferredSize: const Size.fromHeight(kWindowCaptionHeight),
-///   ),
-/// )
-/// ```
-/// {@end-tool}
 class WindowCaption extends StatefulWidget {
   const WindowCaption({
     super.key,
@@ -52,13 +40,12 @@ class _WindowCaptionState extends State<WindowCaption> with WindowListener {
 
   @override
   Widget build(BuildContext context) {
+    final updateProvider = context.watch<UpdateProvider>();
+    final hasPostponedUpdate = updateProvider.updateInfo.updateAvailable && !updateProvider.updateAvailable;
+
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: Colors.transparent,
-        // widget.backgroundColor ??
-        //     (widget.brightness == Brightness.dark
-        //         ? const Color(0xff1C1C1C)
-        //         : Colors.transparent),
+      decoration: BoxDecoration(
+        color: widget.backgroundColor ?? Colors.transparent,
       ),
       child: Row(
         children: [
@@ -85,6 +72,7 @@ class _WindowCaptionState extends State<WindowCaption> with WindowListener {
               ),
             ),
           ),
+          if (hasPostponedUpdate) _buildUpdateIcon(context),
           WindowCaptionButton.minimize(
             brightness: widget.brightness,
             onPressed: () async {
@@ -124,6 +112,43 @@ class _WindowCaptionState extends State<WindowCaption> with WindowListener {
             },
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildUpdateIcon(BuildContext context) {
+    return Tooltip(
+      message: 'Update available',
+      child: InkWell(
+        onTap: () {
+          // Navigate to update screen
+          context.go('/update');
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Row(
+            children: [
+              Icon(
+                Icons.system_update,
+                size: 16,
+                color: widget.brightness == Brightness.light
+                    ? Colors.blue[700]
+                    : Colors.blue[300],
+              ),
+              const SizedBox(width: 4),
+              Text(
+                'Update',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: widget.brightness == Brightness.light
+                      ? Colors.blue[700]
+                      : Colors.blue[300],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

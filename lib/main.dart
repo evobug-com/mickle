@@ -17,7 +17,10 @@ import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart' hide WindowCaption, kWindowCaptionHeight;
 
 import 'components/console/widgets/console_errors_tab.dart';
+import 'core/autoupdater/autoupdater.dart';
+import 'core/autoupdater/version.dart';
 import 'core/notifiers/theme_controller.dart';
+import 'core/providers/global/update_provider.dart';
 import 'core/storage/storage.dart';
 import 'core/version.dart';
 import 'layout/app_widget.dart';
@@ -32,6 +35,9 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
   AudioManager.ensureInitialized();
+
+  // Check for updates
+  final updateInfo = await _checkForUpdates();
 
   // Initialize window options
   WindowOptions windowOptions = const WindowOptions(
@@ -82,6 +88,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (context) => ClientManager(), lazy: false),
         ChangeNotifierProvider(create: (context) => VoiceRoomCurrent()),
         ChangeNotifierProvider(create: (context) => ChannelListSelectedChannel()),
+        ChangeNotifierProvider(create: (context) => UpdateProvider(updateInfo: updateInfo)),
 
         // Global providers
         ChangeNotifierProvider(create: (context) => SelectedServerProvider()),
@@ -96,6 +103,22 @@ _configureLogging() {
   Logger.root.onRecord.listen((record) {
     print('${record.level.name}: ${record.time}: ${record.loggerName}: ${record.message}');
   });
+}
+
+Future<UpdateInfo> _checkForUpdates() async {
+  _logger.fine("Checking for updates");
+  final updater = AutoUpdater();
+
+  // Set dry run with a fake version
+  final currentVersion = SemVer.fromString(version);
+  // final fakeVersion = SemVer(currentVersion.major, currentVersion.minor, currentVersion.patch + 1);
+  final SemVer? fakeVersion = null;
+
+  // Enable dry run mode
+  const bool isDryRun = kDebugMode; // You can change this to false to disable dry run
+  updater.setDryRun(isDryRun, fakeVersion: isDryRun ? fakeVersion : null);
+
+  return await updater.checkForUpdates();
 }
 
 _initSystemTray() async {
