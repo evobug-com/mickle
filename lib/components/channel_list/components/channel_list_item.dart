@@ -20,7 +20,7 @@ class ChannelListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final permissions = user.getPermissionsForChannel(channel.id, database: connection.database);
-    final selectedRoom = ChannelListSelectedRoom.of(context);
+    final channelListSelectedRoom = ChannelListSelectedChannel.of(context);
     final scheme = Theme.of(context).colorScheme;
 
     return ContextMenuRegion(
@@ -80,17 +80,17 @@ class ChannelListItem extends StatelessWidget {
       child: ListTile(
         title: Text(channel.name),
         // leading: const Icon(Icons.tag),
-        selected: channel.id == selectedRoom.selectedChannel?.id,
+        selected: channel.id == channelListSelectedRoom.getChannel(connection.server)?.id,
         selectedTileColor: scheme.surfaceContainerHigh,
         // Show badge in trailing
-        trailing: channel.id == selectedRoom.selectedChannel?.id
+        trailing: channel.id == channelListSelectedRoom.getChannel(connection.server)?.id
             ? const CircleAvatar(
                 backgroundColor: Colors.red,
                 radius: 4,
               )
             : null,
         onTap: () {
-          ChannelListSelectedRoom.of(context, listen: false).selectedChannel = channel;
+          ChannelListSelectedChannel.of(context, listen: false).setChannel(connection.server, channel);
         },
       ),
     );

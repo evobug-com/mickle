@@ -3,18 +3,20 @@ import 'package:provider/provider.dart';
 
 import '../../../../core/models/models.dart';
 
-class ChannelListSelectedRoom extends ChangeNotifier {
-  Channel? _selectedChannel;
+class ChannelListSelectedChannel extends ChangeNotifier {
+  Map<Server, Channel?> _selectedChannelByServer = {};
 
-  Channel? get selectedChannel => _selectedChannel;
-
-  set selectedChannel(Channel? channel) {
-    _selectedChannel = channel;
-    print("[ChannelListSelectedRoom] Selected channel changed to ${channel?.name}");
+  setChannel(Server server, Channel? channel) {
+    _selectedChannelByServer[server] = channel;
+    print("[ChannelListSelectedRoom] Selected channel changed to ${channel?.name} for server ${server.name}");
     notifyListeners();
   }
 
-  static ChannelListSelectedRoom of(BuildContext context, {bool listen = true}) {
-    return Provider.of<ChannelListSelectedRoom>(context, listen: listen);
+  getChannel(Server server) {
+    return _selectedChannelByServer[server];
+  }
+
+  static ChannelListSelectedChannel of(BuildContext context, {bool listen = true}) {
+    return Provider.of<ChannelListSelectedChannel>(context, listen: listen);
   }
 }
