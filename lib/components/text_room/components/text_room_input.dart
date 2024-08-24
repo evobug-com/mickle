@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:talk/core/connection/client.dart';
 import 'package:talk/core/providers/scoped/connection_provider.dart';
-import 'package:talk/screens/settings_screen.dart';
+import 'package:talk/screens/settings_screen/settings_provider.dart';
 
 import '../../../core/models/models.dart';
-import '../../../core/managers/packet_manager.dart';
 import '../core/models/text_room_scroll_controller.dart';
 
 class TextRoomInput extends StatefulWidget {
@@ -116,7 +114,7 @@ class TextRoomInputState extends State<TextRoomInput> {
         labelText: 'Message #${widget.channel.name}',
       ),
       onChanged: (value) {
-        if(Settings().replaceTextEmoji) {
+        if(SettingsProvider().replaceTextEmoji) {
           // Replace emojis
           final replacedValue = replaceEmojis(value);
           if (value != replacedValue) {
