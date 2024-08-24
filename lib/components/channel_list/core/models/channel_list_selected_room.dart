@@ -10,6 +10,7 @@ class ChannelListSelectedRoom extends ChangeNotifier {
 
   set selectedChannel(Channel? channel) {
     _selectedChannel = channel;
+    print("[ChannelListSelectedRoom] Selected channel changed to ${channel?.name}");
     notifyListeners();
   }
 

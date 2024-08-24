@@ -181,6 +181,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                     Consumer<ChannelListSelectedRoom>(
                       builder: (context, value, _) {
+                        print("[ChatScreen] Selected Channel is updated, re-rendering TextRoomWidget.");
                         return Expanded(
                             child: value.selectedChannel != null
                                 ? TextRoomWidget(

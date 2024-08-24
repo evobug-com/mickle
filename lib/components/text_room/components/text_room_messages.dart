@@ -21,6 +21,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
 
   @override
   void initState() {
+    print('[TextRoomMessages] Init State');
     super.initState();
     // Ask backend for messages if we don't have any
     final messages = widget.channel.getMessages(database: widget.connection.database);
@@ -63,11 +64,13 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
     final chatScrollController = scrollController.controllers[widget.channel.id];
     if(chatScrollController != null && chatScrollController.hasClients) {
       chatScrollController.scrollToBottom();
+      print("[TextRoomMessages] Scrolling to bottom");
     }
   }
 
   fetchMessages() {
     fetchingMessages = widget.connection.packetManager.sendChannelMessageFetch(channelId: widget.channel.id, lastMessageId: widget.channel.getMessages(database: widget.connection.database).firstOrNull?.id);
+    print('[TextRoomMessages] Fetched messages $fetchingMessages');
   }
 
   restoreScrollPosition() {
@@ -76,6 +79,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
     if(scrollController.controllers.containsKey(widget.channel.id)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         scrollController.controllers[widget.channel.id]!.jumpToCached();
+        print('[TextRoomMessages] Restored scroll position for channel ${widget.channel.name}');
       });
     }
   }
@@ -83,6 +87,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
   @override
   void didUpdateWidget(covariant TextRoomMessages oldWidget) {
     super.didUpdateWidget(oldWidget);
+    print('[TextRoomMessages] Did Update');
 
     if(oldWidget.channel != widget.channel) {
       restoreScrollPosition();
@@ -100,12 +105,15 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
     return FutureBuilder(
       future: fetchingMessages,
       builder: (context, messagesFetchSnapshot) {
+        print('[TextRoomMessages] Rebuilding: Updated future with messages');
         return StreamBuilder(
           stream: widget.connection.database.messages.stream.where((message) => widget.channel.containsMessage(message, database: widget.connection.database)),
           initialData: messages,
           builder: (context, snapshot) {
+            print('[TextRoomMessages] Rebuilding: Updated stream with messages');
 
             if(!snapshot.hasData || !messagesFetchSnapshot.hasData) {
+              print("[TextRoomMessages] Showing loading indicator: Snapshot has${snapshot.hasData ? ' ' : ' no '}data and messages fetch snapshot has${messagesFetchSnapshot.hasData ? ' ' : ' no '}data.");
               return const Center(
                 child: CircularProgressIndicator(),
               );
@@ -117,6 +125,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
             // If we are at bottom, scroll to bottom on new message
             textRoomScrollController.nextRenderScrollToBottom = shouldScrollToBottom();
 
+            print('[TextRoomMessages] Scroll to bottom next frame: ${textRoomScrollController.nextRenderScrollToBottom}');
             // Post frame callback to scroll to bottom
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if(textRoomScrollController.nextRenderScrollToBottom) {
