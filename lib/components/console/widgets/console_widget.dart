@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:talk/components/console/widgets/console_database_tab.dart';
 import 'package:talk/components/console/widgets/console_general_tab.dart';
+import 'package:talk/core/providers/scoped/connection_provider.dart';
 
 import '../../../core/notifiers/current_client_provider.dart';
 import 'console_audio_tab.dart';
@@ -40,13 +42,11 @@ class ConsoleWidgetState extends State<ConsoleWidget> {
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
+  _buildConsole(ConnectionProvider? provider) {
     final scheme = Theme.of(context).colorScheme;
-    final clientProvider = CurrentClientProvider.of(context);
     final Map<String, Widget> tabs = {};
 
-    if(clientProvider.isWelcomed) {
+    if(provider != null && provider.isClientConnected) {
       tabs["Obecné"] = const ConsoleGeneralTab();
     }
 
@@ -58,32 +58,38 @@ class ConsoleWidgetState extends State<ConsoleWidget> {
       tabs['Server'] = const ConsoleServerTab();
     }
 
-    if(clientProvider.isWelcomed) {
+    if(provider != null && provider.isClientConnected) {
       tabs["Databaze"] = const ConsoleDatabaseTab();
     }
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 100),
       child: !_isVisible ? const SizedBox.shrink() : Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(color: scheme.surfaceContainerHighest.withOpacity(0.99)),
-        child: DefaultTabController(
-          length: tabs.length,
-          child: Column(
-            children: [
-              TabBar(
-                // The tab is at the top of the screen
-                tabs: tabs.keys.map((e) => Tab(text: e)).toList(),
-              ),
-              Expanded(
-                child: TabBarView(
-                    children: tabs.values.toList()
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(color: scheme.surfaceContainerHighest.withOpacity(0.99)),
+          child: DefaultTabController(
+            length: tabs.length,
+            child: Column(
+              children: [
+                TabBar(
+                  // The tab is at the top of the screen
+                  tabs: tabs.keys.map((e) => Tab(text: e)).toList(),
                 ),
-              )
-            ],
-          ),
-        )
+                Expanded(
+                  child: TabBarView(
+                      children: tabs.values.toList()
+                  ),
+                )
+              ],
+            ),
+          )
       ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final connectionProvider = ConnectionProvider.maybeOf(context, listen: false);
+    return _buildConsole(connectionProvider);
   }
 }

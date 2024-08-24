@@ -30,10 +30,10 @@ class _MyScaffoldState extends State<MyScaffold> {
     return Consumer<SelectedServerProvider>(
       builder: (context, selectedServerProvider, child) {
         return ChangeNotifierProxyProvider<SelectedServerProvider, ConnectionProvider>(
-          create: (context) => ConnectionProvider(selectedServerProvider.client!),
+          create: (context) => ConnectionProvider(selectedServerProvider.client),
           update: (context, selectedServerProvider, connectionProvider) {
             if(connectionProvider == null) return ConnectionProvider(selectedServerProvider.client!);
-            connectionProvider.update(selectedServerProvider.client!);
+            connectionProvider.update(selectedServerProvider.client);
             return connectionProvider;
           },
           child: Scaffold(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:talk/core/notifiers/current_client_provider.dart';
+import 'package:talk/core/providers/scoped/connection_provider.dart';
 
 
 class ConsoleDatabaseTab extends StatefulWidget {
@@ -12,8 +13,8 @@ class ConsoleDatabaseTab extends StatefulWidget {
 class ConsoleDatabaseTabState extends State<ConsoleDatabaseTab> {
   @override
   Widget build(BuildContext context) {
-    final clientProvider = CurrentClientProvider.of(context);
-    final database = clientProvider.database!;
+    final connectionProvider = ConnectionProvider.of(context);
+    final database = connectionProvider.database;
     // Display all data in the database
     // There will be many data, so it is necessary to use ListView to scroll
     // Heading for each table, then list of data using ExpansionTile
