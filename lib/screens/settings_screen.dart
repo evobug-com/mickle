@@ -842,7 +842,7 @@ class _AppearanceSettingsTabState extends State<AppearanceSettingsTab> {
             ThemeController.of(context, listen: false)
                 .setTheme(_selectedTheme);
             // Save theme to settings
-            // Settings().theme = _selectedTheme.name!;
+            Settings().theme = ThemeController.of(context, listen: false).currentThemeName;
           },
           child: const Text('Apply'),
         ),
