@@ -11,7 +11,13 @@ class SettingsSidebar extends StatefulWidget {
   final Function(bool) onSearch;
   final List<SettingMetadata> settingsCategories;
 
-  const SettingsSidebar({super.key, this.tab, required this.isSearching, required this.onSearch, required this.settingsCategories});
+  const SettingsSidebar({
+    Key? key,
+    this.tab,
+    required this.isSearching,
+    required this.onSearch,
+    required this.settingsCategories,
+  }) : super(key: key);
 
   @override
   State<SettingsSidebar> createState() => _SettingsSidebarState();
@@ -80,6 +86,13 @@ MatchResult _matchesSearchQuery(String item, String query) {
 
 class _SettingsSidebarState extends State<SettingsSidebar> {
   String searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   List<Map<String, dynamic>> getFilteredSettings() {
     return widget.settingsCategories.expand((setting) {
@@ -125,110 +138,116 @@ class _SettingsSidebarState extends State<SettingsSidebar> {
   @override
   Widget build(BuildContext context) {
     final scheme = ThemeController.scheme(context);
-
     final filteredSettings = getFilteredSettings();
 
-    final result = Column(
-      children: [
-        Row(
-          children: [
-            Expanded(
+    return Container(
+      width: 250,
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              height: 48,
+              decoration: BoxDecoration(
+                color: scheme.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(24),
+              ),
               child: TextField(
+                controller: _searchController,
                 autofocus: widget.isSearching,
                 decoration: InputDecoration(
                   hintText: 'Search settings',
-                  prefixIcon: const Icon(Icons.search),
-                  filled: true,
-                  fillColor: scheme.surfaceContainer,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(4),
-                  ),
+                  prefixIcon: Icon(Icons.search, color: scheme.onSurfaceVariant),
+                  suffixIcon: widget.isSearching
+                      ? IconButton(
+                    icon: Icon(Icons.close, color: scheme.onSurfaceVariant),
+                    onPressed: () {
+                      _searchController.clear();
+                      widget.onSearch(false);
+                    },
+                  )
+                      : null,
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 ),
-                onTap: () {
-                  widget.onSearch(true);
-                },
-                onChanged: (query) {
-                  setState(() {
-                    searchQuery = query;
-                  });
-                },
+                onTap: () => widget.onSearch(true),
+                onChanged: (query) => setState(() => searchQuery = query),
               ),
-            ),
-            if(widget.isSearching) ...[
-              const SizedBox(width: 10),
-              IconButton(
-                onPressed: () {
-                  widget.onSearch(false);
-                },
-                icon: const Icon(Icons.close),
-              ),
-            ]
-          ],
-        ),
-        const SizedBox(height: 5),
-        if (widget.isSearching)
-          Expanded(
-            child: ListView(
-              children: filteredSettings.map((result) {
-                final item = result['item'] as SettingItem;
-                final matches = result['matches'] as List<int>;
-                final category = widget.settingsCategories.firstWhere((element) => element.tab == result['tab']);
-                return ListTile(
-                  leading: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(category.icon),
-                      const SizedBox(width: 4),
-                      Text(category.title),
-                    ],
-                  ),
-                  title: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildHighlightedText(item.name, matches, context),
-                      Text(item.key, style: TextStyle(color: Theme.of(context).textTheme.bodySmall!.color)),
-                    ],
-                  ),
-                  onTap: () {
-                    context.pushReplacementNamed(
-                      'settings',
-                      queryParameters: {'tab': result['tab']!, 'item': item.key},
-                    );
-                    widget.onSearch(false);
-                  },
-                );
-              }).toList(),
-            ),
-          )
-        else
-          Expanded(
-            child: ListView(
-              children: widget.settingsCategories.map((setting) {
-                return ListTile(
-                  title: Text(setting.title),
-                  onTap: () {
-                    context.pushReplacementNamed('settings', queryParameters: { 'tab': setting.tab });
-                  },
-                  selected: widget.tab == setting.tab,
-                  selectedTileColor: scheme.surfaceContainerHigh,
-                  selectedColor: scheme.onSurface,
-                  dense: true,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 0),
-                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(4))),
-                  leading: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (widget.tab == setting.tab) Container(width: 3, height: 20, color: scheme.primary),
-                      Icon(setting.icon, color: scheme.onSurface),
-                    ],
-                  ),
-                );
-              }).toList(),
             ),
           ),
-      ],
+          Expanded(
+            child: widget.isSearching
+                ? _buildSearchResults(filteredSettings)
+                : _buildCategoryList(),
+          ),
+        ],
+      ),
     );
+  }
+  Widget _buildSearchResults(List<Map<String, dynamic>> filteredSettings) {
+    return ListView.builder(
+      itemCount: filteredSettings.length,
+      itemBuilder: (context, index) {
+        final result = filteredSettings[index];
+        final item = result['item'] as SettingItem;
+        final matches = result['matches'] as List<int>;
+        final category = widget.settingsCategories.firstWhere((element) => element.tab == result['tab']);
 
-    return widget.isSearching ? Expanded(child: result) : SizedBox(width: 200, child: result);
+        return ListTile(
+          leading: Icon(category.icon, color: ThemeController.scheme(context).primary),
+          title: _buildHighlightedText(item.name, matches, context),
+          subtitle: Text(category.title, style: TextStyle(color: ThemeController.scheme(context).onSurfaceVariant)),
+          onTap: () {
+            context.pushReplacementNamed(
+              'settings',
+              queryParameters: {'tab': result['tab']!, 'item': item.key},
+            );
+            widget.onSearch(false);
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildCategoryList() {
+    return ListView.builder(
+      itemCount: widget.settingsCategories.length,
+      itemBuilder: (context, index) {
+        final setting = widget.settingsCategories[index];
+        final scheme = ThemeController.scheme(context);
+        final isSelected = widget.tab == setting.tab;
+
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+          decoration: BoxDecoration(
+            color: isSelected ? scheme.surfaceContainerHigh : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: ListTile(
+            leading: Icon(
+              setting.icon,
+              color: isSelected ? scheme.primary : scheme.onSurfaceVariant,
+            ),
+            title: Text(
+              setting.title,
+              style: TextStyle(
+                color: isSelected ? scheme.onSurface : scheme.onSurfaceVariant,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+            onTap: () {
+              context.pushReplacementNamed('settings', queryParameters: {'tab': setting.tab});
+            },
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        );
+      },
+    );
   }
 }
