@@ -14,18 +14,20 @@ class ConnectionProvider extends ChangeNotifier {
   bool _isClientConnected = false;
 
   ConnectionProvider(this.client) {
-    if (client != null) {
+    if (client != null && client!.serverData.user != null) {
       user = client!.serverData.user!;
       server = client!.serverData.server!;
       database = Database(client!.serverData.serverId!);
       packetManager = PacketManager(client!);
       _isClientConnected = true;
+    } else {
+      _isClientConnected = false;
     }
   }
 
   update(Client? client) {
     this.client = client;
-    if (client != null) {
+    if (client != null && client!.serverData.user != null) {
       user = client.serverData.user!;
       server = client.serverData.server!;
       database = Database(client.serverData.serverId!);
