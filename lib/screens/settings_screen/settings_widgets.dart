@@ -20,29 +20,54 @@ class Highlightable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (highlight) {
-      return Stack(
-        alignment: Alignment.topRight,
-        children: [
-          // Right aligned text Found
-          Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: Text("Found", style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 12)),
+      return Container(
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+            width: 1,
           ),
-
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: Theme.of(context).colorScheme.primary),
-              borderRadius: BorderRadius.circular(4),
+        ),
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+              child: Row(
+                children: [
+                  Icon(Icons.check_circle_outline,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(child: child),
+                ],
+              ),
             ),
-            padding: const EdgeInsets.fromLTRB(0, 0, 20, 10),
-            child: Row(
-              children: [
-                Icon(Icons.arrow_right, color: Theme.of(context).colorScheme.primary),
-                Expanded(child: child),
-              ],
+            Positioned(
+              top: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(8),
+                    topRight: Radius.circular(8),
+                  ),
+                ),
+                child: Text(
+                  "Found",
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       );
     }
     return child;
