@@ -8,4 +8,10 @@ class AppStrings {
   static const String login = 'Login';
   static const String register = 'Register';
   static const String registrationUnavailable = 'Registration is not available in this version of Talk.';
+  static const String autoLoginFailed = 'Auto-login failed';
+  static const String goToLogin = 'Go to Login';
+}
+
+class AppConstants {
+  static const int autoLoginTimeout = 10; // seconds
 }
