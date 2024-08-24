@@ -1,6 +1,4 @@
-
 import 'package:flutter/material.dart';
-
 import '../../../core/notifiers/theme_controller.dart';
 import '../../chat_screen.dart';
 import '../settings_models.dart';
@@ -28,89 +26,110 @@ class _AppearanceSettingsTabState extends State<AppearanceSettingsTab> {
         SettingTitle(title: widget.settingsCategories.firstWhere((element) => element.tab == 'appearance').title),
         const SizedBox(height: 20),
 
-        // Text with live preview of the selected theme
-        const Text('Live Preview', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-
-        // Scrollable screen
         Expanded(
-          child: Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              border: Border.all(color: Theme.of(context).colorScheme.primary),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            clipBehavior: Clip.hardEdge,
-            child: OverflowBox(child: Theme(data: _selectedTheme,child: const ChatScreen(),)),
-          ),
-        ),
-
-        // Row with all themes as tile boxes
-        Highlightable(
-          highlight: widget.item == 'appearance-theme',
-          child: SizedBox(
-            height: 130,
-            child: Scrollbar(
-              scrollbarOrientation: ScrollbarOrientation.bottom,
-              thumbVisibility: true,
-              trackVisibility: true,
-              controller: scrollController,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                controller: scrollController,
-                padding: const EdgeInsets.all(10),
-                clipBehavior: Clip.hardEdge,
-                children: ThemeController.themes.map((theme) {
-                  return SizedBox(
-                    width: 100,
-                    height: 100,
-                    child: Stack(
-                      children: [
-                        ListTile(
-                            dense: true,
-                            title: Center(child: Text(theme.name, style: TextStyle(color: theme.value.colorScheme.onSurface))),
-                            // contentPadding: const EdgeInsets.all(0),
-                            tileColor: theme.value.colorScheme.surfaceContainerLow,
-                            titleAlignment: ListTileTitleAlignment.center,
-                            onTap: () {
-                              setState(() {
-                                _selectedTheme = theme.value;
-                              });
-                              //
-                              // // Set theme
-                              // ThemeController.of(context, listen: false)
-                              //     .setTheme(theme.value);
-                              //
-                              // // Save theme to settings
-                              // Settings().theme = theme.name;
-                            }
-                        ),
-                        if (_selectedTheme == theme.value) // Overlay
-                          Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Theme.of(context).colorScheme.primary),
-                                borderRadius: BorderRadius.circular(4),
-                                color: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
-                              ),
-                              child: const Center(child: Icon(Icons.check, color: Colors.white, size: 50,))
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Theme selection and Apply button
+              Expanded(
+                flex: 1,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Select Theme', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 10),
+                    Expanded(
+                      child: Highlightable(
+                        highlight: widget.item == 'appearance-theme',
+                        child: GridView.builder(
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            childAspectRatio: 1,
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10,
                           ),
-                      ],
+                          itemCount: ThemeController.themes.length,
+                          itemBuilder: (context, index) {
+                            final theme = ThemeController.themes[index];
+                            return InkWell(
+                              onTap: () => setState(() => _selectedTheme = theme.value),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: theme.value.colorScheme.surfaceContainerLow,
+                                  border: Border.all(
+                                    color: _selectedTheme == theme.value
+                                        ? Theme.of(context).colorScheme.primary
+                                        : Colors.transparent,
+                                    width: 2,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.palette, color: theme.value.colorScheme.primary),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      theme.name,
+                                      style: TextStyle(color: theme.value.colorScheme.onSurface),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                     ),
-                  );
-                }).toList(),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: TextButton.icon(
+                        onPressed: () {
+                          ThemeController.of(context, listen: false).setTheme(_selectedTheme);
+                          SettingsProvider().theme = ThemeController.of(context, listen: false).currentThemeName;
+                        },
+                        icon: const Icon(Icons.check, size: 18),
+                        label: const Text('Apply Theme'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Theme.of(context).colorScheme.primary,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          alignment: Alignment.center,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
               ),
-            ),
+              const SizedBox(width: 20),
+              // Live preview
+              Expanded(
+                flex: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Live Preview', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 10),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Theme.of(context).colorScheme.primary),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: Theme(
+                          data: _selectedTheme,
+                          child: const ChatScreen(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ),
-        // Apply button
-        ElevatedButton(
-          onPressed: () {
-            // Set theme
-            ThemeController.of(context, listen: false)
-                .setTheme(_selectedTheme);
-            // Save theme to settings
-            SettingsProvider().theme = ThemeController.of(context, listen: false).currentThemeName;
-          },
-          child: const Text('Apply'),
         ),
       ],
     );
