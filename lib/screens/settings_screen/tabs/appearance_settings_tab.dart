@@ -121,7 +121,7 @@ class _AppearanceSettingsTabState extends State<AppearanceSettingsTab> {
                         clipBehavior: Clip.antiAlias,
                         child: Theme(
                           data: _selectedTheme,
-                          child: const ChatScreen(),
+                          child: const ChatPreviewWrapper(),
                         ),
                       ),
                     ),
@@ -132,6 +132,34 @@ class _AppearanceSettingsTabState extends State<AppearanceSettingsTab> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class ChatPreviewWrapper extends StatelessWidget {
+  const ChatPreviewWrapper({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return ClipRect(
+          child: OverflowBox(
+            alignment: Alignment.topLeft,
+            maxWidth: double.infinity,
+            maxHeight: double.infinity,
+            child: Transform.scale(
+              scale: 0.5,  // Adjust this value as needed
+              alignment: Alignment.topLeft,
+              child: SizedBox(
+                width: constraints.maxWidth * 2,
+                height: constraints.maxHeight * 2,
+                child: const ChatScreen(),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
