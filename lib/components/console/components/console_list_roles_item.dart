@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:talk/components/permission_list/permissions.g.dart';
 import 'package:talk/core/models/models.dart';
 import 'package:talk/core/providers/scoped/connection_provider.dart';
-import '../../../core/notifiers/current_client_provider.dart';
 
 class ConsoleListRolesItem extends StatelessWidget {
   const ConsoleListRolesItem({super.key});

@@ -1,12 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 import 'package:talk/components/console/widgets/console_database_tab.dart';
 import 'package:talk/components/console/widgets/console_general_tab.dart';
 import 'package:talk/core/providers/scoped/connection_provider.dart';
 
-import '../../../core/notifiers/current_client_provider.dart';
 import 'console_audio_tab.dart';
 import 'console_errors_tab.dart';
 import 'console_network_tab.dart';

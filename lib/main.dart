@@ -17,7 +17,6 @@ import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart' hide WindowCaption, kWindowCaptionHeight;
 
 import 'components/console/widgets/console_errors_tab.dart';
-import 'core/notifiers/current_client_provider.dart';
 import 'core/notifiers/theme_controller.dart';
 import 'core/storage/storage.dart';
 import 'core/version.dart';
@@ -81,7 +80,6 @@ Future<void> main() async {
         // Deprecated below
         ChangeNotifierProvider(create: (context) => ThemeController(theme: theme), lazy: false),
         ChangeNotifierProvider(create: (context) => ClientManager(), lazy: false),
-        ChangeNotifierProvider(create: (context) => CurrentClientProvider(), lazy: false),
         ChangeNotifierProvider(create: (context) => VoiceRoomCurrent()),
         ChangeNotifierProvider(create: (context) => ChannelListSelectedChannel()),
 

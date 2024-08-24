@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:talk/core/models/models.dart' as models;
-import 'package:talk/core/notifiers/current_client_provider.dart';
+import 'package:talk/core/providers/scoped/connection_provider.dart';
 import 'package:talk/ui/user_avatar.dart';
 
 // This component will render a message in a room
@@ -30,9 +30,9 @@ class TextRoomMessageState extends State<TextRoomMessage> {
 
   getBackgroundColor() {
     final colorScheme = Theme.of(context).colorScheme;
-    final clientProvider = CurrentClientProvider.of(context);
+    final connectionProvider = ConnectionProvider.of(context);
     // if is current user
-    if (widget.user?.id == clientProvider.userId) {
+    if (widget.user?.id == connectionProvider.user.id) {
       if (_isHovered) {
         return colorScheme
             .surfaceContainerHigh;

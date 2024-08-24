@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:talk/core/notifiers/current_client_provider.dart';
 
 import '../../../core/models/models.dart';
 import '../../voice_room/core/models/voice_room_current.dart';
@@ -19,7 +18,6 @@ class TextRoomHeaderState extends State<TextRoomHeader> {
 
   @override
   Widget build(BuildContext context) {
-    CurrentClientProvider currentClientProvider = Provider.of<CurrentClientProvider>(context);
     print("[TextRoomHeader] Rendering '${widget.channel.description}'");
 
     // First line: Title with badge of how many pinned messages is there
@@ -47,15 +45,15 @@ class TextRoomHeaderState extends State<TextRoomHeader> {
               Text(
                 widget.channel.name ?? "<No name>",
               ),
-              Consumer<VoiceRoomCurrent>(
-                builder: (BuildContext context, VoiceRoomCurrent value, Widget? child) {
-                  if(value.currentChannel != null && value.currentChannel!.id == widget.channel.id) {
-                    return IconButton(onPressed: () => VoiceRoomCurrent.of(context, listen: false).leaveVoice(), icon: const Icon(Icons.call_end));
-                  }
-
-                  return IconButton(onPressed: () => VoiceRoomCurrent.of(context, listen: false).joinVoice(currentClientProvider.selectedClient, widget.channel), icon: const Icon(Icons.call));
-                },
-              ),
+              // Consumer<VoiceRoomCurrent>(
+              //   builder: (BuildContext context, VoiceRoomCurrent value, Widget? child) {
+              //     if(value.currentChannel != null && value.currentChannel!.id == widget.channel.id) {
+              //       return IconButton(onPressed: () => VoiceRoomCurrent.of(context, listen: false).leaveVoice(), icon: const Icon(Icons.call_end));
+              //     }
+              //
+              //     return IconButton(onPressed: () => VoiceRoomCurrent.of(context, listen: false).joinVoice(connectionProvider.client, widget.channel), icon: const Icon(Icons.call));
+              //   },
+              // ),
             // Colored Box with icon on left, number on right
             // const SizedBox(width: 8.0),
             // Container(

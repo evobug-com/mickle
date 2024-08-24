@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:talk/core/notifiers/current_client_provider.dart';
 import 'package:talk/core/providers/scoped/connection_provider.dart';
 
 
