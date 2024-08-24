@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:talk/generated/l10n.dart';
 
 import '../../core/notifiers/theme_controller.dart';
 import 'login_constants.dart';
@@ -44,7 +45,7 @@ class LoginFormState extends State<LoginForm> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(AppStrings.welcome, style: TextStyle(fontSize: 24)),
+            Text(S.of(context).loginScreenWelcome, style: TextStyle(fontSize: 24)),
             const SizedBox(height: 16),
             if (kDebugMode) _buildServerHostField(),
             _buildUsernameField(),
@@ -61,17 +62,17 @@ class LoginFormState extends State<LoginForm> {
   Widget _buildServerHostField() {
     return TextFormField(
       controller: _serverHostController,
-      decoration: const InputDecoration(labelText: AppStrings.serverHost),
-      validator: Validators.serverHost,
+      decoration: InputDecoration(labelText: S.of(context).loginScreenServerHost),
+      validator: Validators.serverHost(context),
     );
   }
 
   Widget _buildUsernameField() {
     return TextFormField(
       controller: _usernameController,
-      decoration: const InputDecoration(labelText: AppStrings.username),
+      decoration: InputDecoration(labelText: S.of(context).loginScreenUsername),
       inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'\s'))],
-      validator: Validators.username,
+      validator: Validators.username(context),
     );
   }
 
@@ -79,8 +80,8 @@ class LoginFormState extends State<LoginForm> {
     return TextFormField(
       controller: _passwordController,
       obscureText: true,
-      decoration: const InputDecoration(labelText: AppStrings.password),
-      validator: Validators.password,
+      decoration: InputDecoration(labelText: S.of(context).loginScreenPassword),
+      validator: Validators.password(context),
     );
   }
 
@@ -90,13 +91,13 @@ class LoginFormState extends State<LoginForm> {
       children: [
         ElevatedButton(
           onPressed: _handleLogin,
-          child: const Text(AppStrings.login),
+          child: Text(S.of(context).loginScreenLogin),
         ),
-        const Tooltip(
-          message: AppStrings.registrationUnavailable,
+        Tooltip(
+          message: S.of(context).loginScreenRegistrationIsNotAvailableInThisVersionOfTalk,
           child: TextButton(
             onPressed: null,
-            child: Text(AppStrings.register),
+            child: Text(S.of(context).loginScreenRegister),
           ),
         ),
       ],

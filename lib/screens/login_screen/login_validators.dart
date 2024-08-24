@@ -1,37 +1,56 @@
+import 'package:flutter/material.dart';
+import 'package:talk/generated/l10n.dart';
+
 class Validators {
-  static String? serverHost(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter some text';
-    }
-    if (value.length < 3) {
-      return 'Server host must be at least 3 characters long';
-    }
-    return null;
+  static FormFieldValidator<String?> serverHost(BuildContext context) {
+    return (String? value) {
+      if (value == null || value.isEmpty) {
+        return S
+            .of(context)
+            .loginScreenValidatorsPleaseEnterSomeText;
+      }
+      if (value.length < 3) {
+        return S
+            .of(context)
+            .loginScreenValidatorsServerHostMustBeAtLeast3CharactersLong;
+      }
+      return null;
+    };
   }
 
-  static String? username(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter some text';
-    }
-    if (value.length < 3) {
-      return 'Username must be at least 3 characters long';
-    }
-    if (RegExp(r'\s').hasMatch(value)) {
-      return 'Username cannot contain whitespace';
-    }
-    return null;
+  static username(BuildContext context) {
+    return (String? value) {
+      if (value == null || value.isEmpty) {
+        return S.of(context).loginScreenValidatorsPleaseEnterSomeText;
+      }
+      if (value.length < 3) {
+        return S.of(context).loginScreenValidatorsUsernameMustBeAtLeast3CharactersLong;
+      }
+      if (RegExp(r'\s').hasMatch(value)) {
+        return S.of(context).loginScreenValidatorsUsernameCannotContainWhitespace;
+      }
+      return null;
+    };
   }
 
-  static String? password(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter some text';
-    }
-    if (value.length < 3) {
-      return 'Password must be at least 3 characters long';
-    }
-    if (RegExp(r'\s').hasMatch(value)) {
-      return 'Password cannot contain whitespace';
-    }
-    return null;
+  static FormFieldValidator<String?> password(BuildContext context) {
+    return (String? value) {
+      if (value == null || value.isEmpty) {
+        return S
+            .of(context)
+            .loginScreenValidatorsPleaseEnterSomeText;
+      }
+      if (value.length < 3) {
+        return S
+            .of(context)
+            .loginScreenValidatorsPasswordMustBeAtLeast3CharactersLong;
+      }
+      if (RegExp(r'\s').hasMatch(value)) {
+        return S
+            .of(context)
+            .loginScreenValidatorsPasswordCannotContainWhitespace;
+      }
+      return null;
+    };
   }
 }

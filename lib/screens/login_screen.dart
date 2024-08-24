@@ -6,6 +6,7 @@ import 'package:talk/services/auth_service.dart';
 import 'package:talk/layout/my_scaffold.dart';
 
 import '../core/providers/global/selected_server_provider.dart';
+import '../generated/l10n.dart';
 import 'login_screen/connection_widget.dart';
 import 'login_screen/login_constants.dart';
 import 'login_screen/login_form.dart';
@@ -39,7 +40,7 @@ class LoginScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  _buildWelcomeMessage(),
+                  _buildWelcomeMessage(context),
                   const SizedBox(width: 32),
                   LoginForm(onLogin: (username, password, serverHost) {
                     var loginResult = auth.login(context, username: username, password: password, address: ClientAddress(host: serverHost, port: 55000));
@@ -50,10 +51,10 @@ class LoginScreen extends StatelessWidget {
                         SelectedServerProvider.of(context, listen: false).selectServer(client);
                         // Go to chat screen
                         context.goNamed('chat');
-                        _logger.fine("Logged in successfully.");
+                        _logger.fine(S.of(context).loginScreenLoggedInSuccessfully);
                       }
-                    }).catchError((e) {
-                      _logger.severe("Login failed: $e");
+                    }).catchError((error) {
+                      _logger.severe(S.of(context).loginScreenLoginFailedError(error));
                     });
                   }),
                 ],
@@ -65,16 +66,16 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildWelcomeMessage() {
+  Widget _buildWelcomeMessage(BuildContext context) {
     return Container(
       width: 300,
       padding: const EdgeInsets.all(16),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(AppStrings.welcomeTester, style: TextStyle(fontSize: 24)),
+          Text(S.of(context).loginScreenWelcomeTester, style: TextStyle(fontSize: 24)),
           SizedBox(height: 16),
-          Text(AppStrings.testVersionNotice),
+          Text(S.of(context).loginScreenThisIsAnUnpublishedTestingVersionOfTalkYourCredentials),
         ],
       ),
     );

@@ -1,0 +1,23 @@
+{
+  "loginScreenLoggedInSuccessfully": "Logged in successfully.",
+  "loginScreenLoginFailedError": "Login failed: {error}",
+  "loginScreenOopsSomethingWentWrong": "Oops! Something went wrong.",
+  "loginScreenGoBack": "Go back",
+  "loginScreenConnectingToServer": "Connecting to server...",
+  "loginScreenCancel": "Cancel",
+  "loginScreenValidatorsPleaseEnterSomeText": "Please enter some text",
+  "loginScreenValidatorsServerHostMustBeAtLeast3CharactersLong": "Server host must be at least 3 characters long",
+  "loginScreenValidatorsUsernameMustBeAtLeast3CharactersLong": "Username must be at least 3 characters long",
+  "loginScreenValidatorsUsernameCannotContainWhitespace": "Username cannot contain whitespace",
+  "loginScreenValidatorsPasswordMustBeAtLeast3CharactersLong": "Password must be at least 3 characters long",
+  "loginScreenValidatorsPasswordCannotContainWhitespace": "Password cannot contain whitespace",
+  "loginScreenWelcomeTester": "Welcome tester!",
+  "loginScreenThisIsAnUnpublishedTestingVersionOfTalkYourCredentials": "This is an unpublished testing version of Talk. Your credentials are in email or private message.'",
+  "loginScreenWelcome": "Welcome",
+  "loginScreenServerHost": "Server Host",
+  "loginScreenUsername": "Username",
+  "loginScreenPassword": "Password",
+  "loginScreenLogin": "Login",
+  "loginScreenRegister": "Register",
+  "loginScreenRegistrationIsNotAvailableInThisVersionOfTalk": "Registration is not available in this version of Talk."
+}

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:talk/core/connection/client.dart';
 
+import '../../generated/l10n.dart';
+
 class ConnectionWidget extends StatelessWidget {
   final Client? client;
   final VoidCallback onCancel;
@@ -27,7 +29,7 @@ class ConnectionWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('Oops! Something went wrong.'),
+          Text(S.of(context).loginScreenOopsSomethingWentWrong),
           if (errorMessage != null) ...[
             const SizedBox(height: 8),
             SelectableText(errorMessage!),
@@ -35,7 +37,7 @@ class ConnectionWidget extends StatelessWidget {
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: onCancel,
-            child: const Text('Go back'),
+            child: Text(S.of(context).loginScreenGoBack),
           ),
         ],
       ),
@@ -52,11 +54,11 @@ class ConnectionWidget extends StatelessWidget {
             children: [
               const CircularProgressIndicator(),
               const SizedBox(height: 16),
-              const Text('Connecting to server...'),
+              Text(S.of(context).loginScreenConnectingToServer),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: onCancel,
-                child: const Text('Cancel'),
+                child: Text(S.of(context).loginScreenCancel),
               ),
             ],
           ),
