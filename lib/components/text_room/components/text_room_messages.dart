@@ -26,6 +26,9 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
     final messages = widget.channel.getMessages(database: widget.connection.database);
     if(messages.isEmpty) {
       fetchMessages();
+    } else {
+      // Set fetching messages to completed future because we have messages already
+      fetchingMessages = Future.value(response.ChannelMessageFetch());
     }
 
     restoreScrollPosition();
