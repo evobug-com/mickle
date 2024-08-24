@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:talk/core/notifiers/theme_controller.dart';
 
 class ChannelListRoomDialog extends StatefulWidget {
 

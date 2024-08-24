@@ -4,13 +4,12 @@ import 'package:flutter/services.dart';
 import 'package:talk/generated/l10n.dart';
 
 import '../../core/notifiers/theme_controller.dart';
-import 'login_constants.dart';
 import 'login_validators.dart';
 
 class LoginForm extends StatefulWidget {
   final Function(String username, String password, String serverHost) onLogin;
 
-  const LoginForm({Key? key, required this.onLogin}) : super(key: key);
+  const LoginForm({super.key, required this.onLogin});
 
   @override
   LoginFormState createState() => LoginFormState();
@@ -45,7 +44,7 @@ class LoginFormState extends State<LoginForm> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(S.of(context).loginScreenWelcome, style: TextStyle(fontSize: 24)),
+            Text(S.of(context).loginScreenWelcome, style: const TextStyle(fontSize: 24)),
             const SizedBox(height: 16),
             if (kDebugMode) _buildServerHostField(),
             _buildUsernameField(),

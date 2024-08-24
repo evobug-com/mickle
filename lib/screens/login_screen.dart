@@ -8,12 +8,11 @@ import 'package:talk/layout/my_scaffold.dart';
 import '../core/providers/global/selected_server_provider.dart';
 import '../generated/l10n.dart';
 import 'login_screen/connection_widget.dart';
-import 'login_screen/login_constants.dart';
 import 'login_screen/login_form.dart';
 
 final _logger = Logger('LoginScreen');
 class LoginScreen extends StatelessWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -73,8 +72,8 @@ class LoginScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(S.of(context).loginScreenWelcomeTester, style: TextStyle(fontSize: 24)),
-          SizedBox(height: 16),
+          Text(S.of(context).loginScreenWelcomeTester, style: const TextStyle(fontSize: 24)),
+          const SizedBox(height: 16),
           Text(S.of(context).loginScreenThisIsAnUnpublishedTestingVersionOfTalkYourCredentials),
         ],
       ),

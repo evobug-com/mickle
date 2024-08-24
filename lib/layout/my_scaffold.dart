@@ -7,7 +7,6 @@ import 'package:talk/core/providers/scoped/connection_provider.dart';
 
 import '../components/console/widgets/console_widget.dart';
 import '../components/server_list/widgets/server_list_widget.dart';
-import '../core/notifiers/theme_controller.dart';
 import '../core/version.dart';
 import '../ui/lost_connection_bar.dart';
 import '../ui/window_caption.dart';

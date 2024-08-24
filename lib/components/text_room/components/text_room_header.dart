@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:talk/core/notifiers/current_client_provider.dart';
 
 import '../../../core/models/models.dart';
-import '../../../core/notifiers/theme_controller.dart';
 import '../../voice_room/core/models/voice_room_current.dart';
 
 class TextRoomHeader extends StatefulWidget {

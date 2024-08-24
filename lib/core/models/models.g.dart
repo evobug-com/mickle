@@ -184,7 +184,7 @@ class User extends ChangeNotifier {
   String? firstName;
   String? lastName;
   dynamic createdAt;
-  dynamic? lastSeen;
+  dynamic lastSeen;
   String? status;
   String? avatar;
   String? presence;

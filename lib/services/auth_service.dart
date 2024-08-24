@@ -10,7 +10,6 @@ import 'package:talk/core/storage/preferences.dart';
 
 import '../core/connection/client.dart';
 import '../core/managers/client_manager.dart';
-import '../core/notifiers/current_client_provider.dart';
 
 class AuthService with ChangeNotifier {
   final Logger _logger = Logger('AuthService');

@@ -1,12 +1,10 @@
 
 import 'dart:collection';
-import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:talk/core/managers/reconnect_manager.dart';
 
-import '../storage/secure_storage.dart';
 import '../connection/client.dart';
 
 class ClientManager extends ChangeNotifier {

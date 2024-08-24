@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/models/models.dart';
 
 class ChannelListSelectedChannel extends ChangeNotifier {
-  Map<Server, Channel?> _selectedChannelByServer = {};
+  final Map<Server, Channel?> _selectedChannelByServer = {};
 
   setChannel(Server server, Channel? channel) {
     _selectedChannelByServer[server] = channel;

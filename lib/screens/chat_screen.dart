@@ -1,25 +1,17 @@
 // This is the main content of the app. It will do layout (sidebar, content placement)
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:talk/components/channel_list/core/models/channel_list_selected_room.dart';
-import 'package:talk/components/channel_list/widgets/channel_list_widget.dart';
 import 'package:talk/components/text_room/widgets/text_room_widget.dart';
 import 'package:talk/components/voice_room/components/voice_room_control_panel.dart';
 import 'package:talk/components/voice_room/core/models/voice_room_current.dart';
 import 'package:talk/core/providers/scoped/connection_provider.dart';
-import 'package:talk/core/surfaces.dart';
-import 'package:talk/ui/user_avatar.dart';
 
-import '../core/models/models.dart';
-import '../core/database.dart';
-import '../components/channel_list/components/channel_list_room_dialog.dart';
 import '../core/providers/global/selected_server_provider.dart';
 import '../layout/my_scaffold.dart';
 import 'chat_screen/channel_list_container.dart';
 import 'chat_screen/sidebar.dart';
-import 'chat_screen/sidebar_box.dart';
 import 'chat_screen/user_info_box.dart';
 import 'chat_screen/user_list_container.dart';
 

@@ -1,7 +1,5 @@
 import 'package:flat_buffers/flex_buffers.dart' as flex_buffers;
 import 'package:flutter/foundation.dart';
-import 'package:talk/core/notifiers/current_client_provider.dart';
-import 'package:talk/core/providers/scoped/connection_provider.dart';
 
 import '../database.dart';
 part 'models.g.dart';

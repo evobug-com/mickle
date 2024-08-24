@@ -9,11 +9,11 @@ class ConnectionWidget extends StatelessWidget {
   final String? errorMessage;
 
   const ConnectionWidget({
-    Key? key,
+    super.key,
     required this.client,
     required this.onCancel,
     this.errorMessage,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

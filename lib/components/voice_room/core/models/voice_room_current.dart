@@ -1,7 +1,3 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:bot_toast/bot_toast.dart';
@@ -12,7 +8,6 @@ import 'package:talk/core/models/models.dart';
 
 import '../../../../core/managers/audio_manager.dart';
 import '../../../../core/connection/client.dart';
-import '../../../../core/managers/packet_manager.dart';
 final _logger = Logger("VoiceRoomCurrent");
 
 class VoiceRoomCurrent extends ChangeNotifier {
@@ -27,7 +22,7 @@ class VoiceRoomCurrent extends ChangeNotifier {
 
     BotToast.showNotification(
       title: (_) => Text("Failed to join voice channel", style: TextStyle(color: scheme.onError)),
-      subtitle: (_) => Text("$message", style: TextStyle(color: scheme.onError)),
+      subtitle: (_) => Text(message, style: TextStyle(color: scheme.onError)),
       duration: const Duration(seconds: 50),
       backgroundColor: scheme.error,
     );

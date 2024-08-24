@@ -40,7 +40,7 @@ class _AppearanceSettingsTabState extends State<AppearanceSettingsTab> {
               borderRadius: BorderRadius.circular(4),
             ),
             clipBehavior: Clip.hardEdge,
-            child: OverflowBox(child: Theme(child: ChatScreen(), data: _selectedTheme,)),
+            child: OverflowBox(child: Theme(data: _selectedTheme,child: const ChatScreen(),)),
           ),
         ),
 
@@ -91,7 +91,7 @@ class _AppearanceSettingsTabState extends State<AppearanceSettingsTab> {
                                 borderRadius: BorderRadius.circular(4),
                                 color: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
                               ),
-                              child: Center(child: Icon(Icons.check, color: Colors.white, size: 50,))
+                              child: const Center(child: Icon(Icons.check, color: Colors.white, size: 50,))
                           ),
                       ],
                     ),

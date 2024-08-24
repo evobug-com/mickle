@@ -38,7 +38,7 @@ Future<void> processResponse(Client client, Uint8List data) async {
   } catch (e) {
     _logger.severe("Error processing response: $e");
     _logger.severe("String data: ${String.fromCharCodes(data)}");
-    _logger.severe("Buffer data: ${data}");
+    _logger.severe("Buffer data: $data");
   }
 }
 
