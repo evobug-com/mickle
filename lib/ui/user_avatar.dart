@@ -21,8 +21,9 @@ Color _getColor(UserPresence status) {
 class UserAvatar extends StatelessWidget {
   final String? imageUrl;
   final UserPresence? presence;
+  final double size;
   
-  const UserAvatar({super.key, this.imageUrl, this.presence});
+  const UserAvatar({super.key, this.imageUrl, this.presence, this.size = 12});
 
 
   @override
@@ -49,8 +50,8 @@ class UserAvatar extends StatelessWidget {
           bottom: 0,
           right: 0,
           child: Container(
-            width: 12,
-            height: 12,
+            width: size,
+            height: size,
             decoration: BoxDecoration(
               color: _getColor(presence!),
               shape: BoxShape.circle,
