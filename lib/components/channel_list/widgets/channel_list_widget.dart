@@ -20,42 +20,53 @@ class _ChannelListWidgetState extends State<ChannelListWidget> {
   Widget build(BuildContext context) {
     final channels = widget.server.getChannelsForUser(widget.connection.user, database: widget.connection.database);
 
-    return Column(
-      children: [
-        Expanded(
-          child: ListView.builder(
-              itemCount: channels.length,
-              itemBuilder: (BuildContext context, int index) {
-                final channel = channels[index];
+    return StreamBuilder(
+      stream: widget.connection.database.channels.stream,
+      initialData: channels,
+      builder: (context, snapshot) {
+        return Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                  itemCount: channels.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final channel = channels[index];
 
-                return ChannelListItem(
-                    contextMenuHandler: widget.contextMenuHandler,
-                    channel: channel,
-                    user: widget.connection.user,
-                    connection: widget.connection
-                );
-              }
-          )
-        ),
-        IconButton(
-          icon: const Icon(Icons.add),
-          onPressed: () {
-            // Show dialog to create a new channel
-            showDialog(
-              context: context,
-              builder: (context) {
-                return ChannelListRoomDialog(
-                  onSubmitted: (title, description, isPrivate) {
-                    widget.connection.packetManager.sendChannelCreate(serverId: widget.server.id, name: title, description: description);
+                    return ListenableBuilder(
+                      listenable: channel,
+                      builder: (context, _) {
+                        return ChannelListItem(
+                            contextMenuHandler: widget.contextMenuHandler,
+                            channel: channel,
+                            user: widget.connection.user,
+                            connection: widget.connection
+                        );
+                      }
+                    );
+                  }
+              )
+            ),
+            IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: () {
+                // Show dialog to create a new channel
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return ChannelListRoomDialog(
+                      onSubmitted: (title, description, isPrivate) {
+                        widget.connection.packetManager.sendChannelCreate(serverId: widget.server.id, name: title, description: description);
+                      },
+                      isEdit: false,
+                    );
                   },
-                  isEdit: false,
                 );
               },
-            );
-          },
-        ),
-        const SizedBox(height: 8),
-      ]
+            ),
+            const SizedBox(height: 8),
+          ]
+        );
+      }
     );
   }
 }
