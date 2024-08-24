@@ -1,0 +1,115 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import '../../core/notifiers/theme_controller.dart';
+import 'login_constants.dart';
+import 'login_validators.dart';
+
+class LoginForm extends StatefulWidget {
+  final Function(String username, String password, String serverHost) onLogin;
+
+  const LoginForm({Key? key, required this.onLogin}) : super(key: key);
+
+  @override
+  LoginFormState createState() => LoginFormState();
+}
+
+class LoginFormState extends State<LoginForm> {
+  final _formKey = GlobalKey<FormState>();
+  final _serverHostController = TextEditingController(text: kDebugMode ? "localhost" : "vps.sionzee.cz");
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _serverHostController.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 300,
+      decoration: BoxDecoration(
+        border: Border.all(),
+        borderRadius: BorderRadius.circular(8),
+        color: ThemeController.scheme(context).surfaceContainerHigh,
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(AppStrings.welcome, style: TextStyle(fontSize: 24)),
+            const SizedBox(height: 16),
+            if (kDebugMode) _buildServerHostField(),
+            _buildUsernameField(),
+            const SizedBox(height: 16),
+            _buildPasswordField(),
+            const SizedBox(height: 16),
+            _buildFormActions(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildServerHostField() {
+    return TextFormField(
+      controller: _serverHostController,
+      decoration: const InputDecoration(labelText: AppStrings.serverHost),
+      validator: Validators.serverHost,
+    );
+  }
+
+  Widget _buildUsernameField() {
+    return TextFormField(
+      controller: _usernameController,
+      decoration: const InputDecoration(labelText: AppStrings.username),
+      inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'\s'))],
+      validator: Validators.username,
+    );
+  }
+
+  Widget _buildPasswordField() {
+    return TextFormField(
+      controller: _passwordController,
+      obscureText: true,
+      decoration: const InputDecoration(labelText: AppStrings.password),
+      validator: Validators.password,
+    );
+  }
+
+  Widget _buildFormActions() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        ElevatedButton(
+          onPressed: _handleLogin,
+          child: const Text(AppStrings.login),
+        ),
+        const Tooltip(
+          message: AppStrings.registrationUnavailable,
+          child: TextButton(
+            onPressed: null,
+            child: Text(AppStrings.register),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _handleLogin() {
+    if (_formKey.currentState!.validate()) {
+      widget.onLogin(
+        _usernameController.text,
+        _passwordController.text,
+        _serverHostController.text,
+      );
+    }
+  }
+}
