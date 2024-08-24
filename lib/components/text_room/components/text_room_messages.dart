@@ -126,8 +126,6 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
 
   @override
   Widget build(BuildContext context) {
-    final messages = widget.channel.getMessages(database: widget.connection.database);
-
     return FutureBuilder(
         future: fetchingMessages,
         builder: (context, messagesFetchSnapshot) {
@@ -140,7 +138,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
               if (!snapshot.hasData || !messagesFetchSnapshot.hasData) {
                 return const Center(child: CircularProgressIndicator());
               }
-              return _buildMessageList(messages);
+              return _buildMessageList(widget.channel.getMessages(database: widget.connection.database));
             },
           );
         }
