@@ -17,6 +17,11 @@ import '../core/database.dart';
 import '../components/channel_list/components/channel_list_room_dialog.dart';
 import '../core/providers/global/selected_server_provider.dart';
 import '../layout/my_scaffold.dart';
+import 'chat_screen/channel_list_container.dart';
+import 'chat_screen/sidebar.dart';
+import 'chat_screen/sidebar_box.dart';
+import 'chat_screen/user_info_box.dart';
+import 'chat_screen/user_list_container.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -26,362 +31,97 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final TextEditingController _createChannelNameController =
-      TextEditingController();
-  final TextEditingController _createChannelDescriptionController =
-      TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _createChannelNameController.dispose();
-    _createChannelDescriptionController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-
-    final selectedServerProvider = Provider.of<SelectedServerProvider>(context);
-    if(selectedServerProvider.client == null) {
-      throw Exception("No client selected");
-    }
-
-    // Left sidebar, content, right sidebar
-    return MyScaffold(
-      // Check if we have received welcome message
-      body: ListenableBuilder(
-        listenable: selectedServerProvider.client!.serverData,
-        builder: (context, _w) {
-
-          // If we have not received welcome message, show loading
-          if (selectedServerProvider.client!.serverData.server == null) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-
-          return Consumer2<ConnectionProvider, VoiceRoomCurrent>(
-            builder: (context, connection, currentVoiceRoom, child) {
-              return Row(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 8, 8, 8),
-                    child: Sidebar(
-                      // Left sidebar will have top and bottom parts
-                      // Top is channel list and bottom is private channel list
-                      // They will be equally divided
-                      // Add border and padding around the lists
-                      child: Column(
-                        children: <Widget>[
-                          Expanded(
-                            child: SidebarBox(
-                              child: StreamBuilder(
-                                stream: connection.database.channels.stream,
-                                initialData: connection.server.getChannels(database: connection.database),
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
-                                    return ChannelListWidget(
-                                      connection: connection,
-                                      server: connection.server,
-                                      contextMenuHandler: (channel, action) {
-                                        switch (action) {
-                                          case 'archive':
-                                            connection.packetManager
-                                                .sendChannelDelete(
-                                                    channelId: channel.id);
-                                            break;
-                                          case 'edit':
-                                            showDialog(
-                                              context: context,
-                                              builder: (context) {
-                                                return ChannelListRoomDialog(
-                                                    onSubmitted: (title,
-                                                        description, isPrivate) {
-                                                      connection.packetManager
-                                                          .sendChannelUpdate(
-                                                              channelId:
-                                                                  channel.id,
-                                                              name: title,
-                                                              description:
-                                                                  description);
-                                                    },
-                                                    inputName: channel.name,
-                                                    inputDescription:
-                                                        channel.description ?? '',
-                                                    isEdit: true);
-                                              },
-                                            );
-                                            break;
-                                          case "leave":
-                                            connection.packetManager
-                                                .sendChannelRemoveUser(
-                                              channelId: channel.id,
-                                              userId: connection.user.id,
-                                            )
-                                                .then((value) {
-                                              if (value.error != null) {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(SnackBar(
-                                                  content: Text(value.error!),
-                                                  duration:
-                                                      const Duration(seconds: 10),
-                                                ));
-                                              } else {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(const SnackBar(
-                                                  content: Text(
-                                                      'Odešel jste z místnosti'),
-                                                  duration: Duration(seconds: 10),
-                                                ));
-                                                ChannelListSelectedChannel.of(
-                                                        context,
-                                                        listen: false)
-                                                    .setChannel(connection.server, null);
-                                              }
-                                            });
-                                            break;
-                                          default:
-                                            break;
-                                        }
-                                      },
-                                    );
-                                  } else {
-                                    return const Center(
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  }
-                                },
-                              ),
-                            ),
-                          ),
-
-                          // Spacer between the two lists
-                          // const SizedBox(height: 8.0),
-                          // Expanded(
-                          //     child: SidebarBox(
-                          //         child: PrivateRoomList(
-                          //           controller: _selectedRoomController,
-                          //           rooms: List<RoomInfo>.generate(
-                          //               100000,
-                          //                   (index) => RoomInfo(index.toString(), 'Channel $index')
-                          //           ),
-                          //         )
-                          //     )
-                          // ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Consumer<ChannelListSelectedChannel>(
-                    builder: (context, value, _) {
-                      print("[ChatScreen] Selected Channel is updated, re-rendering TextRoomWidget.");
-                      return Expanded(
-                          child: value.getChannel(connection.server) != null
-                              ? TextRoomWidget(
-                                  channel: value.getChannel(connection.server),
-                                  connection: connection,
-                                )
-                              : const Center(
-                                  child: Text('No channel selected'),
-                                ));
-                    },
-                  ),
-                  // If an
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Sidebar(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: <Widget>[
-                          // Create a box with a border and padding to hold the current user info
-                          SidebarBox(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: ListenableBuilder(
-                                  listenable: connection.user,
-                                  builder: (context, child) {
-                                    return Row(
-                                      children: <Widget>[
-                                        UserAvatar(
-                                          presence: UserPresence.fromString(
-                                              connection.user.presence),
-                                          imageUrl: connection.user.avatar,
-                                        ),
-                                        const SizedBox(width: 8.0),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: <Widget>[
-                                              // Bold text
-                                              Text(
-                                                  connection.user.displayName ??
-                                                      "<No name>",
-                                                  style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold)),
-                                              if (connection.user.status !=
-                                                  null) ...[
-                                                Text(connection.user.status!),
-                                              ],
-                                            ],
-                                          ),
-                                        ),
-                                        IconButton(
-                                          onPressed: () {
-                                            context.goNamed(
-                                              "settings",
-                                              queryParameters: {"tab": "general"},
-                                            );
-                                          },
-                                          icon: const Icon(Icons.settings),
-                                        )
-                                      ],
-                                    );
-                                  }),
-                            ),
-                          ),
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 200),
-                            child: currentVoiceRoom.currentChannel != null
-                                ? const Column(
-                                    key: ValueKey("control-panel"),
-                                    children: [
-                                      SizedBox(height: 8.0),
-                                      VoiceRoomControlPanel()
-                                    ],
-                                  )
-                                : const SizedBox(
-                                    key: ValueKey("control-panel-hidden"),
-                                  ),
-                            transitionBuilder: (child, animation) {
-                              return SizeTransition(
-                                sizeFactor: animation,
-                                child: child,
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 8.0),
-                          Expanded(
-                            child: SidebarBox(
-                              child: Column(
-                                children: <Widget>[
-                                  const Text('Users'),
-                                  const SizedBox(height: 8.0),
-                                  Expanded(
-                                    child: StreamBuilder(
-                                        stream: connection.database.users.stream,
-                                        initialData:
-                                            connection.database.users.items,
-                                        builder: (context, snapshot) {
-                                          if (!snapshot.hasData) {
-                                            return const Center(
-                                              child: CircularProgressIndicator(),
-                                            );
-                                          }
-
-                                          List<User> users =
-                                              connection.database.users.items;
-
-                                          return ListView.builder(
-                                            itemCount: users.length,
-                                            itemBuilder: (context, index) {
-                                              return ListenableBuilder(
-                                                  listenable: users[index],
-                                                  builder: (context, widget) {
-                                                    return ListTile(
-                                                      // contentPadding: EdgeInsets.fromLTRB(4,0,4,0),
-                                                      // Avatar leading
-                                                      leading: UserAvatar(
-                                                        presence: UserPresence
-                                                            .fromString(
-                                                                users[index]
-                                                                    .presence),
-                                                        imageUrl:
-                                                            users[index].avatar,
-                                                      ),
-                                                      // User with status
-                                                      title: Text(users[index]
-                                                              .displayName ??
-                                                          "<No name>"),
-                                                      subtitle:
-                                                          users[index].status !=
-                                                                  null
-                                                              ? Text(users[index]
-                                                                  .status!)
-                                                              : null,
-                                                      // trailing message icon
-                                                      trailing: const IconButton(
-                                                        icon: Icon(Icons.message),
-                                                        onPressed: null,
-                                                      ),
-                                                      onTap: () {
-                                                        // Cycle all enum status
-                                                        // final UserPresence newStatus = UserPresence.values[(users[index].presence.index + 1) % UserPresence.values.length];
-                                                        // users[index].presence = newStatus;
-                                                        // Database().store.box<User>().put(users[index]);
-                                                      },
-                                                    );
-                                                  });
-                                            },
-                                          );
-                                        }),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            }
-          );
-        }
+  Widget _buildLeftSidebar(BuildContext context, ConnectionProvider connection) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 8, 8, 8),
+      child: Sidebar(
+        child: ChannelListContainer(connection: connection),
       ),
     );
   }
-}
 
-class SidebarBox extends StatelessWidget {
-  final Widget child;
-
-  const SidebarBox({super.key, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    // Material: https://github.com/flutter/flutter/issues/73315
-    return Material(
-        child: Surface.surfaceContainer(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: child));
+  Widget _buildMainContent(BuildContext context, ConnectionProvider connection) {
+    return Expanded(
+      child: Consumer<ChannelListSelectedChannel>(
+        builder: (context, value, _) {
+          return value.getChannel(connection.server) != null
+              ? TextRoomWidget(
+            channel: value.getChannel(connection.server),
+            connection: connection,
+          )
+              : const Center(child: Text('No channel selected'));
+        },
+      ),
+    );
   }
-}
 
-class Sidebar extends StatefulWidget {
-  final Widget child;
+  Widget _buildRightSidebar(BuildContext context, ConnectionProvider connection, VoiceRoomCurrent currentVoiceRoom) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Sidebar(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            UserInfoBox(connection: connection),
+            _buildVoiceRoomControlPanel(currentVoiceRoom),
+            const SizedBox(height: 8.0),
+            Expanded(child: UserListContainer(connection: connection)),
+          ],
+        ),
+      ),
+    );
+  }
 
-  const Sidebar({super.key, required this.child});
+  Widget _buildVoiceRoomControlPanel(VoiceRoomCurrent currentVoiceRoom) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 200),
+      child: currentVoiceRoom.currentChannel != null
+          ? const Column(
+        key: ValueKey("control-panel"),
+        children: [
+          SizedBox(height: 8.0),
+          VoiceRoomControlPanel()
+        ],
+      )
+          : const SizedBox(key: ValueKey("control-panel-hidden")),
+      transitionBuilder: (child, animation) {
+        return SizeTransition(
+          sizeFactor: animation,
+          child: child,
+        );
+      },
+    );
+  }
 
-  @override
-  State<Sidebar> createState() => _SidebarState();
-}
-
-class _SidebarState extends State<Sidebar> {
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 250,
-      child: widget.child,
+    final selectedServerProvider = Provider.of<SelectedServerProvider>(context);
+    if (selectedServerProvider.client == null) {
+      throw Exception("No client selected");
+    }
+
+    return MyScaffold(
+      body: ListenableBuilder(
+        listenable: selectedServerProvider.client!.serverData,
+        builder: (context, _) {
+          if (selectedServerProvider.client!.serverData.server == null) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          return Consumer2<ConnectionProvider, VoiceRoomCurrent>(
+            builder: (context, connection, currentVoiceRoom, _) {
+              return Row(
+                children: [
+                  _buildLeftSidebar(context, connection),
+                  _buildMainContent(context, connection),
+                  _buildRightSidebar(context, connection, currentVoiceRoom),
+                ],
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }
