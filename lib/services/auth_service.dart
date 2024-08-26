@@ -186,5 +186,6 @@ class AuthService with ChangeNotifier {
   abortLogin() {
     _currentLoggingClient?.disconnect();
     _currentLoggingClient = null;
+    _errorMessage = null;
   }
 }

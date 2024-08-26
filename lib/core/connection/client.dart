@@ -112,7 +112,7 @@ class Client {
         _address.host,
         _address.port,
         onBadCertificate: (cert) {
-          _logger.warning('Bad certificate: $cert');
+          _logger.warning('Bad certificate: $cert (address: $_address)');
           return true;
         },
       context: SecurityContext.defaultContext,
@@ -126,22 +126,22 @@ class Client {
       _socket!.listen((data) {
         _messageStreamHandler.onData(data);
       }, onDone: () {
-        _logger.info('onDone: Connection closed');
+        _logger.info('onDone: Connection closed (address: $_address)');
         _connectionNotifier.updateState(ClientConnectionState.disconnected);
         ClientManager().onConnectionLost(this);
       }, onError: (e) {
-        _logger.severe('Connection error: $e');
+        _logger.severe('Connection error: $e (address: $_address)');
         onError(e);
         _connectionNotifier.updateState(ClientConnectionState.disconnected);
       }, cancelOnError: true);
 
-      _logger.info('Connected');
+      _logger.info('Connected to $_address');
       _connectionNotifier.updateState(ClientConnectionState.connected);
     }
   }
 
   Future disconnect() async {
-    _logger.info('Disconnected');
+    _logger.info('Disconnected from $_address');
     _connectionNotifier.updateState(ClientConnectionState.disconnected);
     await _socket?.close();
   }
