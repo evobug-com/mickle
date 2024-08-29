@@ -38,12 +38,14 @@ Server _$ServerFromJson(Map<String, dynamic> json) => Server(
       id: json['id'] as String,
       name: json['name'] as String,
       main: json['main'] as bool,
+      parent: json['parent'] as String?,
     );
 
 Map<String, dynamic> _$ServerToJson(Server instance) => <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
       'main': instance.main,
+      'parent': instance.parent,
     };
 
 Permission _$PermissionFromJson(Map<String, dynamic> json) => Permission(

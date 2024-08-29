@@ -174,7 +174,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
   /// Builds an individual message item, including date separators when necessary.
   Widget _buildMessageItem(List<Message> messages, int index) {
     final message = messages[index];
-    final user = widget.connection.database.users.get("User:${message.user}");
+    final user = widget.connection.database.users.get(message.user);
     final currentMessageDate =message.createdAt;
     final previousMessageDate = index > 0 ? messages[index - 1].createdAt : null;
 

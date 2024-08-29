@@ -2,24 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:talk/core/managers/client_manager.dart';
 import '../components/server_list_navigator.dart';
 
-class ServerListWidget extends StatefulWidget {
+class ServerListWidget extends StatelessWidget {
   final bool showAddServerButton;
 
-  const ServerListWidget({super.key, required this.showAddServerButton})
-      : super();
+  const ServerListWidget({super.key, required this.showAddServerButton});
 
-  @override
-  State<ServerListWidget> createState() => _ServerListWidgetState();
-}
-
-class _ServerListWidgetState extends State<ServerListWidget> {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: ClientManager.of(context, listen: false),
-      builder: (context, _) {
-        return ServerListNavigator(showAddServerButton: widget.showAddServerButton);
-      }
+        listenable: ClientManager.of(context, listen: false),
+        builder: (context, _) {
+          return ServerListNavigator(showAddServerButton: showAddServerButton);
+        }
     );
   }
 }

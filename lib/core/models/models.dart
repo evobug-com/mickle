@@ -72,10 +72,13 @@ class Server with ChangeNotifier {
   String name;
   @JsonKey(name: "main")
   bool main;
+  @JsonKey(name: "parent")
+  String? parent;
 
   Server({required this.id,
     required this.name,
-    required this.main,});
+    required this.main,
+    required this.parent,});
 
   factory Server.fromJson(Map<String, dynamic> json) => _$ServerFromJson(json);
   Map<String, dynamic> toJson() => _$ServerToJson(this);
@@ -84,7 +87,7 @@ class Server with ChangeNotifier {
   
   @override
   String toString() {
-    return 'Server{id: $id, name: $name, main: $main}';
+    return 'Server{id: $id, name: $name, main: $main, parent: $parent}';
   }
 }
 

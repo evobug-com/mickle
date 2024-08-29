@@ -284,8 +284,9 @@ ResCreateChannelMessagePacket _$ResCreateChannelMessagePacketFromJson(
     ResCreateChannelMessagePacket(
       message: Message.fromJson(json['message'] as Map<String, dynamic>),
       relation: Relation.fromJson(json['relation'] as Map<String, dynamic>),
-      mentions:
-          (json['mentions'] as List<dynamic>).map((e) => e as String).toList(),
+      mentions: (json['mentions'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
     );
 
 Map<String, dynamic> _$ResCreateChannelMessagePacketToJson(
