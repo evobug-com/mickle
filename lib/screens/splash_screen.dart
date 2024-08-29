@@ -33,12 +33,16 @@ class _SplashScreenState extends State<SplashScreen> {
       ).timeout(const Duration(seconds: AppConstants.autoLoginTimeout));
     } catch (e) {
       _logger.warning('Auto-login failed: $e');
+      if(e is Error) {
+        _logger.warning(e.stackTrace);
+      }
       return false;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+
     return MyScaffold(
       body: FutureBuilder<bool>(
         future: _autoLoginFuture,

@@ -1,49 +1,70 @@
-import 'dart:typed_data';
+import 'package:talk/core/network/api_types.dart';
 
-import 'package:flat_buffers/flex_buffers.dart' as flex_buffers;
+import '../database.dart';
 
-extension FlexBufferExt on flex_buffers.Builder {
-  addStringWKey(String key, String value) {
-    addKey(key);
-    addString(value);
+
+class PacketError {
+  final String message;
+
+  PacketError(this.message);
+
+  factory PacketError.fromJson(Map<String, dynamic> json) {
+    return PacketError(json['message'] as String);
   }
 
-  addNullWKey(String key) {
-    addKey(key);
-    addNull();
+  Map<String, dynamic> toJson() => {'message': message};
+}
+
+class ApiResponse<T> {
+  final int? requestId;
+  final T? data;
+  final PacketError? error;
+  final String type;
+
+  ApiResponse({required this.requestId, required this.type, this.data, this.error});
+
+  factory ApiResponse.fromJson(Map<String, dynamic> json) {
+    return ApiResponse<T>(
+      requestId: json['request_id'] as int?,
+      type: json['type'] as String,
+      data: json['data'],
+      error: json['error'] != null ? PacketError(json['error'] as String) : null,
+    );
   }
 
-  addIntWKey(String key, int value) {
-    addKey(key);
-    addInt(value);
+  factory ApiResponse.success(T data, int? requestId, String type) =>
+      ApiResponse(requestId: requestId, data: data, type: type);
+
+  factory ApiResponse.error(String message, int? requestId, String type) =>
+      ApiResponse(requestId: requestId, error: PacketError(message), type: type);
+
+  bool get isSuccess => error == null;
+
+  cast<TSub>(TSub Function(Map<String, dynamic> json) fromJson) {
+    return ApiResponse<TSub>(
+      requestId: requestId,
+      type: type,
+      data: data != null ? fromJson(data as Map<String, dynamic>) : null,
+      error: error,
+    );
   }
 
-  addMapWKey(String key, Function callback) {
-    startMap();
-    addKey(key);
-    startMap();
-    callback();
-    end();
-    end();
-  }
-
-  addArrayWKey(String key, Function callback) {
-    addKey(key);
-    startVector();
-    callback();
-    end();
+  @override
+  String toString() {
+    return 'ApiResponse{requestId: $requestId, data: ${data?.toString()}, error: $error, type: $type}';
   }
 }
 
-int _requestId = 0;
-getNewRequestId() {
-  if(_requestId >= 65535) {
-    _requestId = 0;
-    return _requestId;
-  }
-  return _requestId++;
-}
 
-abstract class Request {
-  Uint8List serialize();
+List<String> parseMessageMentions(String message, {required Database database}) {
+  // Parse message mentions
+  List<String> rawMentions = RegExp(r'@(\w+)').allMatches(message).map((e) => e.group(1)).where((e) => e != null).toList().cast();
+
+  // Replace mention with user id
+  List<String> mentions = rawMentions.map((e) {
+    return database.users.firstWhereOrNull((element) => element.displayName == e)?.id;
+  }).where((e) => e != null).toList().cast();
+
+
+  return mentions;
 }

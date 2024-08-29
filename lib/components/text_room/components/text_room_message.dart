@@ -83,8 +83,8 @@ class TextRoomMessageState extends State<TextRoomMessage> {
                         children: [
                           Text(widget.user?.displayName ?? '<user not found>', style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold),),
                           const SizedBox(width: 8),
-                          if(widget.message.createdAt != null) Text(DateFormat('HH:mm:ss').format(DateTime.parse(widget.message.createdAt)), style: TextStyle(color: colorScheme.onSurface, fontStyle: FontStyle.italic)),
-                          if (widget.message.createdAt == null) Text(widget.message.createdAt ?? '<No time>', style: TextStyle(color: colorScheme.onSurface, fontStyle: FontStyle.italic)),
+                          if(widget.message.createdAt != null) Text(DateFormat('HH:mm:ss').format(widget.message.createdAt), style: TextStyle(color: colorScheme.onSurface, fontStyle: FontStyle.italic)),
+                          if (widget.message.createdAt == null) Text(widget.message.createdAt.toIso8601String() ?? '<No time>', style: TextStyle(color: colorScheme.onSurface, fontStyle: FontStyle.italic)),
                         ],
                       ),
                       Text(widget.message.content ?? '<No message>', style: TextStyle(color: colorScheme.onSurface)),

@@ -1,16 +1,16 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:talk/core/connection/client.dart';
 import 'package:talk/core/network/utils.dart';
 
 import '../database.dart';
-import '../network/request.dart' as request;
-import '../network/response.dart' as response;
+import '../network/api_types.dart';
 
 class PacketManager {
   // Each connection has own packet manager
   static final Map<Client, PacketManager> _packetManagers = {};
-  final Map<int, Completer> _requests = {};
+  final Map<int, Completer<ApiResponse>> _requests = {};
   int _requestId = 0;
   Client _client;
 
@@ -22,33 +22,10 @@ class PacketManager {
     return _requestId++;
   }
 
-  PacketManager._(Client connection) : _client = connection;
+  PacketManager._(this._client);
 
   factory PacketManager(Client connection) {
-    if (_packetManagers.containsKey(connection)) {
-      return _packetManagers[connection]!;
-    } else {
-      final packetManager = PacketManager._(connection);
-      _packetManagers[connection] = packetManager;
-      return packetManager;
-    }
-  }
-
-  Future<TRes> runRequest<TRes, TReq extends Request>(TReq Function(int requestId) requestBuilder) {
-    final req = _request();
-    final completer = Completer<TRes>();
-    _requests[req] = completer;
-    final TReq reqPacket = requestBuilder(req);
-    _client.send(reqPacket.serialize());
-    return completer.future;
-  }
-
-  int _request() {
-    final requestId = _getNewRequestId();
-    // Create future for the request
-    final completer = Completer();
-    _requests[requestId] = completer;
-    return requestId;
+    return _packetManagers.putIfAbsent(connection, () => PacketManager._(connection));
   }
 
   void runResolve(int requestId, dynamic response) {
@@ -57,183 +34,186 @@ class PacketManager {
     }
   }
 
-  Future<response.Login> sendLogin({
+  Future<ApiResponse<TRes>> sendRequest<TRes extends ResponseData, TReq extends RequestPacket>(
+      TReq Function(int requestId) requestBuilder
+      ) async {
+    final requestId = _getNewRequestId();
+    final completer = Completer<ApiResponse<TRes>>();
+    _requests[requestId] = completer;
+
+    final TReq reqPacket = requestBuilder(requestId);
+
+    // Create the correct JSON structure
+    final Map<String, dynamic> reqPacketJson = {
+      'type': reqPacket.packetType.substring(3, reqPacket.packetType.length - 6),
+      'data': reqPacket.toJson()
+    };
+
+    // Remove the 'packetType' field from the 'data' object
+    reqPacketJson['data'].remove('type');
+
+    String json = jsonEncode(reqPacketJson);
+    _client.send(utf8.encode(json));
+
+    return completer.future;
+  }
+
+  void handleResponse(Map<String, dynamic> jsonResponse) {
+    final response = ApiResponse.fromJson(jsonResponse);
+    final completer = _requests.remove(response.requestId);
+    if (completer != null) {
+      completer.complete(response);
+    }
+  }
+
+  Future<ApiResponse<ResLoginPacket>> sendLogin({
     String? username,
     String? password,
     String? token
   }) {
-    return runRequest((requestId) {
-      return request.Login(
-        requestId: requestId,
-        username: username,
-        password: password,
-        token: token,
-      );
-    });
+    return sendRequest((requestId) => ReqLoginPacket(
+      requestId: requestId,
+      username: username,
+      password: password,
+      token: token,
+    ));
   }
 
-  Future<response.UserChangePresence> sendUserChangePresence({
+  Future<ApiResponse<ResSetUserPresencePacket>> sendUserChangePresence({
     required String presence
   }) {
-    return runRequest((requestId) {
-      return request.UserChangePresence(
-        requestId: requestId,
-        presence: presence,
-      );
-    });
+    return sendRequest((requestId) => ReqSetUserPresencePacket(
+      requestId: requestId,
+      presence: presence,
+    ));
   }
 
-  Future<response.UserChangeStatus> sendUserChangeStatus({
+  Future<ApiResponse<ResSetUserStatusPacket>> sendUserChangeStatus({
     required String status
   }) {
-    return runRequest((requestId) {
-      return request.UserChangeStatus(
-        requestId: requestId,
-        status: status,
-      );
-    });
+    return sendRequest((requestId) => ReqSetUserStatusPacket(
+      requestId: requestId,
+      status: status,
+    ));
   }
 
-  Future<response.UserChangeAvatar> sendUserChangeAvatar({
+  Future<ApiResponse<ResSetUserAvatarPacket>> sendUserChangeAvatar({
     required String avatar
   }) {
-    return runRequest((requestId) {
-      return request.UserChangeAvatar(
-        requestId: requestId,
-        avatar: avatar,
-      );
-    });
+    return sendRequest((requestId) => ReqSetUserAvatarPacket(
+      requestId: requestId,
+      avatar: avatar,
+    ));
   }
 
-  Future<response.UserChangePassword> sendUserChangePassword({
+  Future<ApiResponse<ResSetUserPasswordPacket>> sendUserChangePassword({
     required String oldPassword,
     required String newPassword,
   }) {
-    return runRequest((requestId) {
-      return request.UserChangePassword(
-        requestId: requestId,
-        oldPassword: oldPassword,
-        newPassword: newPassword,
-      );
-    });
+    return sendRequest((requestId) => ReqSetUserPasswordPacket(
+      requestId: requestId,
+      oldPassword: oldPassword,
+      newPassword: newPassword,
+    ));
   }
 
-  Future<response.UserChangeDisplayName> sendUserChangeDisplayName({
+  Future<ApiResponse<ResSetUserDisplayNamePacket>> sendUserChangeDisplayName({
     required String displayName
   }) {
-    return runRequest((requestId) {
-      return request.UserChangeDisplayName(
-        requestId: requestId,
-        displayName: displayName,
-      );
-    });
+    return sendRequest((requestId) => ReqSetUserDisplayNamePacket(
+      requestId: requestId,
+      displayName: displayName,
+    ));
   }
 
-  Future<response.ChannelMessageCreate> sendChannelMessageCreate({
+  Future<ApiResponse<ResCreateChannelMessagePacket>> sendChannelMessageCreate({
     required String value,
     required String channelId,
   }) {
-    return runRequest((requestId) {
+    final mentions = parseMessageMentions(value, database: Database(_client.serverId!));
 
-      final mentions = request.parseMessageMentions(value, database: Database(_client.serverId!));
-
-      return request.ChannelMessageCreate(
-        requestId: requestId,
-        channelId: channelId,
-        message: value,
-        mentions: mentions,
-      );
-    });
+    return sendRequest((requestId) => ReqCreateChannelMessagePacket(
+      requestId: requestId,
+      channelId: channelId,
+      message: value,
+      mentions: mentions,
+    ));
   }
 
-  Future<response.ChannelMessageFetch> sendChannelMessageFetch({
+  Future<ApiResponse<ResFetchChannelMessagesPacket>> sendChannelMessageFetch({
     required String channelId,
     required String? lastMessageId,
   }) {
-    return runRequest((requestId) {
-      return request.ChannelMessageFetch(
-        requestId: requestId,
-        channelId: channelId,
-        lastMessageId: lastMessageId,
-      );
-    });
+    return sendRequest((requestId) => ReqFetchChannelMessagesPacket(
+      requestId: requestId,
+      channelId: channelId,
+      lastMessageId: lastMessageId,
+    ));
   }
 
-  Future<response.ChannelCreate> sendChannelCreate({
+  Future<ApiResponse<ResCreateChannelPacket>> sendChannelCreate({
     required String serverId,
     required String name,
     required String? description,
   }) {
-    return runRequest((requestId) {
-      return request.ChannelCreate(
+    return sendRequest((requestId) => ReqCreateChannelPacket(
         requestId: requestId,
         name: name,
         serverId: serverId,
         description: description
-      );
-    });
+    ));
   }
 
-  Future<response.ChannelDelete> sendChannelDelete({
+  Future<ApiResponse<ResDeleteChannelPacket>> sendChannelDelete({
     required String channelId,
   }) {
-    return runRequest((requestId) {
-      return request.ChannelDelete(
-        requestId: requestId,
-        channelId: channelId,
-      );
-    });
+    return sendRequest((requestId) => ReqDeleteChannelPacket(
+      requestId: requestId,
+      channelId: channelId,
+    ));
   }
 
-  Future<response.ChannelUpdate> sendChannelUpdate({
+  Future<ApiResponse<ResModifyChannelPacket>> sendChannelUpdate({
     required String channelId,
     required String? name,
     required String? description,
   }) {
-    return runRequest((requestId) {
-      return request.ChannelUpdate(
-        requestId: requestId,
-        channelId: channelId,
-        name: name,
-        description: description,
-      );
-    });
+    return sendRequest((requestId) => ReqModifyChannelPacket(
+      requestId: requestId,
+      channelId: channelId,
+      name: name,
+      description: description,
+    ));
   }
 
-  Future<response.ChannelAddUser> sendChannelAddUser({
+  Future<ApiResponse<ResAddUserToChannelPacket>> sendChannelAddUser({
     required String channelId,
     required String userId,
   }) {
-    return runRequest((requestId) {
-      return request.ChannelAddUser(
-        requestId: requestId,
-        channelId: channelId,
-        userId: userId,
-      );
-    });
+    return sendRequest((requestId) => ReqAddUserToChannelPacket(
+      requestId: requestId,
+      channelId: channelId,
+      userId: userId,
+    ));
   }
 
-  Future<response.ChannelRemoveUser> sendChannelRemoveUser({
+  Future<ApiResponse<ResRemoveUserFromChannelPacket>> sendChannelRemoveUser({
     required String channelId,
     required String userId,
   }) {
-    return runRequest((requestId) {
-      return request.ChannelRemoveUser(
+    return sendRequest((requestId) => ReqRemoveUserFromChannelPacket(
         requestId: requestId,
         channelId: channelId,
         userId: userId
-      );
-    });
+    ));
   }
 
-  Future<response.JoinVoiceChannel> sendJoinVoiceChannel({
+  Future<ApiResponse<ResJoinVoiceChannelPacket>> sendJoinVoiceChannel({
     required String channelId,
   }) {
-    return runRequest((requestId) {
-      return request.JoinVoiceChannel(
-        requestId: requestId,
-        channelId: channelId,
-      );
-    });
+    return sendRequest((requestId) => ReqJoinVoiceChannelPacket(
+      requestId: requestId,
+      channelId: channelId,
+    ));
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:talk/core/models/models.dart';
+import 'package:talk/core/models/utils.dart';
 import 'package:talk/core/providers/scoped/connection_provider.dart';
 import 'package:talk/screens/chat_screen/sidebar.dart';
 import 'package:talk/screens/chat_screen/sidebar_box.dart';
@@ -90,7 +91,7 @@ class _ChannelListContainerState extends State<ChannelListContainer> {
                                 if (value.error != null) {
                                   ScaffoldMessenger.of(context)
                                       .showSnackBar(SnackBar(
-                                    content: Text(value.error!),
+                                    content: Text(value.error!.message),
                                     duration:
                                     const Duration(seconds: 10),
                                   ));

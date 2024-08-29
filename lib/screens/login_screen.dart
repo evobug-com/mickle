@@ -16,12 +16,14 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('[LoginScreen] Build');
     final auth = AuthService();
 
     return ListenableBuilder(
       listenable: auth,
       builder: (context, _) {
         if (auth.errorMessage != null || auth.isLoading) {
+          print("Error or loading");
           return MyScaffold(
             body: ConnectionWidget(
               client: auth.currentLoggingClient,

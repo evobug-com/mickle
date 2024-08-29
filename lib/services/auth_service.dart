@@ -134,7 +134,7 @@ class AuthService with ChangeNotifier {
         throw loginResult.error!;
       }
 
-      await Preferences.addServer(serverId: loginResult.serverId!, host: host, token: loginResult.token!, userId: loginResult.userId!, port: 55000);
+      await Preferences.addServer(serverId: loginResult.data!.serverIds.first, host: host, token: loginResult.data!.token!, userId: loginResult.data!.userId!, port: 55000);
       ClientManager().addClient(client);
       completer?.complete(null);
     } catch (e, stacktrace) {

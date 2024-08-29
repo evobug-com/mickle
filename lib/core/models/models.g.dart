@@ -1,216 +1,130 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 part of 'models.dart';
 
-class Relation extends ChangeNotifier {
-  String id;
-  String input;
-  String output;
-  
-  Relation({required this.id, required this.input, required this.output});
-    
-  onUpdated() {
-    notifyListeners();
-  }
-    
-  factory Relation.fromReference(flex_buffers.Reference data) {
-    return Relation(
-      id: data["id"].stringValue!,
-      input: data["input"].stringValue!,
-      output: data["output"].stringValue!
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+Relation _$RelationFromJson(Map<String, dynamic> json) => Relation(
+      id: json['id'] as String,
+      input: json['input'] as String,
+      output: json['output'] as String,
     );
-  }
-  
-  @override
-  String toString() {
-    return 'Relation(id: $id, input: $input, output: $output)';
-  }
-}
-class Token extends ChangeNotifier {
-  String id;
-  String user;
-  String token;
-  dynamic createdAt;
-  dynamic expiresAt;
-  
-  Token({required this.id, required this.user, required this.token, required this.createdAt, required this.expiresAt});
-    
-  onUpdated() {
-    notifyListeners();
-  }
-    
-  factory Token.fromReference(flex_buffers.Reference data) {
-    return Token(
-      id: data["id"].stringValue!,
-      user: data["user"].stringValue!,
-      token: data["token"].stringValue!,
-      createdAt: data["createdAt"].stringValue!,
-      expiresAt: data["expiresAt"].stringValue!
+
+Map<String, dynamic> _$RelationToJson(Relation instance) => <String, dynamic>{
+      'id': instance.id,
+      'input': instance.input,
+      'output': instance.output,
+    };
+
+Token _$TokenFromJson(Map<String, dynamic> json) => Token(
+      id: json['id'] as String,
+      user: json['user'] as String,
+      token: json['token'] as String,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      expiresAt: DateTime.parse(json['expires_at'] as String),
     );
-  }
-  
-  @override
-  String toString() {
-    return 'Token(id: $id, user: $user, token: $token, createdAt: $createdAt, expiresAt: $expiresAt)';
-  }
-}
-class Server extends ChangeNotifier {
-  String id;
-  String name;
-  bool main;
-  
-  Server({required this.id, required this.name, required this.main});
-    
-  onUpdated() {
-    notifyListeners();
-  }
-    
-  factory Server.fromReference(flex_buffers.Reference data) {
-    return Server(
-      id: data["id"].stringValue!,
-      name: data["name"].stringValue!,
-      main: data["main"].boolValue!
+
+Map<String, dynamic> _$TokenToJson(Token instance) => <String, dynamic>{
+      'id': instance.id,
+      'user': instance.user,
+      'token': instance.token,
+      'created_at': instance.createdAt.toIso8601String(),
+      'expires_at': instance.expiresAt.toIso8601String(),
+    };
+
+Server _$ServerFromJson(Map<String, dynamic> json) => Server(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      main: json['main'] as bool,
     );
-  }
-  
-  @override
-  String toString() {
-    return 'Server(id: $id, name: $name, main: $main)';
-  }
-}
-class Permission extends ChangeNotifier {
-  String id;
-  
-  Permission({required this.id});
-    
-  onUpdated() {
-    notifyListeners();
-  }
-    
-  factory Permission.fromReference(flex_buffers.Reference data) {
-    return Permission(
-      id: data["id"].stringValue!
+
+Map<String, dynamic> _$ServerToJson(Server instance) => <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'main': instance.main,
+    };
+
+Permission _$PermissionFromJson(Map<String, dynamic> json) => Permission(
+      id: json['id'] as String,
     );
-  }
-  
-  @override
-  String toString() {
-    return 'Permission(id: $id)';
-  }
-}
-class Role extends ChangeNotifier {
-  String id;
-  String name;
-  int rank;
-  dynamic createdAt;
-  
-  Role({required this.id, required this.name, required this.rank, required this.createdAt});
-    
-  onUpdated() {
-    notifyListeners();
-  }
-    
-  factory Role.fromReference(flex_buffers.Reference data) {
-    return Role(
-      id: data["id"].stringValue!,
-      name: data["name"].stringValue!,
-      rank: data["rank"].intValue!,
-      createdAt: data["createdAt"].stringValue!
+
+Map<String, dynamic> _$PermissionToJson(Permission instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+    };
+
+Role _$RoleFromJson(Map<String, dynamic> json) => Role(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      rank: (json['rank'] as num).toInt(),
+      createdAt: DateTime.parse(json['created_at'] as String),
     );
-  }
-  
-  @override
-  String toString() {
-    return 'Role(id: $id, name: $name, rank: $rank, createdAt: $createdAt)';
-  }
-}
-class Message extends ChangeNotifier {
-  String id;
-  String user;
-  String content;
-  dynamic createdAt;
-  List<String>? mentions;
-  
-  Message({required this.id, required this.user, required this.content, required this.createdAt,  this.mentions});
-    
-  onUpdated() {
-    notifyListeners();
-  }
-    
-  factory Message.fromReference(flex_buffers.Reference data) {
-    return Message(
-      id: data["id"].stringValue!,
-      user: data["user"].stringValue!,
-      content: data["content"].stringValue!,
-      createdAt: data["createdAt"].stringValue!,
-      mentions: data["mentions"].isNull ? null : data["mentions"].vectorIterable.map((item) => item.stringValue!).toList()
+
+Map<String, dynamic> _$RoleToJson(Role instance) => <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'rank': instance.rank,
+      'created_at': instance.createdAt.toIso8601String(),
+    };
+
+Message _$MessageFromJson(Map<String, dynamic> json) => Message(
+      id: json['id'] as String,
+      user: json['user'] as String,
+      content: json['content'] as String,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      mentions: (json['mentions'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
     );
-  }
-  
-  @override
-  String toString() {
-    return 'Message(id: $id, user: $user, content: $content, createdAt: $createdAt, mentions: $mentions)';
-  }
-}
-class Channel extends ChangeNotifier {
-  String id;
-  String name;
-  String? description;
-  dynamic createdAt;
-  bool archived;
-  
-  Channel({required this.id, required this.name,  this.description, required this.createdAt, required this.archived});
-    
-  onUpdated() {
-    notifyListeners();
-  }
-    
-  factory Channel.fromReference(flex_buffers.Reference data) {
-    return Channel(
-      id: data["id"].stringValue!,
-      name: data["name"].stringValue!,
-      description: data["description"].stringValue,
-      createdAt: data["createdAt"].stringValue!,
-      archived: data["archived"].boolValue!
+
+Map<String, dynamic> _$MessageToJson(Message instance) => <String, dynamic>{
+      'id': instance.id,
+      'user': instance.user,
+      'content': instance.content,
+      'created_at': instance.createdAt.toIso8601String(),
+      'mentions': instance.mentions,
+    };
+
+Channel _$ChannelFromJson(Map<String, dynamic> json) => Channel(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      description: json['description'] as String?,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      archived: json['archived'] as bool,
     );
-  }
-  
-  @override
-  String toString() {
-    return 'Channel(id: $id, name: $name, description: $description, createdAt: $createdAt, archived: $archived)';
-  }
-}
-class User extends ChangeNotifier {
-  String id;
-  String? displayName;
-  String? firstName;
-  String? lastName;
-  dynamic createdAt;
-  dynamic? lastSeen;
-  String? status;
-  String? avatar;
-  String? presence;
-  
-  User({required this.id,  this.displayName,  this.firstName,  this.lastName, required this.createdAt,  this.lastSeen,  this.status,  this.avatar,  this.presence});
-    
-  onUpdated() {
-    notifyListeners();
-  }
-    
-  factory User.fromReference(flex_buffers.Reference data) {
-    return User(
-      id: data["id"].stringValue!,
-      displayName: data["displayName"].stringValue,
-      firstName: data["firstName"].stringValue,
-      lastName: data["lastName"].stringValue,
-      createdAt: data["createdAt"].stringValue!,
-      lastSeen: data["lastSeen"].stringValue,
-      status: data["status"].stringValue,
-      avatar: data["avatar"].stringValue,
-      presence: data["presence"].stringValue
+
+Map<String, dynamic> _$ChannelToJson(Channel instance) => <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'description': instance.description,
+      'created_at': instance.createdAt.toIso8601String(),
+      'archived': instance.archived,
+    };
+
+User _$UserFromJson(Map<String, dynamic> json) => User(
+      id: json['id'] as String,
+      displayName: json['display_name'] as String?,
+      firstName: json['first_name'] as String?,
+      lastName: json['last_name'] as String?,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      lastSeen: json['last_seen'] == null
+          ? null
+          : DateTime.parse(json['last_seen'] as String),
+      status: json['status'] as String?,
+      avatar: json['avatar'] as String?,
+      presence: json['presence'] as String?,
     );
-  }
-  
-  @override
-  String toString() {
-    return 'User(id: $id, displayName: $displayName, firstName: $firstName, lastName: $lastName, createdAt: $createdAt, lastSeen: $lastSeen, status: $status, avatar: $avatar, presence: $presence)';
-  }
-}
+
+Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
+      'id': instance.id,
+      'display_name': instance.displayName,
+      'first_name': instance.firstName,
+      'last_name': instance.lastName,
+      'created_at': instance.createdAt.toIso8601String(),
+      'last_seen': instance.lastSeen?.toIso8601String(),
+      'status': instance.status,
+      'avatar': instance.avatar,
+      'presence': instance.presence,
+    };

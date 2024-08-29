@@ -9,10 +9,11 @@ import 'package:talk/core/managers/audio_manager.dart';
 import 'package:talk/core/managers/client_manager.dart';
 import 'package:talk/core/connection/message_stream_handler.dart';
 import 'package:talk/core/managers/packet_manager.dart';
+import 'package:talk/core/network/api_types.dart';
 import 'package:talk/core/processor/response_processor.dart';
-import 'package:talk/core/network/response.dart' as response;
 
 import '../models/models.dart';
+import '../network/utils.dart';
 
 enum ClientConnectionState {
   none,
@@ -154,14 +155,14 @@ class Client {
     }
   }
 
-  Future<response.Login> login({
+  Future<ApiResponse<ResLoginPacket>> login({
     String? username, String? password, String? token
   }) async {
     final result = await PacketManager(this).sendLogin(username: username, password: password, token: token);
     if(result.error != null) {
       _connectionNotifier.updateState(ClientConnectionState.disconnected); // Server rejected the login
     } else {
-      _serverData.updateData(serverId: result.serverId, userId: result.userId);
+      _serverData.updateData(serverId: result.data!.serverIds.first, userId: result.data!.userId);
     }
     return result;
   }

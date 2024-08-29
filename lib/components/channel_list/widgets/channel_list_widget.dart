@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:talk/components/channel_list/components/channel_list_item.dart';
 import 'package:talk/components/channel_list/components/channel_list_room_dialog.dart';
 import 'package:talk/core/models/models.dart';
+import 'package:talk/core/models/utils.dart';
 import 'package:talk/core/providers/scoped/connection_provider.dart';
 
 class ChannelListWidget extends StatefulWidget {

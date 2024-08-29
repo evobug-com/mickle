@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:talk/core/models/utils.dart';
+import 'package:talk/core/network/api_types.dart';
+import 'package:talk/core/network/utils.dart';
 import 'package:talk/core/providers/scoped/connection_provider.dart';
-import '../../../core/network/response.dart' as response;
 
 import '../../../core/models/models.dart';
 import '../../ui/date_separator.dart';
@@ -22,7 +24,7 @@ class TextRoomMessages extends StatefulWidget {
 }
 
 class TextRoomMessagesState extends State<TextRoomMessages> {
-  Future<response.ChannelMessageFetch>? fetchingMessages;
+  Future<ApiResponse<ResFetchChannelMessagesPacket>>? fetchingMessages;
 
   @override
   void initState() {
@@ -42,7 +44,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
       _fetchMessages();
     } else {
       // Set fetching messages to completed future because we have messages already
-      fetchingMessages = Future.value(response.ChannelMessageFetch());
+      fetchingMessages = Future.value(ApiResponse.success(ResFetchChannelMessagesPacket(messages: [], relations: []), 0, "ResFetchChannelMessagesPacket"));
     }
   }
 
@@ -52,7 +54,9 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
         channelId: widget.channel.id,
         lastMessageId: widget.channel.getMessages(database: widget.connection.database).firstOrNull?.id
     );
-    print('[TextRoomMessages] Fetched messages $fetchingMessages');
+    fetchingMessages!.then((response) {
+     print('[TextRoomMessages] Fetched messages: $response');
+    });
   }
 
   /// Restores the scroll position for the current channel.
@@ -135,6 +139,9 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
             ),
             initialData: widget.channel.getMessages(database: widget.connection.database),
             builder: (context, snapshot) {
+              print('[TextRoomMessages] Building messages');
+              print('[TextRoomMessages] snapshot.hasData: ${snapshot.hasData}');
+              print('[TextRoomMessages] messagesFetchSnapshot.hasData: ${messagesFetchSnapshot.hasData}');
               if (!snapshot.hasData || !messagesFetchSnapshot.hasData) {
                 return const Center(child: CircularProgressIndicator());
               }
@@ -168,8 +175,8 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
   Widget _buildMessageItem(List<Message> messages, int index) {
     final message = messages[index];
     final user = widget.connection.database.users.get("User:${message.user}");
-    final currentMessageDate = DateTime.parse(message.createdAt);
-    final previousMessageDate = index > 0 ? DateTime.parse(messages[index - 1].createdAt) : null;
+    final currentMessageDate =message.createdAt;
+    final previousMessageDate = index > 0 ? messages[index - 1].createdAt : null;
 
     return Column(
       children: [

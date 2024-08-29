@@ -6,7 +6,8 @@ import 'models/models.dart';
 
 
 // Function to prepare a string of id based on runtimeType
-String idFromType<T>(T item) => '${item.runtimeType}:${(item as dynamic)?.id}';
+String idFromType<T>(T item) => (item as dynamic).id!;
+    // '${item.runtimeType.toString().toLowerCase()}:${(item as dynamic)?.id}';
 
 class ListStream<T> {
   final Map<String, T> _items = {};

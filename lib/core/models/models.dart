@@ -1,107 +1,242 @@
-import 'package:flat_buffers/flex_buffers.dart' as flex_buffers;
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: unused_element, unused_field, unused_import, unnecessary_this, prefer_const_constructors
+
+
+import 'package:json_annotation/json_annotation.dart';
 import 'package:flutter/foundation.dart';
 
-import '../database.dart';
 part 'models.g.dart';
 
-class RoomPermissions {
-  bool canSendMessages = false;
-  bool canReadMessages = false;
-  bool canEditMessages = false;
-  bool canDeleteMessages = false;
-  bool canManageRoom = false;
 
-  RoomPermissions({
-    required this.canSendMessages,
-    required this.canReadMessages,
-    required this.canEditMessages,
-    required this.canDeleteMessages,
-    required this.canManageRoom,
-  });
-}
+@JsonSerializable()
+class Relation with ChangeNotifier {
+  @JsonKey(name: "id")
+  String id;
+  @JsonKey(name: "input")
+  String input;
+  @JsonKey(name: "output")
+  String output;
 
+  Relation({required this.id,
+    required this.input,
+    required this.output,});
 
-extension UserExtension on User {
-  List<Role> getRoles({required Database database}) {
+  factory Relation.fromJson(Map<String, dynamic> json) => _$RelationFromJson(json);
+  Map<String, dynamic> toJson() => _$RelationToJson(this);
 
-    final roles = database.roleUsers.outputs(id);
-    return roles.map((relation) => database.roles.get("Role:${relation.input}")!).toList();
-  }
-
-  getPermissionsForChannel(String roomId, {required Database database}) {
-    final roles = getRoles(database: database);
-    final permissions = roles.map((role) => role.getPermissions(database: database)).expand((element) => element).toList();
-
-    return RoomPermissions(
-      canSendMessages: permissions.any((permission) => permission.id == 'channel_send_message'),
-      canReadMessages: permissions.any((permission) => permission.id == 'channel_read_message'),
-      canEditMessages: permissions.any((permission) => permission.id == 'channel_edit_message'),
-      canDeleteMessages: permissions.any((permission) => permission.id == 'channel_delete_message'),
-      canManageRoom: permissions.any((permission) => permission.id == 'channel_update'),
-    );
+  void notify() => notifyListeners();
+  
+  @override
+  String toString() {
+    return 'Relation{id: $id, input: $input, output: $output}';
   }
 }
 
-extension RoleExtension on Role {
-  List<Permission> getPermissions({required Database database}) {
-    final permissions = database.rolePermissions.inputs(id);
-    return permissions.map((relation) => database.permissions.get("Permission:${relation.output}")!).toList();
-  }
 
-  List<User> getUsers({required Database database}) {
-    final users = database.roleUsers.inputs(id);
-    return users.map((relation) => database.users.get("User:${relation.output}")!).toList();
+@JsonSerializable()
+class Token with ChangeNotifier {
+  @JsonKey(name: "id")
+  String id;
+  @JsonKey(name: "user")
+  String user;
+  @JsonKey(name: "token")
+  String token;
+  @JsonKey(name: "created_at")
+  DateTime createdAt;
+  @JsonKey(name: "expires_at")
+  DateTime expiresAt;
+
+  Token({required this.id,
+    required this.user,
+    required this.token,
+    required this.createdAt,
+    required this.expiresAt,});
+
+  factory Token.fromJson(Map<String, dynamic> json) => _$TokenFromJson(json);
+  Map<String, dynamic> toJson() => _$TokenToJson(this);
+
+  void notify() => notifyListeners();
+  
+  @override
+  String toString() {
+    return 'Token{id: $id, user: $user, token: $token, createdAt: $createdAt, expiresAt: $expiresAt}';
+  }
+}
+
+
+@JsonSerializable()
+class Server with ChangeNotifier {
+  @JsonKey(name: "id")
+  String id;
+  @JsonKey(name: "name")
+  String name;
+  @JsonKey(name: "main")
+  bool main;
+
+  Server({required this.id,
+    required this.name,
+    required this.main,});
+
+  factory Server.fromJson(Map<String, dynamic> json) => _$ServerFromJson(json);
+  Map<String, dynamic> toJson() => _$ServerToJson(this);
+
+  void notify() => notifyListeners();
+  
+  @override
+  String toString() {
+    return 'Server{id: $id, name: $name, main: $main}';
   }
 }
 
-extension ChannelExtension on Channel {
-  List<Message> getMessages({required Database database}) {
-    final channelMessagesRelations = database.channelMessages.inputs(id);
 
-    // Get all messages for channelMessagesRelations by id
-    final channelMessages = channelMessagesRelations.map((relation) => database.messages.get("Message:${relation.output}")!).toList();
-    channelMessages.sort((a, b) => a.createdAt!.compareTo(b.createdAt!));
-    return channelMessages;
+@JsonSerializable()
+class Permission with ChangeNotifier {
+  @JsonKey(name: "id")
+  String id;
+
+  Permission({required this.id,});
+
+  factory Permission.fromJson(Map<String, dynamic> json) => _$PermissionFromJson(json);
+  Map<String, dynamic> toJson() => _$PermissionToJson(this);
+
+  void notify() => notifyListeners();
+  
+  @override
+  String toString() {
+    return 'Permission{id: $id}';
   }
+}
 
-  containsMessage(Message message, {required Database database}) {
-    final channelMessagesRelations = database.channelMessages.outputs(message.id);
-    return channelMessagesRelations.any((relation) => relation.input == id);
+
+@JsonSerializable()
+class Role with ChangeNotifier {
+  @JsonKey(name: "id")
+  String id;
+  @JsonKey(name: "name")
+  String name;
+  @JsonKey(name: "rank")
+  int rank;
+  @JsonKey(name: "created_at")
+  DateTime createdAt;
+
+  Role({required this.id,
+    required this.name,
+    required this.rank,
+    required this.createdAt,});
+
+  factory Role.fromJson(Map<String, dynamic> json) => _$RoleFromJson(json);
+  Map<String, dynamic> toJson() => _$RoleToJson(this);
+
+  void notify() => notifyListeners();
+  
+  @override
+  String toString() {
+    return 'Role{id: $id, name: $name, rank: $rank, createdAt: $createdAt}';
   }
 }
 
-extension ServerExtension on Server {
-  List<Channel> getChannels({required Database database}) {
-    final serverChannelsRelations = database.serverChannels.inputs(id);
 
-    // Get all channels for serverChannelsRelations by id
-    final serverChannels = serverChannelsRelations.map((relation) => database.channels.get("Channel:${relation.output}")).toList();
-    return serverChannels.where((channel) => channel != null).map((channel) => channel!).toList();
-  }
+@JsonSerializable()
+class Message with ChangeNotifier {
+  @JsonKey(name: "id")
+  String id;
+  @JsonKey(name: "user")
+  String user;
+  @JsonKey(name: "content")
+  String content;
+  @JsonKey(name: "created_at")
+  DateTime createdAt;
+  @JsonKey(name: "mentions")
+  List<String>? mentions;
 
-  /// Get all channels that the user is a member of
-  List<Channel> getChannelsForUser(User user, {required Database database}) {
-    final serverChannelsRelations = database.serverChannels.inputs(id);
+  Message({required this.id,
+    required this.user,
+    required this.content,
+    required this.createdAt,
+    required this.mentions,});
 
-    // Get all channels for serverChannelsRelations by id
-    final channels = serverChannelsRelations.map((relation) => database.channels.get("Channel:${relation.output}")).toList();
+  factory Message.fromJson(Map<String, dynamic> json) => _$MessageFromJson(json);
+  Map<String, dynamic> toJson() => _$MessageToJson(this);
 
-    return channels.where((channel) {
-      if(channel == null) {
-        return false;
-      }
-      // Filter channels with channelUsers relation
-
-      // Get relations for channel;
-      final channelUsersRelations = database.channelUsers.inputs(channel.id);
-
-      // return true if user is a member of the channel
-      return channelUsersRelations.any((relation) => relation.output == user.id);
-    }).map((channel) => channel!).toList();
-  }
-
-  containsChannel(Channel channel, {required Database database}) {
-    final serverChannelsRelations = database.serverChannels.outputs(channel.id);
-    return serverChannelsRelations.any((relation) => relation.input == id);
+  void notify() => notifyListeners();
+  
+  @override
+  String toString() {
+    return 'Message{id: $id, user: $user, content: $content, createdAt: $createdAt, mentions: $mentions}';
   }
 }
+
+
+@JsonSerializable()
+class Channel with ChangeNotifier {
+  @JsonKey(name: "id")
+  String id;
+  @JsonKey(name: "name")
+  String name;
+  @JsonKey(name: "description")
+  String? description;
+  @JsonKey(name: "created_at")
+  DateTime createdAt;
+  @JsonKey(name: "archived")
+  bool archived;
+
+  Channel({required this.id,
+    required this.name,
+    required this.description,
+    required this.createdAt,
+    required this.archived,});
+
+  factory Channel.fromJson(Map<String, dynamic> json) => _$ChannelFromJson(json);
+  Map<String, dynamic> toJson() => _$ChannelToJson(this);
+
+  void notify() => notifyListeners();
+  
+  @override
+  String toString() {
+    return 'Channel{id: $id, name: $name, description: $description, createdAt: $createdAt, archived: $archived}';
+  }
+}
+
+
+@JsonSerializable()
+class User with ChangeNotifier {
+  @JsonKey(name: "id")
+  String id;
+  @JsonKey(name: "display_name")
+  String? displayName;
+  @JsonKey(name: "first_name")
+  String? firstName;
+  @JsonKey(name: "last_name")
+  String? lastName;
+  @JsonKey(name: "created_at")
+  DateTime createdAt;
+  @JsonKey(name: "last_seen")
+  DateTime? lastSeen;
+  @JsonKey(name: "status")
+  String? status;
+  @JsonKey(name: "avatar")
+  String? avatar;
+  @JsonKey(name: "presence")
+  String? presence;
+
+  User({required this.id,
+    required this.displayName,
+    required this.firstName,
+    required this.lastName,
+    required this.createdAt,
+    required this.lastSeen,
+    required this.status,
+    required this.avatar,
+    required this.presence,});
+
+  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
+  Map<String, dynamic> toJson() => _$UserToJson(this);
+
+  void notify() => notifyListeners();
+  
+  @override
+  String toString() {
+    return 'User{id: $id, displayName: $displayName, firstName: $firstName, lastName: $lastName, createdAt: $createdAt, lastSeen: $lastSeen, status: $status, avatar: $avatar, presence: $presence}';
+  }
+}
+

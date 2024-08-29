@@ -1,496 +1,354 @@
 import 'dart:io';
+import 'package:path/path.dart' as path;
+import 'package:recase/recase.dart';
 
-String snakeToCamel(String snake) {
-  final parts = snake.split('_');
-  return parts[0] + parts.sublist(1).map((part) => part[0].toUpperCase() + part.substring(1)).join('');
-}
+class RustToDartGenerator {
+  static const Map<String, String> _rustToDartTypes = {
+    'u16': 'int',
+    'u32': 'int',
+    'u64': 'int',
+    'i16': 'int',
+    'i32': 'int',
+    'i64': 'int',
+    'bool': 'bool',
+    'String': 'String',
+    'Option<String>': 'String?',
+    'Vec<String>': 'List<String>',
+    'RecordId': 'String',
+    'Datetime': 'DateTime',
+    'Message': 'Message',
+    'Relation': 'Relation',
+    'Server': 'Server',
+    'Permission': 'Permission',
+    'Role': 'Role',
+    'Channel': 'Channel',
+    'User': 'User',
+  };
 
-String constructSerializeFunction(String className, List<String> fields) {
+  final String _rustDir;
+  final String _dartOutputPath;
+  final String _dartModelOutputPath;
 
-  // Classes are mapped to MapWKey("ClassName", () { ... })
-  // Arrays are mapped to ArrayWKey("ArrayName", () { ... })
-  // Fields are mapped to addTypeWKey("fieldName", fieldName)
+  RustToDartGenerator(String rustDir, String dartOutputPath, String dartModelOutputPath)
+      : _rustDir = path.absolute(rustDir),
+        _dartOutputPath = path.absolute(dartOutputPath),
+        _dartModelOutputPath = path.absolute(dartModelOutputPath);
 
-  // Fields prepend request_id: u16
-  // fields.insert(0, 'int requestId');
-
-  return '''
-  serialize() {
-    final builder = flex_buffers.Builder();
-   
-    builder.addMapWKey("$className", () {
-      ${fields.map((field) {
-    final parts = field.split(' ');
-    final fieldName = parts[1];
-    String fieldType = parts[0];
-
-    // if array (List) then call addArrayWKey
-    if(fieldType.startsWith('List')) {
-      final isOptional = fieldType.endsWith('?');
-      final innerType = fieldType.substring(5, fieldType.indexOf('>'));
-      return 'builder.addArrayWKey("${snakeToCamel(fieldName)}", () { ${fieldName + (isOptional ? '?' : '')}.forEach((item) { builder.add$innerType(item); }); });';
-    }
-
-    // if String or Int then call addTypeWKey
-    if (fieldType.startsWith("String") || fieldType.startsWith("int")) {
-      if(fieldType.endsWith("?")) {
-        fieldType = fieldType.substring(0, fieldType.length - 1);
-        return 'if($fieldName != null) { builder.add${fieldType[0].toUpperCase()}${fieldType.substring(1)}WKey("${snakeToCamel(fieldName)}", $fieldName!); } else { builder.addNullWKey("${snakeToCamel(fieldName)}"); }';
-      }
-
-      return 'builder.add${fieldType[0].toUpperCase()}${fieldType.substring(1)}WKey("${snakeToCamel(fieldName)}", $fieldName);';
-    }
-
-    // Otherwise call addMapWKey
-    return 'builder.addMapWKey("${snakeToCamel(fieldName)}", () { $fieldName.serialize(); });';
-  }).join('\n      ')}
-    });
-    
-    return builder.finish(); 
-  } 
-''';
-}
-
-
-final rustToDartTypes = {
-  'u16': 'int',
-  'u32': 'int',
-  'u64': 'int',
-  'i16': 'int',
-  'i32': 'int',
-  'i64': 'int',
-  'bool': 'bool',
-  'String': 'String',
-  'RecordId': 'String',
-  'Message': 'models.Message',
-  'Relation': 'models.Relation',
-  'Server': 'models.Server',
-  'Permission': 'models.Permission',
-  'Role': 'models.Role',
-  'Channel': 'models.Channel',
-  'User': 'models.User',
-  'Value': 'dynamic'
-};
-
-String resolveRuntimeType(String type, {String? prefix, String? suffix}) {
-  if (type.startsWith('Option<')) {
-    return resolveRuntimeType(type.substring(7, type.length - 1), suffix: '?', prefix: prefix);
-  }
-  if (type.startsWith('Vec<')) {
-    return '${prefix ?? ''}List<${resolveRuntimeType(type.substring(4, type.length - 1))}>${suffix ?? ''}';
+  Future<void> generate() async {
+    await _generateNetworkClasses();
+    await _generateModelClasses();
   }
 
-  if(!rustToDartTypes.containsKey(type)) {
-    type = "dynamic";
+  Future<void> _generateNetworkClasses() async {
+    final requests = await _parseRustFile('network/requests.rs');
+    final responses = await _parseRustFile('network/responses.rs');
+    final events = await _parseRustFile('network/events.rs');
+
+    final allClasses = [...requests, ...responses, ...events];
+
+    final output = StringBuffer();
+    output.writeln(_generateHeader());
+    output.writeln(_generateImports());
+    output.writeln(_generateEnums(requests, responses, events));
+    output.writeln(_generateBaseClasses());
+    output.writeln(_generateDartClasses(allClasses));
+
+    await File(_dartOutputPath).writeAsString(output.toString());
+    print('Generated Dart network classes have been written to $_dartOutputPath');
   }
 
-  return '${prefix ?? ''}${rustToDartTypes[type] ?? type}${suffix ?? ''}';
-}
+  Future<void> _generateModelClasses() async {
+    final models = await _parseRustFile('models.rs');
 
+    final output = StringBuffer();
+    output.writeln(_generateHeader());
+    output.writeln(_generateModelImports());
+    output.writeln(_generateDartClasses(models, finalFields: false));
 
-String generateRequest() {
-  print('Generating request');
-
-  // Read content of file ../talk-server/src/network/packet.rs
-  // Parse the PacketRequest enum
-  // Generate a Request class for each variant with serialize method
-  // Return the generated code
-
-  final packetFile = File('../talk-server/src/network/packet.rs');
-  final packetContent = packetFile.readAsStringSync();
-
-  // Regex to match the PacketRequest enum
-  final packetRequestEnum = RegExp(r'pub enum PacketRequest {\s*(.*)\s*}.*?pub enum PacketResponse {', dotAll: true).firstMatch(packetContent)?.group(1);
-  if(packetRequestEnum == null) {
-    // Throw an error that the PacketRequest enum was not found
-    throw Exception('PacketRequest enum not found in packet.rs');
+    await File(_dartModelOutputPath).writeAsString(output.toString());
+    print('Generated Dart model classes have been written to $_dartModelOutputPath');
   }
 
-  // Regex to match the variants of the PacketRequest enum
-  final packetRequestVariants = RegExp(r'(\w+) {(.*?)}', dotAll: true).allMatches(packetRequestEnum);
+  String _generateHeader() {
+    return '// GENERATED CODE - DO NOT MODIFY BY HAND\n'
+        '// ignore_for_file: unused_element, unused_field, unused_import, unnecessary_this, prefer_const_constructors\n\n';
+  }
 
-  String generatedCode = "part of 'request.dart';\n\n";
+  String _generateImports() {
+    return '''
+import 'package:json_annotation/json_annotation.dart';
+import 'package:flutter/foundation.dart';
+import '../models/models.dart';
 
-  // Remap the fields to Dart types
+part '${path.basename(_dartOutputPath).replaceFirst('.dart', '.g.dart')}';
 
-
-  for (var match in packetRequestVariants) {
-    // Group 1: Class name, Group 2: Fields
-    final className = match.group(1)!;
-    print('Class Name: $className');
-
-    // Fields are: field_name: field_type
-    List<String> fields = match.group(2)!.split(',').map((field) => field.trim()).where((element) => element.isNotEmpty).toList();
-
-    print ('Fields: $fields');
-    // Remap the field types and convert to camelCase
-    fields = fields.map((field) {
-      final parts = field.split(':').map((part) => part.trim()).toList();
-      final fieldName = parts[0];
-      final fieldType = resolveRuntimeType(parts[1]);
-      return '$fieldType ${snakeToCamel(fieldName)}';
-    }).toList();
-
-    // Generate the Request class
-    generatedCode += '''
-class $className extends Request {
-
-  ${fields.isNotEmpty ? '${fields.join(';\n  ')};' : ''}
-  
-  $className(${
-    fields.isNotEmpty ? '''{${fields.map((e)
-    {
-      final parts = e.split(' ');
-      final fieldType = parts[0];
-      final fieldName = parts[1];
-      final isOptional = fieldType.endsWith('?');
-      // If not optional, then add required keyword
-      return '${isOptional ? '' : 'required'} this.$fieldName';
-
-    }).join(', ')}}''' : ''
-    });
-  
-  ${constructSerializeFunction(className, fields)}
-}
 ''';
   }
-  return generatedCode;
+
+  String _generateModelImports() {
+    return '''
+import 'package:json_annotation/json_annotation.dart';
+import 'package:flutter/foundation.dart';
+
+part '${path.basename(_dartModelOutputPath).replaceFirst('.dart', '.g.dart')}';
+
+''';
+  }
+
+  String _generateEnums(List<RustStruct> requests, List<RustStruct> responses, List<RustStruct> events) {
+    final allNames = [...requests, ...responses, ...events].map((s) => s.name).toList();
+    return '@JsonEnum()\nenum PacketType {\n  '
+        '${allNames.map((name) => '@JsonValue("$name")\n  ${ReCase(name).camelCase},').join('\n  ')}\n'
+        '}\n\n';
+  }
+
+  String _generateBaseClasses() {
+    return '''
+@JsonSerializable()
+class RequestPacket {
+  @JsonKey(name: "type")
+  final String packetType;
+
+  RequestPacket({required this.packetType});
+
+  factory RequestPacket.fromJson(Map<String, dynamic> json) => _\$RequestPacketFromJson(json);
+  Map<String, dynamic> toJson() => _\$RequestPacketToJson(this);
 }
 
-String generateResponse() {
-  print('Generating response');
-  // Read content of file ../talk-server/src/network/packet.rs
-  // Parse the PacketResponse enum
-  // Generate a Response class for each variant with fromReference method
-  // Return the generated code
+@JsonSerializable()
+class ResponseData {
+  const ResponseData();
 
-  final packetFile = File('../talk-server/src/network/packet.rs');
-  final packetContent = packetFile.readAsStringSync();
+  factory ResponseData.fromJson(Map<String, dynamic> json) => _\$ResponseDataFromJson(json);
+  Map<String, dynamic> toJson() => _\$ResponseDataToJson(this);
+}
 
-  // Regex to match the PacketResponse enum
-  final packetResponseEnum = RegExp(r'pub enum PacketResponse {\s*(.*)\s*}.*?pub enum Packet', dotAll: true).firstMatch(packetContent)?.group(1);
+@JsonSerializable()
+class EventData {
+  const EventData();
 
-  if(packetResponseEnum == null) {
-    // Throw an error that the PacketResponse enum was not found
-    throw Exception('PacketResponse enum not found in packet.rs');
-  }
-
-  // Regex to match the variants of the PacketResponse enum
-  final packetResponseVariants = RegExp(r'(\w+) {(.*?)}', dotAll: true).allMatches(packetResponseEnum);
-
-  String generatedCode = "part of 'response.dart';\n\n";
-
-  for (var match in packetResponseVariants) {
-    // Group 1: Class name, Group 2: Fields
-    final className = match.group(1)!;
-
-    // Fields are: field_name: field_type
-    List<String> fields = match.group(2)!.split(',').map((field) => field.trim()).where((element) => element.isNotEmpty && !element.startsWith("//")).toList();
-    print('Class Name: $className');
-
-    print ('Fields: $fields');
-    // Remap the field types and convert to camelCase
-    fields = fields.map((field) {
-      final parts = field.split(':').map((part) => part.trim()).toList();
-      final fieldName = parts[0];
-      String fieldType = resolveRuntimeType(parts[1]);
-      return '$fieldType ${snakeToCamel(fieldName)}';
-    }).toList();
-
-    // Generate the Response class
-    generatedCode += '''
-class $className {
-
-  static const PacketResponse packetName = PacketResponse.$className;
-
-  ${fields.isNotEmpty ? '''${fields.map((element) {
-      final parts = element.split(' ');
-      String fieldType = parts[0];
-      final fieldName = parts[1];
-      if(!fieldType.endsWith("?")) {
-        fieldType = "late $fieldType";
-      }
-      return '$fieldType $fieldName';
-    }).join(';\n  ')};''' : ''}
-  
-  $className();
-  
-  factory $className.fromReference(flex_buffers.Reference data) {
-    return $className()
-      ${fields.isNotEmpty ? '''${fields.map((e)
-    {
-      final parts = e.split(' ');
-      final fieldType = parts[0].replaceAll("?", "");
-      final fieldName = parts[1];
-
-      // if array (List) then call vectorIterable
-      // If the inner type is a custom type, then call fromReference on the custom type
-      if(fieldType.startsWith('List')) {
-        final isNullable = parts[0].endsWith('?');
-        final innerType = fieldType.substring(5, fieldType.length - 1);
-        String result;
-        if (innerType != "int" && innerType != "String" && innerType != "bool" && innerType != "double") {
-          result = 'data["${snakeToCamel(fieldName)}"].vectorIterable.map((item) => $innerType.fromReference(item)).toList()';
-        } else {
-          result = 'data["${snakeToCamel(fieldName)}"].vectorIterable.map((item) => item.${innerType[0].toLowerCase()}${innerType.substring(1)}Value!).toList()';
-        }
-        if(isNullable) {
-          return '..$fieldName = data["${snakeToCamel(fieldName)}"].isNull ? null : $result';
-        } else {
-          return '..$fieldName = $result';
-        }
-
-    }
-
-      // If type is a custom type, then call fromReference on the custom type
-      if (fieldType != "int" && fieldType != "String" && fieldType != "bool" && fieldType != "double") {
-        return '..$fieldName = data["${snakeToCamel(fieldName)}"].isNull ? null : $fieldType.fromReference(data["${snakeToCamel(fieldName)}"])';
-      }
-
-      return '..$fieldName = data["${snakeToCamel(fieldName)}"].${fieldType[0].toLowerCase()}${fieldType.substring(1)}Value${parts[0].endsWith("?") ? '' : '!'}';
-    }).join('\n      ')};''' : ';'}
-  }
+  factory EventData.fromJson(Map<String, dynamic> json) => _\$EventDataFromJson(json);
+  Map<String, dynamic> toJson() => _\$EventDataToJson(this);
 }
 ''';
   }
 
-  generatedCode += '''
-enum PacketResponse {
-  ${packetResponseVariants.map((match) => match.group(1)!).join(',\n  ')}
-}
-  ''';
-
-  return generatedCode;
-
-}
-
-String generateModels() {
-  print ('Generating models');
-
-  // Read content of file ../talk-server/src/models.rs
-  // Parse each struct
-  // Generate a Model class for each variant
-  // Return the generated code
-
-  final modelsFile = File('../talk-server/src/models.rs');
-  final modelsContent = modelsFile.readAsStringSync();
-
-  // Regex to match the struct definitions
-  final structDefinitions = RegExp(r'(\w+) {(.*?)}', dotAll: true).allMatches(modelsContent);
-  if (structDefinitions.isEmpty) {
-    // Throw an error that no struct definitions were found
-    throw Exception('No struct definitions found in models.rs');
+  String _generateDartClasses(List<RustStruct> structs, { bool finalFields = true }) {
+    return structs.map((struct) => _generateDartClass(struct, finalFields: finalFields)).join('\n\n');
   }
 
-  String generatedCode = "part of 'models.dart';\n\n";
+  String _generateDartClass(RustStruct struct, { required bool finalFields }) {
+    final className = struct.name;
+    final isNetworkClass = _isNetworkClass(className);
+    final baseClass = isNetworkClass ? _determineBaseClass(className) : null;
 
-  for (var match in structDefinitions) {
-    // Group 1: Struct name, Group 2: Fields
-    final structName = match.group(1)!;
-    print('Struct Name: $structName');
+    final fields = struct.fields.where((field) => !_shouldSkipField(field)).map((field) {
+      final dartType = _resolveDartType(field.type);
+      final rustFieldName = field.name;
+      final dartFieldName = ReCase(rustFieldName).camelCase;
+      final jsonKey = _generateJsonKey(rustFieldName, dartFieldName, field.attributes, field.type);
+      return '$jsonKey\n  ${finalFields ? 'final ' : ''}$dartType $dartFieldName;';
+    }).join('\n  ');
 
-    // Fields are: field_name: field_type
-    // Split ,
-    List<String> fields = match.group(2)!.split(',').map((field) {
-      // Replace 'pub ' with empty string and trim
-      return field.replaceAll('pub ', '').trim();
-    }).where((element) {
-      // Remove empty fields
-      // Remove comments
+    final constructorParams = struct.fields.where((field) => !_shouldSkipField(field)).map((field) {
+      final dartFieldName = ReCase(field.name).camelCase;
+      return 'required this.$dartFieldName,';
+    }).join('\n    ');
 
-      // If #[serde(skip_serializing)] then skip
-      if (element.contains("skip_serializing")) {
-        return false;
-      }
+    final extendsClause = baseClass != null ? ' extends $baseClass' : '';
+    final changeNotifierMixin = baseClass == null ? ' with ChangeNotifier' : '';
 
-      return element.isNotEmpty && !element.startsWith('//');
-    }).map((element) {
-      // if #[serde(rename = "value")] then rename
-      if (element.contains("serde(rename")) {
-        // Extract new name via regex
-        String newName = RegExp(r'serde\(rename.*?"(.*?)"').firstMatch(element)?.group(1) ?? '';
-        // Remove #[serde(rename = "value")]
-        element = element.replaceAll(RegExp(r'#\[.*\]'), '');
-        // Trim new line
-        element = element.trim();
-        // Split by : and return with new name
-        final parts = element.split(':').map((part) => part.trim()).toList();
-        return '$newName: ${parts[1]}';
-      }
+    final constructor = _generateConstructor(className, baseClass, constructorParams);
+    final toJsonMethod = _generateToJsonMethod(className, baseClass);
 
-      if(element.contains("#[serde(default")) {
-        print("Element: $element");
-        // Remove #[serde(default)]\n
-        element = element.replaceAll(RegExp(r"#\[serde\(default\)\]\s*"), "");
-      }
+    return '''
+@JsonSerializable()
+class $className$extendsClause$changeNotifierMixin {
+  $fields
 
+  $constructor
 
+  factory $className.fromJson(Map<String, dynamic> json) => _\$${className}FromJson(json);
+  $toJsonMethod
 
-      return element;
-    }).toList();
-
-    print('Struct Fields: $fields');
-
-    // Remap the field types and convert to camelCase
-    fields = fields.map((field) {
-      final parts = field.split(':').map((part) => part.trim()).toList();
-      final fieldName = parts[0];
-      final fieldType = resolveRuntimeType(parts[1]);
-      return '$fieldType ${snakeToCamel(fieldName)}';
-    }).toList();
-
-    print('Struct Remapped Fields: $fields');
-
-    // Generate the Model class
-    generatedCode += '''
-class $structName extends ChangeNotifier {
-  ${fields.join(';\n  ')};
-  
-  $structName({${fields.map((e)
-    {
-      final parts = e.split(' ');
-      final fieldType = parts[0];
-      final fieldName = parts[1];
-      final isOptional = fieldType.endsWith('?');
-      // If not optional, then add required keyword
-      return '${isOptional ? '' : 'required'} this.$fieldName';
-
-    }).join(', ')}});
-    
-  onUpdated() {
-    notifyListeners();
-  }
-    
-  factory $structName.fromReference(flex_buffers.Reference data) {
-    return $structName(
-      ${fields.map((e)
-    {
-      final parts = e.split(' ');
-      String fieldType = parts[0].replaceAll("?", "");
-      if(fieldType == "dynamic") {
-        fieldType = "String";
-      }
-      final fieldName = parts[1];
-
-      // If array
-      if(fieldType.startsWith('List')) {
-        String result;
-        final isNullable = parts[0].endsWith('?');
-        final innerType = fieldType.substring(5, fieldType.length - 1);
-        // if inner type is a custom type, then call fromReference on the custom type otherwise call {type}Value
-        if (innerType != "int" && innerType != "String" && innerType != "bool" && innerType != "double") {
-          result = 'data["${snakeToCamel(fieldName)}"].vectorIterable.map((item) => $innerType.fromReference(item)).toList()';
-        } else {
-          result = 'data["${snakeToCamel(fieldName)}"].vectorIterable.map((item) => item.${innerType[0].toLowerCase()}${innerType.substring(1)}Value!).toList()';
-        }
-
-        if(isNullable) {
-          return '$fieldName: data["${snakeToCamel(fieldName)}"].isNull ? null : $result';
-        } else {
-          return '$fieldName: $result';
-        }
-      }
-
-      // If not optional, then add required keyword
-      return '$fieldName: data["${snakeToCamel(fieldName)}"].${fieldType[0].toLowerCase()}${fieldType.substring(1)}Value${parts[0].endsWith("?") ? '' : '!'}';
-
-    }).join(',\n      ')}
-    );
-  }
+  ${baseClass == null ? 'void notify() => notifyListeners();' : ''}
   
   @override
   String toString() {
-    return '$structName(${fields.map((e) {
-      final parts = e.split(' ');
-      final fieldName = parts[1];
-      return '$fieldName: \$$fieldName';
-    }).join(', ')})';
+    return '$className{${struct.fields.where((field) => !_shouldSkipField(field)).map((field) => '${ReCase(field.name).camelCase}: \$${ReCase(field.name).camelCase}').join(', ')}}';
   }
 }
 ''';
   }
 
-  return generatedCode;
-}
-
-String generatePermissionName(String permission) {
-  final parts = permission.split('_');
-  return parts.map((part) => part[0].toUpperCase() + part.substring(1)).join(' ');
-}
-
-String generatePermissions() {
-  print('Generating permissions');
-
-  // Read content of file ../talk-server/migrations/00002_CreatePermissions.surql
-  // Parse the Permission enum
-  // Generate a Permission class for each variant
-  // Return the generated code
-
-  final modelsFile = File('../talk-server/migrations/00002_CreatePermissions.surql');
-  final modelsContent = modelsFile.readAsStringSync();
-  String generatedCode = "";
-
-  final categoryRegex = RegExp(r'-- ::(.*)::', dotAll: true);
-  final descriptionRegex = RegExp(r'-- (.*) \|', dotAll: true);
-  final permissionRegex = RegExp(r'CREATE permission:(.*);', dotAll: true);
-
-  String category = '';
-  String description = '';
-  for(var line in modelsContent.split('\n')) {
-    if(line.trim().isEmpty) {
-      continue;
-    }
-
-    final categoryMatch = categoryRegex.firstMatch(line);
-    if(categoryMatch != null) {
-      category = categoryMatch.group(1)!.trim();
-      continue;
-    }
-
-    final descriptionMatch = descriptionRegex.firstMatch(line);
-    if(descriptionMatch != null) {
-      description = descriptionMatch.group(1)!.trim();
-      continue;
-    }
-
-    final permissionMatch = permissionRegex.firstMatch(line);
-    if(permissionMatch != null) {
-      final permission = permissionMatch.group(1)!;
-      print("Generating permission $permission");
-      generatedCode += '''
-  '$permission': const Permission("$category", "$permission", "${generatePermissionName(permission)}", "$description"),
-''';
+  String _generateConstructor(String className, String? baseClass, String constructorParams) {
+    final hasParams = constructorParams.isNotEmpty;
+    switch (baseClass) {
+      case 'RequestPacket':
+        return '''$className({
+    ${hasParams ? constructorParams : ''}
+  }) : super(packetType: "$className");''';
+      case 'ResponseData':
+      case 'EventData':
+        return hasParams
+            ? '''const $className({
+    $constructorParams
+  }) : super();'''
+            : 'const $className() : super();';
+      default:
+        return hasParams ? '$className({$constructorParams});' : 'const $className();';
     }
   }
 
+  String _generateToJsonMethod(String className, String? baseClass) {
+    if (baseClass == null) {
+      return 'Map<String, dynamic> toJson() => _\$${className}ToJson(this);';
+    } else {
+      return '''
+  @override
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> json = _\$${className}ToJson(this);
+    json.addAll(super.toJson());
+    return json;
+  }''';
+    }
+  }
 
-  return '''
-import 'core/models/permission_model.dart';
+  String? _determineBaseClass(String className) {
+    if (className.startsWith('Req')) return 'RequestPacket';
+    if (className.startsWith('Res')) return 'ResponseData';
+    if (className.startsWith('Evt')) return 'EventData';
+    return null;
+  }
 
-// This file is generated by prebuild.dart
-// Do not modify this file manually!!!
+  bool _isNetworkClass(String className) {
+    return className.startsWith('Req') || className.startsWith('Res') || className.startsWith('Evt');
+  }
 
-final Map<String, Permission> permissions = {
-$generatedCode    
-};
+  bool _shouldSkipField(RustField field) {
+    return field.attributes.any((attr) => attr.trim() == 'serde(skip_serializing)');
+  }
 
-  ''';
+  String _generateJsonKey(String rustFieldName, String dartFieldName, List<String> attributes, String rustType) {
+    final jsonKeyParams = <String>[];
+
+    // Use the original Rust field name for the JsonKey
+    jsonKeyParams.add('name: "$rustFieldName"');
+
+    if (attributes.contains('serde(skip_serializing)')) {
+      jsonKeyParams.add('includeIfNull: false');
+    }
+
+    return '@JsonKey(${jsonKeyParams.join(', ')})';
+  }
+
+  String _resolveDartType(String rustType) {
+    if (rustType.startsWith('Option<')) {
+      final innerType = rustType.substring(7, rustType.length - 1);
+      return '${_resolveDartType(innerType)}?';
+    }
+    if (rustType.startsWith('Vec<')) {
+      final innerType = rustType.substring(4, rustType.length - 1);
+      return 'List<${_resolveDartType(innerType)}>';
+    }
+    return _rustToDartTypes[rustType] ?? rustType;
+  }
+
+  Future<List<RustStruct>> _parseRustFile(String filename) async {
+    final file = File(path.join(_rustDir, filename));
+    if (!await file.exists()) {
+      print('Warning: File not found: ${file.path}');
+      return [];
+    }
+    final content = await file.readAsString();
+    return _parseRustStructs(content);
+  }
+
+  List<RustStruct> _parseRustStructs(String content) {
+    final structRegex = RegExp(r'#\[derive\(.*?\)\]\s*(?:#\[.*?\]\s*)*pub struct (\w+) \{([\s\S]*?)\}', multiLine: true);
+    final fieldRegex = RegExp(r'(?:#\[(.*?)\])?\s*pub (r#)?(\w+): ([\w<>]+)', multiLine: true);
+
+    return structRegex.allMatches(content).map((match) {
+      final name = match.group(1)!;
+      final fields = fieldRegex.allMatches(match.group(2)!).map((fieldMatch) {
+        final attributes = fieldMatch.group(1)?.split(',').map((attr) => attr.trim()).toList() ?? [];
+        final isRawIdentifier = fieldMatch.group(2) != null;
+        final fieldName = fieldMatch.group(3)!;
+        final fieldType = fieldMatch.group(4)!;
+
+        return RustField(
+          name: _processFieldName(fieldName, isRawIdentifier, attributes),
+          type: fieldType,
+          attributes: attributes,
+        );
+      }).toList();
+      return RustStruct(name: name, fields: fields);
+    }).toList();
+  }
 }
 
-void main() {
-  final generatedCode = generateRequest();
-  final output = File('lib/core/network/request.g.dart');
-  output.writeAsStringSync(generatedCode);
+String _processFieldName(String fieldName, bool isRawIdentifier, List<String> attributes) {
+  if (isRawIdentifier) {
+    fieldName = fieldName.startsWith('r#') ? fieldName.substring(2) : fieldName;
+  }
 
-  final generatedResponse = generateResponse();
-  final responseOutput = File('lib/core/network/response.g.dart');
-  responseOutput.writeAsStringSync(generatedResponse);
+  // Check for serde rename attribute
+  final renameAttr = attributes.firstWhere(
+        (attr) => attr.startsWith('serde(rename'),
+    orElse: () => '',
+  );
 
-  final generatedModels = generateModels();
-  final modelsOutput = File('lib/core/models/models.g.dart');
-  modelsOutput.writeAsStringSync(generatedModels);
+  if (renameAttr.isNotEmpty) {
+    final renameRegex = RegExp(r'rename\s*(?:\(\s*(?:serialize|deserialize)\s*=\s*"(\w+)"\s*\)|\s*=\s*"(\w+)")');
+    final renameMatch = renameRegex.firstMatch(renameAttr);
+    if (renameMatch != null) {
+      // Use the first non-null group (either serialize/deserialize specific or simple rename)
+      return renameMatch.group(1) ?? renameMatch.group(2)!;
+    }
+  }
 
-  final generatedPermissions = generatePermissions();
-  final permissionsOutput = File('lib/components/permission_list/permissions.g.dart');
-  permissionsOutput.writeAsStringSync(generatedPermissions);
+  return fieldName;
+}
+
+
+class RustStruct {
+  final String name;
+  final List<RustField> fields;
+
+  RustStruct({required this.name, required this.fields});
+}
+
+class RustField {
+  final String name;
+  final String type;
+  final List<String> attributes;
+  final bool isRawIdentifier;
+
+  RustField({required this.name, required this.type, required this.attributes, this.isRawIdentifier = false});
+}
+
+void main() async {
+  final scriptDir = path.dirname(Platform.script.toFilePath());
+  final rustDir = path.normalize(path.join(scriptDir, '..', 'talk-server', 'src'));
+  final dartOutputPath = path.join(scriptDir, 'lib', 'core', 'network', 'api_types.dart');
+  final dartModelOutputPath = path.join(scriptDir, 'lib', 'core', 'models', 'models.dart');
+
+  final generator = RustToDartGenerator(rustDir, dartOutputPath, dartModelOutputPath);
+
+  try {
+    await generator.generate();
+    print('Code generation completed successfully.');
+
+    // Print out generated classes for debugging
+    final apiTypesContent = await File(dartOutputPath).readAsString();
+    print('Generated api_types.dart content:');
+    print(apiTypesContent);
+
+    final modelsContent = await File(dartModelOutputPath).readAsString();
+    print('Generated models.dart content:');
+    print(modelsContent);
+  } catch (e, stackTrace) {
+    print('Error during code generation: $e');
+    print('Stack trace: $stackTrace');
+  }
 }
