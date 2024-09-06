@@ -192,7 +192,9 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
           CircleAvatar(
             radius: 50,
             backgroundColor: colorScheme.primary,
-            backgroundImage: NetworkImage(_avatarUrlController.text),
+            backgroundImage: Image.network(_avatarUrlController.text, errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace,) {
+              return Icon(Icons.person, size: 50, color: colorScheme.onPrimary);
+            },).image,
             child: _avatarUrlController.text.isEmpty
                 ? Icon(Icons.person, size: 50, color: colorScheme.onPrimary)
                 : null,
@@ -384,17 +386,57 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
       }
 
       if (_displayNameController.text != widget.connection.user.displayName) {
-        await packetManager.sendUserChangeDisplayName(displayName: _displayNameController.text).wrapInCompleter().future;
+        final result = await packetManager.sendUserChangeDisplayName(displayName: _displayNameController.text);
+        if (result.error != null) {
+          _errorMessage = result.error?.message;
+          return;
+        }
+
+        // Update the display name in the local database
+        final db = connection.database;
+        final user = db.users.firstWhere((user) => user.id == connection.user.id)
+          ..displayName = _displayNameController.text;
+        user.notify();
       }
       if (_statusController.text != widget.connection.user.status) {
-        await packetManager.sendUserChangeStatus(status: _statusController.text).wrapInCompleter().future;
+        final result = await packetManager.sendUserChangeStatus(status: _statusController.text);
+        if (result.error != null) {
+          _errorMessage = result.error?.message;
+          return;
+        }
+
+        // Update the status in the local database
+        final db = connection.database;
+        final user = db.users.firstWhere((user) => user.id == connection.user.id)
+          ..status = _statusController.text;
+        user.notify();
       }
       if (_newPresence != widget.connection.user.presence) {
-        await packetManager.sendUserChangePresence(presence: _newPresence!).wrapInCompleter().future;
+        final result = await packetManager.sendUserChangePresence(presence: _newPresence!);
+        if (result.error != null) {
+          _errorMessage = result.error?.message;
+          return;
+        }
+
+        // Update the presence in the local database
+        final db = connection.database;
+        final user = db.users.firstWhere((user) => user.id == connection.user.id)
+          ..presence = _newPresence;
+        user.notify();
       }
       if (_avatarUploadMethod == AvatarUploadMethod.url &&
           _avatarUrlController.text != widget.connection.user.avatar) {
-        await packetManager.sendUserChangeAvatar(avatar: _avatarUrlController.text).wrapInCompleter().future;
+        final result = await packetManager.sendUserChangeAvatar(avatar: _avatarUrlController.text);
+        if (result.error != null) {
+          _errorMessage = result.error?.message;
+          return;
+        }
+
+        // Update the avatar in the local database
+        final db = connection.database;
+        final user = db.users.firstWhere((user) => user.id == connection.user.id)
+          ..avatar = _avatarUrlController.text;
+        user.notify();
       }
 
       await _animationController.reverse();
