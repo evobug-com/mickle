@@ -11,10 +11,10 @@ part 'api_types.g.dart';
 
 @JsonEnum()
 enum PacketType {
+  @JsonValue("ReqPingPacket")
+  reqPingPacket,
   @JsonValue("ReqLoginPacket")
   reqLoginPacket,
-  @JsonValue("ReqPongPacket")
-  reqPongPacket,
   @JsonValue("ReqCreateChannelMessagePacket")
   reqCreateChannelMessagePacket,
   @JsonValue("ReqFetchChannelMessagesPacket")
@@ -37,14 +37,14 @@ enum PacketType {
   reqModifyChannelPacket,
   @JsonValue("ReqAddUserToChannelPacket")
   reqAddUserToChannelPacket,
-  @JsonValue("ReqRemoveUserFromChannelPacket")
-  reqRemoveUserFromChannelPacket,
+  @JsonValue("ReqDeleteUserFromChannelPacket")
+  reqDeleteUserFromChannelPacket,
   @JsonValue("ReqJoinVoiceChannelPacket")
   reqJoinVoiceChannelPacket,
-  @JsonValue("ResLoginPacket")
-  resLoginPacket,
   @JsonValue("ResPingPacket")
   resPingPacket,
+  @JsonValue("ResLoginPacket")
+  resLoginPacket,
   @JsonValue("ResCreateChannelMessagePacket")
   resCreateChannelMessagePacket,
   @JsonValue("ResFetchChannelMessagesPacket")
@@ -67,8 +67,8 @@ enum PacketType {
   resModifyChannelPacket,
   @JsonValue("ResAddUserToChannelPacket")
   resAddUserToChannelPacket,
-  @JsonValue("ResRemoveUserFromChannelPacket")
-  resRemoveUserFromChannelPacket,
+  @JsonValue("ResDeleteUserFromChannelPacket")
+  resDeleteUserFromChannelPacket,
   @JsonValue("ResJoinVoiceChannelPacket")
   resJoinVoiceChannelPacket,
   @JsonValue("EvtWelcomePacket")
@@ -106,6 +106,32 @@ class EventData {
 }
 
 @JsonSerializable()
+class ReqPingPacket extends RequestPacket {
+  @JsonKey(name: "request_id")
+  final int requestId;
+
+  ReqPingPacket({
+    required this.requestId,
+  }) : super(packetType: "ReqPingPacket");
+
+  factory ReqPingPacket.fromJson(Map<String, dynamic> json) => _$ReqPingPacketFromJson(json);
+    @override
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> json = _$ReqPingPacketToJson(this);
+    json.addAll(super.toJson());
+    return json;
+  }
+
+  
+  
+  @override
+  String toString() {
+    return 'ReqPingPacket{requestId: $requestId}';
+  }
+}
+
+
+@JsonSerializable()
 class ReqLoginPacket extends RequestPacket {
   @JsonKey(name: "request_id")
   final int requestId;
@@ -136,32 +162,6 @@ class ReqLoginPacket extends RequestPacket {
   @override
   String toString() {
     return 'ReqLoginPacket{requestId: $requestId, username: $username, password: $password, token: $token}';
-  }
-}
-
-
-@JsonSerializable()
-class ReqPongPacket extends RequestPacket {
-  @JsonKey(name: "request_id")
-  final int requestId;
-
-  ReqPongPacket({
-    required this.requestId,
-  }) : super(packetType: "ReqPongPacket");
-
-  factory ReqPongPacket.fromJson(Map<String, dynamic> json) => _$ReqPongPacketFromJson(json);
-    @override
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> json = _$ReqPongPacketToJson(this);
-    json.addAll(super.toJson());
-    return json;
-  }
-
-  
-  
-  @override
-  String toString() {
-    return 'ReqPongPacket{requestId: $requestId}';
   }
 }
 
@@ -513,7 +513,7 @@ class ReqAddUserToChannelPacket extends RequestPacket {
 
 
 @JsonSerializable()
-class ReqRemoveUserFromChannelPacket extends RequestPacket {
+class ReqDeleteUserFromChannelPacket extends RequestPacket {
   @JsonKey(name: "request_id")
   final int requestId;
   @JsonKey(name: "channel_id")
@@ -521,16 +521,16 @@ class ReqRemoveUserFromChannelPacket extends RequestPacket {
   @JsonKey(name: "user_id")
   final String userId;
 
-  ReqRemoveUserFromChannelPacket({
+  ReqDeleteUserFromChannelPacket({
     required this.requestId,
     required this.channelId,
     required this.userId,
-  }) : super(packetType: "ReqRemoveUserFromChannelPacket");
+  }) : super(packetType: "ReqDeleteUserFromChannelPacket");
 
-  factory ReqRemoveUserFromChannelPacket.fromJson(Map<String, dynamic> json) => _$ReqRemoveUserFromChannelPacketFromJson(json);
+  factory ReqDeleteUserFromChannelPacket.fromJson(Map<String, dynamic> json) => _$ReqDeleteUserFromChannelPacketFromJson(json);
     @override
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> json = _$ReqRemoveUserFromChannelPacketToJson(this);
+    final Map<String, dynamic> json = _$ReqDeleteUserFromChannelPacketToJson(this);
     json.addAll(super.toJson());
     return json;
   }
@@ -539,7 +539,7 @@ class ReqRemoveUserFromChannelPacket extends RequestPacket {
   
   @override
   String toString() {
-    return 'ReqRemoveUserFromChannelPacket{requestId: $requestId, channelId: $channelId, userId: $userId}';
+    return 'ReqDeleteUserFromChannelPacket{requestId: $requestId, channelId: $channelId, userId: $userId}';
   }
 }
 
@@ -574,38 +574,6 @@ class ReqJoinVoiceChannelPacket extends RequestPacket {
 
 
 @JsonSerializable()
-class ResLoginPacket extends ResponseData {
-  @JsonKey(name: "token")
-  final String token;
-  @JsonKey(name: "user_id")
-  final String userId;
-  @JsonKey(name: "server_ids")
-  final List<String> serverIds;
-
-  const ResLoginPacket({
-    required this.token,
-    required this.userId,
-    required this.serverIds,
-  }) : super();
-
-  factory ResLoginPacket.fromJson(Map<String, dynamic> json) => _$ResLoginPacketFromJson(json);
-    @override
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> json = _$ResLoginPacketToJson(this);
-    json.addAll(super.toJson());
-    return json;
-  }
-
-  
-  
-  @override
-  String toString() {
-    return 'ResLoginPacket{token: $token, userId: $userId, serverIds: $serverIds}';
-  }
-}
-
-
-@JsonSerializable()
 class ResPingPacket extends ResponseData {
   
 
@@ -624,6 +592,41 @@ class ResPingPacket extends ResponseData {
   @override
   String toString() {
     return 'ResPingPacket{}';
+  }
+}
+
+
+@JsonSerializable()
+class ResLoginPacket extends ResponseData {
+  @JsonKey(name: "token")
+  final String token;
+  @JsonKey(name: "user_id")
+  final String userId;
+  @JsonKey(name: "server_ids")
+  final List<String> serverIds;
+  @JsonKey(name: "main_server_id")
+  final String mainServerId;
+
+  const ResLoginPacket({
+    required this.token,
+    required this.userId,
+    required this.serverIds,
+    required this.mainServerId,
+  }) : super();
+
+  factory ResLoginPacket.fromJson(Map<String, dynamic> json) => _$ResLoginPacketFromJson(json);
+    @override
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> json = _$ResLoginPacketToJson(this);
+    json.addAll(super.toJson());
+    return json;
+  }
+
+  
+  
+  @override
+  String toString() {
+    return 'ResLoginPacket{token: $token, userId: $userId, serverIds: $serverIds, mainServerId: $mainServerId}';
   }
 }
 
@@ -831,11 +834,11 @@ class ResSetUserPresencePacket extends ResponseData {
 @JsonSerializable()
 class ResCreateChannelPacket extends ResponseData {
   @JsonKey(name: "channel")
-  final Channel? channel;
+  final Channel channel;
   @JsonKey(name: "channel_user_relation")
-  final Relation? channelUserRelation;
+  final Relation channelUserRelation;
   @JsonKey(name: "server_channel_relation")
-  final Relation? serverChannelRelation;
+  final Relation serverChannelRelation;
 
   const ResCreateChannelPacket({
     required this.channel,
@@ -889,7 +892,7 @@ class ResDeleteChannelPacket extends ResponseData {
 @JsonSerializable()
 class ResModifyChannelPacket extends ResponseData {
   @JsonKey(name: "channel")
-  final Channel? channel;
+  final Channel channel;
 
   const ResModifyChannelPacket({
     required this.channel,
@@ -915,7 +918,7 @@ class ResModifyChannelPacket extends ResponseData {
 @JsonSerializable()
 class ResAddUserToChannelPacket extends ResponseData {
   @JsonKey(name: "relation")
-  final Relation? relation;
+  final Relation relation;
 
   const ResAddUserToChannelPacket({
     required this.relation,
@@ -939,18 +942,18 @@ class ResAddUserToChannelPacket extends ResponseData {
 
 
 @JsonSerializable()
-class ResRemoveUserFromChannelPacket extends ResponseData {
+class ResDeleteUserFromChannelPacket extends ResponseData {
   @JsonKey(name: "relation")
-  final Relation? relation;
+  final Relation relation;
 
-  const ResRemoveUserFromChannelPacket({
+  const ResDeleteUserFromChannelPacket({
     required this.relation,
   }) : super();
 
-  factory ResRemoveUserFromChannelPacket.fromJson(Map<String, dynamic> json) => _$ResRemoveUserFromChannelPacketFromJson(json);
+  factory ResDeleteUserFromChannelPacket.fromJson(Map<String, dynamic> json) => _$ResDeleteUserFromChannelPacketFromJson(json);
     @override
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> json = _$ResRemoveUserFromChannelPacketToJson(this);
+    final Map<String, dynamic> json = _$ResDeleteUserFromChannelPacketToJson(this);
     json.addAll(super.toJson());
     return json;
   }
@@ -959,7 +962,7 @@ class ResRemoveUserFromChannelPacket extends ResponseData {
   
   @override
   String toString() {
-    return 'ResRemoveUserFromChannelPacket{relation: $relation}';
+    return 'ResDeleteUserFromChannelPacket{relation: $relation}';
   }
 }
 
@@ -967,11 +970,11 @@ class ResRemoveUserFromChannelPacket extends ResponseData {
 @JsonSerializable()
 class ResJoinVoiceChannelPacket extends ResponseData {
   @JsonKey(name: "user_id")
-  final String? userId;
+  final String userId;
   @JsonKey(name: "channel_id")
-  final String? channelId;
+  final String channelId;
   @JsonKey(name: "token")
-  final String? token;
+  final String token;
 
   const ResJoinVoiceChannelPacket({
     required this.userId,

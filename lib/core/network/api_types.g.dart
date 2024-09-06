@@ -27,6 +27,16 @@ EventData _$EventDataFromJson(Map<String, dynamic> json) => EventData();
 Map<String, dynamic> _$EventDataToJson(EventData instance) =>
     <String, dynamic>{};
 
+ReqPingPacket _$ReqPingPacketFromJson(Map<String, dynamic> json) =>
+    ReqPingPacket(
+      requestId: (json['request_id'] as num).toInt(),
+    );
+
+Map<String, dynamic> _$ReqPingPacketToJson(ReqPingPacket instance) =>
+    <String, dynamic>{
+      'request_id': instance.requestId,
+    };
+
 ReqLoginPacket _$ReqLoginPacketFromJson(Map<String, dynamic> json) =>
     ReqLoginPacket(
       requestId: (json['request_id'] as num).toInt(),
@@ -41,16 +51,6 @@ Map<String, dynamic> _$ReqLoginPacketToJson(ReqLoginPacket instance) =>
       'username': instance.username,
       'password': instance.password,
       'token': instance.token,
-    };
-
-ReqPongPacket _$ReqPongPacketFromJson(Map<String, dynamic> json) =>
-    ReqPongPacket(
-      requestId: (json['request_id'] as num).toInt(),
-    );
-
-Map<String, dynamic> _$ReqPongPacketToJson(ReqPongPacket instance) =>
-    <String, dynamic>{
-      'request_id': instance.requestId,
     };
 
 ReqCreateChannelMessagePacket _$ReqCreateChannelMessagePacketFromJson(
@@ -227,16 +227,16 @@ Map<String, dynamic> _$ReqAddUserToChannelPacketToJson(
       'user_id': instance.userId,
     };
 
-ReqRemoveUserFromChannelPacket _$ReqRemoveUserFromChannelPacketFromJson(
+ReqDeleteUserFromChannelPacket _$ReqDeleteUserFromChannelPacketFromJson(
         Map<String, dynamic> json) =>
-    ReqRemoveUserFromChannelPacket(
+    ReqDeleteUserFromChannelPacket(
       requestId: (json['request_id'] as num).toInt(),
       channelId: json['channel_id'] as String,
       userId: json['user_id'] as String,
     );
 
-Map<String, dynamic> _$ReqRemoveUserFromChannelPacketToJson(
-        ReqRemoveUserFromChannelPacket instance) =>
+Map<String, dynamic> _$ReqDeleteUserFromChannelPacketToJson(
+        ReqDeleteUserFromChannelPacket instance) =>
     <String, dynamic>{
       'request_id': instance.requestId,
       'channel_id': instance.channelId,
@@ -257,6 +257,12 @@ Map<String, dynamic> _$ReqJoinVoiceChannelPacketToJson(
       'channel_id': instance.channelId,
     };
 
+ResPingPacket _$ResPingPacketFromJson(Map<String, dynamic> json) =>
+    ResPingPacket();
+
+Map<String, dynamic> _$ResPingPacketToJson(ResPingPacket instance) =>
+    <String, dynamic>{};
+
 ResLoginPacket _$ResLoginPacketFromJson(Map<String, dynamic> json) =>
     ResLoginPacket(
       token: json['token'] as String,
@@ -264,6 +270,7 @@ ResLoginPacket _$ResLoginPacketFromJson(Map<String, dynamic> json) =>
       serverIds: (json['server_ids'] as List<dynamic>)
           .map((e) => e as String)
           .toList(),
+      mainServerId: json['main_server_id'] as String,
     );
 
 Map<String, dynamic> _$ResLoginPacketToJson(ResLoginPacket instance) =>
@@ -271,13 +278,8 @@ Map<String, dynamic> _$ResLoginPacketToJson(ResLoginPacket instance) =>
       'token': instance.token,
       'user_id': instance.userId,
       'server_ids': instance.serverIds,
+      'main_server_id': instance.mainServerId,
     };
-
-ResPingPacket _$ResPingPacketFromJson(Map<String, dynamic> json) =>
-    ResPingPacket();
-
-Map<String, dynamic> _$ResPingPacketToJson(ResPingPacket instance) =>
-    <String, dynamic>{};
 
 ResCreateChannelMessagePacket _$ResCreateChannelMessagePacketFromJson(
         Map<String, dynamic> json) =>
@@ -382,17 +384,11 @@ Map<String, dynamic> _$ResSetUserPresencePacketToJson(
 ResCreateChannelPacket _$ResCreateChannelPacketFromJson(
         Map<String, dynamic> json) =>
     ResCreateChannelPacket(
-      channel: json['channel'] == null
-          ? null
-          : Channel.fromJson(json['channel'] as Map<String, dynamic>),
-      channelUserRelation: json['channel_user_relation'] == null
-          ? null
-          : Relation.fromJson(
-              json['channel_user_relation'] as Map<String, dynamic>),
-      serverChannelRelation: json['server_channel_relation'] == null
-          ? null
-          : Relation.fromJson(
-              json['server_channel_relation'] as Map<String, dynamic>),
+      channel: Channel.fromJson(json['channel'] as Map<String, dynamic>),
+      channelUserRelation: Relation.fromJson(
+          json['channel_user_relation'] as Map<String, dynamic>),
+      serverChannelRelation: Relation.fromJson(
+          json['server_channel_relation'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ResCreateChannelPacketToJson(
@@ -418,9 +414,7 @@ Map<String, dynamic> _$ResDeleteChannelPacketToJson(
 ResModifyChannelPacket _$ResModifyChannelPacketFromJson(
         Map<String, dynamic> json) =>
     ResModifyChannelPacket(
-      channel: json['channel'] == null
-          ? null
-          : Channel.fromJson(json['channel'] as Map<String, dynamic>),
+      channel: Channel.fromJson(json['channel'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ResModifyChannelPacketToJson(
@@ -432,9 +426,7 @@ Map<String, dynamic> _$ResModifyChannelPacketToJson(
 ResAddUserToChannelPacket _$ResAddUserToChannelPacketFromJson(
         Map<String, dynamic> json) =>
     ResAddUserToChannelPacket(
-      relation: json['relation'] == null
-          ? null
-          : Relation.fromJson(json['relation'] as Map<String, dynamic>),
+      relation: Relation.fromJson(json['relation'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ResAddUserToChannelPacketToJson(
@@ -443,16 +435,14 @@ Map<String, dynamic> _$ResAddUserToChannelPacketToJson(
       'relation': instance.relation,
     };
 
-ResRemoveUserFromChannelPacket _$ResRemoveUserFromChannelPacketFromJson(
+ResDeleteUserFromChannelPacket _$ResDeleteUserFromChannelPacketFromJson(
         Map<String, dynamic> json) =>
-    ResRemoveUserFromChannelPacket(
-      relation: json['relation'] == null
-          ? null
-          : Relation.fromJson(json['relation'] as Map<String, dynamic>),
+    ResDeleteUserFromChannelPacket(
+      relation: Relation.fromJson(json['relation'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$ResRemoveUserFromChannelPacketToJson(
-        ResRemoveUserFromChannelPacket instance) =>
+Map<String, dynamic> _$ResDeleteUserFromChannelPacketToJson(
+        ResDeleteUserFromChannelPacket instance) =>
     <String, dynamic>{
       'relation': instance.relation,
     };
@@ -460,9 +450,9 @@ Map<String, dynamic> _$ResRemoveUserFromChannelPacketToJson(
 ResJoinVoiceChannelPacket _$ResJoinVoiceChannelPacketFromJson(
         Map<String, dynamic> json) =>
     ResJoinVoiceChannelPacket(
-      userId: json['user_id'] as String?,
-      channelId: json['channel_id'] as String?,
-      token: json['token'] as String?,
+      userId: json['user_id'] as String,
+      channelId: json['channel_id'] as String,
+      token: json['token'] as String,
     );
 
 Map<String, dynamic> _$ResJoinVoiceChannelPacketToJson(

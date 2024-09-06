@@ -38,9 +38,9 @@ Future<void> _handlePacket(ApiResponse packet, Client client, PacketManager pack
     case "ResLoginPacket":
       await handleResLoginPacket(packet.cast(ResLoginPacket.fromJson), client, packetManager);
       break;
-    // case response.Ping.packetName:
-    //   await _handlePingResponse(client);
-    //   break;
+    case "ResLoginPingPacket":
+      await handleResPingPacket(client);
+      break;
     case "EvtWelcomePacket":
       await handleEvtWelcomePacket(packet.cast(EvtWelcomePacket.fromJson), client);
       break;
@@ -81,7 +81,7 @@ Future<void> _handlePacket(ApiResponse packet, Client client, PacketManager pack
       await handleResAddUserToChannelPacket(packet.cast(ResAddUserToChannelPacket.fromJson), client, packetManager);
       break;
     case "ResRemoveUserFromChannelPacket":
-      await handleResRemoveUserFromChannelPacket(packet.cast(ResRemoveUserFromChannelPacket.fromJson), client, packetManager);
+      await handleResRemoveUserFromChannelPacket(packet.cast(ResDeleteUserFromChannelPacket.fromJson), client, packetManager);
       break;
     case "ResJoinVoiceChannelPacket":
       await handleResJoinVoiceChannelPacket(packet.cast(ResJoinVoiceChannelPacket.fromJson), client, packetManager);
@@ -92,13 +92,13 @@ Future<void> _handlePacket(ApiResponse packet, Client client, PacketManager pack
 Future<void> handleResLoginPacket(ApiResponse<ResLoginPacket> packet, Client client, PacketManager packetManager) async {
   packetManager.runResolve(packet.requestId!, packet);
 }
-//
-// Future<void> _handlePingResponse(Client client) async {
-//   final duration = Duration(milliseconds: 100 + Random().nextInt(3000));
-//   await Future.delayed(duration);
-//   client.send(request.Pong().serialize());
-// }
-//
+
+Future<void> handleResPingPacket(Client client) async {
+  // final duration = Duration(milliseconds: 100 + Random().nextInt(3000));
+  // await Future.delayed(duration);
+  // client.send(request.Pong().serialize());
+}
+
 Future<void> handleEvtWelcomePacket(ApiResponse<EvtWelcomePacket> packet, Client client) async {
   final db = Database(client.serverId!);
   db.users.addItems(packet.data!.users);
@@ -303,7 +303,7 @@ Future<void> handleResAddUserToChannelPacket(ApiResponse<ResAddUserToChannelPack
   }
 }
 
-Future<void> handleResRemoveUserFromChannelPacket(ApiResponse<ResRemoveUserFromChannelPacket> packet, Client client, PacketManager packetManager) async {
+Future<void> handleResRemoveUserFromChannelPacket(ApiResponse<ResDeleteUserFromChannelPacket> packet, Client client, PacketManager packetManager) async {
   packetManager.runResolve(packet.requestId!, packet);
 
   if (packet.error == null) {

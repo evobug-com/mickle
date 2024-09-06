@@ -197,11 +197,11 @@ class PacketManager {
     ));
   }
 
-  Future<ApiResponse<ResRemoveUserFromChannelPacket>> sendChannelRemoveUser({
+  Future<ApiResponse<ResDeleteUserFromChannelPacket>> sendChannelRemoveUser({
     required String channelId,
     required String userId,
   }) {
-    return sendRequest((requestId) => ReqRemoveUserFromChannelPacket(
+    return sendRequest((requestId) => ReqDeleteUserFromChannelPacket(
         requestId: requestId,
         channelId: channelId,
         userId: userId
