@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:talk/areas/connection/connection_status.dart';
 import 'package:talk/components/channel_list/core/models/channel_list_selected_room.dart';
 import 'package:talk/components/text_room/widgets/text_room_widget.dart';
 import 'package:talk/components/voice_room/components/voice_room_control_panel.dart';
@@ -89,15 +90,15 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final selectedServerProvider = Provider.of<SelectedServerProvider>(context);
-    if (selectedServerProvider.client == null) {
+    if (selectedServerProvider.connection == null) {
       throw Exception("No client selected");
     }
 
     return MyScaffold(
-      body: ListenableBuilder(
-        listenable: selectedServerProvider.client!.serverData,
-        builder: (context, _) {
-          if (selectedServerProvider.client!.serverData.server == null) {
+      body: ValueListenableBuilder(
+        valueListenable: selectedServerProvider.connection!.status,
+        builder: (context, status, _) {
+          if (status != ConnectionStatus.authenticated) {
             return const Center(child: CircularProgressIndicator());
           }
 

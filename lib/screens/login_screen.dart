@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
-import 'package:talk/core/connection/client.dart';
-import 'package:talk/services/auth_service.dart';
+import 'package:talk/areas/connection/connection_manager.dart';
 import 'package:talk/layout/my_scaffold.dart';
 
 import '../core/providers/global/selected_server_provider.dart';
 import '../generated/l10n.dart';
-import 'login_screen/connection_widget.dart';
 import 'login_screen/login_form.dart';
 
 final _logger = Logger('LoginScreen');
@@ -17,21 +15,19 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     print('[LoginScreen] Build');
-    final auth = AuthService();
 
-    return ListenableBuilder(
-      listenable: auth,
-      builder: (context, _) {
-        if (auth.errorMessage != null || auth.isLoading) {
-          print("Error or loading");
-          return MyScaffold(
-            body: ConnectionWidget(
-              client: auth.currentLoggingClient,
-              onCancel: auth.abortLogin,
-              errorMessage: auth.errorMessage,
-            ),
-          );
-        }
+    return Builder(
+      builder: (context) {
+        // if (auth.errorMessage != null || auth.isLoading) {
+        //   print("Error or loading");
+        //   return MyScaffold(
+        //     body: ConnectionWidget(
+        //       client: auth.currentLoggingClient,
+        //       onCancel: auth.abortLogin,
+        //       errorMessage: auth.errorMessage,
+        //     ),
+        //   );
+        // }
 
         return MyScaffold(
           body: Column(
@@ -43,20 +39,24 @@ class LoginScreen extends StatelessWidget {
                 children: [
                   _buildWelcomeMessage(context),
                   const SizedBox(width: 32),
-                  LoginForm(onLogin: (username, password, serverHost) {
-                    var loginResult = auth.login(context, username: username, password: password, address: ClientAddress(host: serverHost, port: 55000));
-                    loginResult.then((client) {
-                      // If client is not null, the login was successful
-                      if(client != null) {
-                        // If login is success, select the server
-                        SelectedServerProvider.of(context, listen: false).selectServer(client);
-                        // Go to chat screen
-                        context.goNamed('chat');
-                        _logger.fine(S.of(context).loginScreenLoggedInSuccessfully);
-                      }
-                    }).catchError((error) {
-                      _logger.severe(S.of(context).loginScreenLoginFailedError(error));
-                    });
+                  LoginForm(onLogin: (username, password, serverHost) async {
+                    final connection = await ConnectionManager().connect('$serverHost:55000');
+                    if(connection.error != null) {
+                      // TODO: Show error?
+                      return;
+                    }
+
+                    await connection.authenticate(username: username, password: password);
+                    if(connection.error != null) {
+                      // TODO: Show error?
+                      return;
+                    }
+
+                    // Save the connection
+                    await ConnectionManager().save(connection);
+                    SelectedServerProvider.of(context, listen: false).selectServer(connection);
+                    context.goNamed('chat');
+                    _logger.fine("Logged in successfully");
                   }),
                 ],
               )

@@ -10,7 +10,6 @@ import 'package:provider/provider.dart';
 import 'package:talk/components/channel_list/core/models/channel_list_selected_room.dart';
 import 'package:talk/components/voice_room/core/models/voice_room_current.dart';
 import 'package:talk/core/managers/audio_manager.dart';
-import 'package:talk/core/managers/client_manager.dart';
 import 'package:talk/core/providers/global/selected_server_provider.dart';
 import 'package:talk/core/storage/secure_storage.dart';
 import 'package:tray_manager/tray_manager.dart';
@@ -85,7 +84,6 @@ Future<void> main() async {
 
         // Deprecated below
         ChangeNotifierProvider(create: (context) => ThemeController(theme: theme), lazy: false),
-        ChangeNotifierProvider(create: (context) => ClientManager(), lazy: false),
         ChangeNotifierProvider(create: (context) => VoiceRoomCurrent()),
         ChangeNotifierProvider(create: (context) => ChannelListSelectedChannel()),
         ChangeNotifierProvider(create: (context) => UpdateProvider(updateInfo: updateInfo)),

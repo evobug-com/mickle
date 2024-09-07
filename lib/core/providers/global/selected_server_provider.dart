@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:talk/areas/connection/connection.dart';
 import 'package:talk/core/storage/preferences.dart';
 
-import '../../connection/client.dart';
-
 class SelectedServerProvider extends ChangeNotifier {
-  Client? client;
+  Connection? connection;
 
-  SelectedServerProvider({this.client});
+  SelectedServerProvider({this.connection});
 
-  void selectServer(Client? client) {
-    this.client = client;
+  void selectServer(Connection? connection) {
+    this.connection = connection;
     notifyListeners();
 
-    if(client != null) {
+    if(connection != null) {
       // Save the selected server to the storage
-      Preferences.setLastVisitedServerId(client.serverId!);
+      Preferences.setLastVisitedServerId(connection.mainServerId!);
     }
   }
 

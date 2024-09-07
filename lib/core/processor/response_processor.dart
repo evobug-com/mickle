@@ -1,28 +1,25 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:local_notifier/local_notifier.dart';
 import 'package:logging/logging.dart';
+import 'package:talk/areas/connection/connection.dart';
 import 'package:talk/core/managers/audio_manager.dart';
 import 'package:talk/core/database.dart';
-import 'package:talk/core/managers/packet_manager.dart';
 import 'package:talk/core/network/api_types.dart';
 import 'package:talk/core/network/utils.dart';
 import 'package:window_manager/window_manager.dart';
-import '../connection/client.dart';
 
 final _logger = Logger('ResponseProcessor');
 
-Future<void> processResponse(Client client, Uint8List data) async {
+Future<void> processResponse(Connection connection, Uint8List data) async {
   try {
-    final packetManager = PacketManager(client);
     final stringJson = utf8.decode(data);
     final json = jsonDecode(stringJson);
     final packet = ApiResponse.fromJson(json);
-    await _handlePacket(packet, client, packetManager);
+    await _handlePacket(packet, connection);
   } catch (e) {
     _logger.severe("Error processing response: $e");
     if(e is Error) {
@@ -33,74 +30,74 @@ Future<void> processResponse(Client client, Uint8List data) async {
   }
 }
 
-Future<void> _handlePacket(ApiResponse packet, Client client, PacketManager packetManager) async {
+Future<void> _handlePacket(ApiResponse packet, Connection connection) async {
   switch (packet.type) {
     case "ResLoginPacket":
-      await handleResLoginPacket(packet.cast(ResLoginPacket.fromJson), client, packetManager);
+      await handleResLoginPacket(packet.cast(ResLoginPacket.fromJson), connection);
       break;
     case "ResLoginPingPacket":
-      await handleResPingPacket(client);
+      await handleResPingPacket(connection);
       break;
     case "EvtWelcomePacket":
-      await handleEvtWelcomePacket(packet.cast(EvtWelcomePacket.fromJson), client);
+      await handleEvtWelcomePacket(packet.cast(EvtWelcomePacket.fromJson), connection);
       break;
     case "EvtUpdatePresencePacket":
-      await handleEvtUpdatePresencePacket(packet.cast(EvtUpdatePresencePacket.fromJson), client);
+      await handleEvtUpdatePresencePacket(packet.cast(EvtUpdatePresencePacket.fromJson), connection);
       break;
     case "ResCreateChannelMessagePacket":
-      await handleResCreateChannelMessagePacket(packet.cast(ResCreateChannelMessagePacket.fromJson), client, packetManager);
+      await handleResCreateChannelMessagePacket(packet.cast(ResCreateChannelMessagePacket.fromJson), connection);
       break;
     case "ResSetUserStatusPacket":
-      await handleResSetUserStatusPacket(packet.cast(ResSetUserStatusPacket.fromJson), client, packetManager);
+      await handleResSetUserStatusPacket(packet.cast(ResSetUserStatusPacket.fromJson), connection);
       break;
     case "ResSetUserPresencePacket":
-      await handleResSetUserPresencePacket(packet.cast(ResSetUserPresencePacket.fromJson), client, packetManager);
+      await handleResSetUserPresencePacket(packet.cast(ResSetUserPresencePacket.fromJson), connection);
       break;
     case "ResSetUserAvatarPacket":
-      await handleResSetUserAvatarPacket(packet.cast(ResSetUserAvatarPacket.fromJson), client, packetManager);
+      await handleResSetUserAvatarPacket(packet.cast(ResSetUserAvatarPacket.fromJson), connection);
       break;
     case "ResSetUserDisplayNamePacket":
-      await handleResSetUserDisplayNamePacket(packet.cast(ResSetUserDisplayNamePacket.fromJson), client, packetManager);
+      await handleResSetUserDisplayNamePacket(packet.cast(ResSetUserDisplayNamePacket.fromJson), connection);
       break;
     case "ResSetUserPasswordPacket":
-      await handleResSetUserPasswordPacket(packet.cast(ResSetUserPasswordPacket.fromJson), client, packetManager);
+      await handleResSetUserPasswordPacket(packet.cast(ResSetUserPasswordPacket.fromJson), connection);
       break;
     case "ResFetchChannelMessagesPacket":
-      await handleResFetchChannelMessagesPacket(packet.cast(ResFetchChannelMessagesPacket.fromJson), client, packetManager);
+      await handleResFetchChannelMessagesPacket(packet.cast(ResFetchChannelMessagesPacket.fromJson), connection);
       break;
     case "ResCreateChannelPacket":
-      await handleResCreateChannelPacket(packet.cast(ResCreateChannelPacket.fromJson), client, packetManager);
+      await handleResCreateChannelPacket(packet.cast(ResCreateChannelPacket.fromJson), connection);
       break;
     case "ResDeleteChannelPacket":
-      await handleResDeleteChannelPacket(packet.cast(ResDeleteChannelPacket.fromJson), client, packetManager);
+      await handleResDeleteChannelPacket(packet.cast(ResDeleteChannelPacket.fromJson), connection);
       break;
     case "ResModifyChannelPacket":
-      await handleResModifyChannelPacket(packet.cast(ResModifyChannelPacket.fromJson), client, packetManager);
+      await handleResModifyChannelPacket(packet.cast(ResModifyChannelPacket.fromJson), connection);
       break;
     case "ResAddUserToChannelPacket":
-      await handleResAddUserToChannelPacket(packet.cast(ResAddUserToChannelPacket.fromJson), client, packetManager);
+      await handleResAddUserToChannelPacket(packet.cast(ResAddUserToChannelPacket.fromJson), connection);
       break;
     case "ResRemoveUserFromChannelPacket":
-      await handleResRemoveUserFromChannelPacket(packet.cast(ResDeleteUserFromChannelPacket.fromJson), client, packetManager);
+      await handleResRemoveUserFromChannelPacket(packet.cast(ResDeleteUserFromChannelPacket.fromJson), connection);
       break;
     case "ResJoinVoiceChannelPacket":
-      await handleResJoinVoiceChannelPacket(packet.cast(ResJoinVoiceChannelPacket.fromJson), client, packetManager);
+      await handleResJoinVoiceChannelPacket(packet.cast(ResJoinVoiceChannelPacket.fromJson), connection);
       break;
   }
 }
 
-Future<void> handleResLoginPacket(ApiResponse<ResLoginPacket> packet, Client client, PacketManager packetManager) async {
-  packetManager.runResolve(packet.requestId!, packet);
+Future<void> handleResLoginPacket(ApiResponse<ResLoginPacket> packet, Connection connection) async {
+  connection.packetManager.runResolve(packet.requestId!, packet);
 }
 
-Future<void> handleResPingPacket(Client client) async {
+Future<void> handleResPingPacket(Connection connection) async {
   // final duration = Duration(milliseconds: 100 + Random().nextInt(3000));
   // await Future.delayed(duration);
-  // client.send(request.Pong().serialize());
+  // connection.send(request.Pong().serialize());
 }
 
-Future<void> handleEvtWelcomePacket(ApiResponse<EvtWelcomePacket> packet, Client client) async {
-  final db = Database(client.serverId!);
+Future<void> handleEvtWelcomePacket(ApiResponse<EvtWelcomePacket> packet, Connection connection) async {
+  final db = connection.database!;
   db.users.addItems(packet.data!.users);
   db.servers.addItems(packet.data!.servers);
   db.channels.addItems(packet.data!.channels);
@@ -112,14 +109,12 @@ Future<void> handleEvtWelcomePacket(ApiResponse<EvtWelcomePacket> packet, Client
   db.rolePermissions.addRelations(packet.data!.rolePermissions);
   db.serverChannels.addRelations(packet.data!.serverChannels);
 
-  client.serverData.updateData(
-    server: db.servers.firstWhereOrNull((element) => element.id == client.serverId),
-    user: db.users.firstWhereOrNull((element) => element.id == client.userId),
-  );
+  connection.currentUser = db.users.firstWhereOrNull((element) => element.id == connection.currentUserId);
+  connection.mainServer = db.servers.firstWhereOrNull((element) => element.id == connection.mainServerId);
 }
 
-Future<void> handleEvtUpdatePresencePacket(ApiResponse<EvtUpdatePresencePacket> packet, Client client) async {
-  final user = Database(client.serverId!).users.firstWhere((element) {
+Future<void> handleEvtUpdatePresencePacket(ApiResponse<EvtUpdatePresencePacket> packet, Connection connection) async {
+  final user = connection.database!.users.firstWhere((element) {
     return element.id == packet.data!.userId;
   });
   user.presence = packet.data!.presence;
@@ -127,18 +122,18 @@ Future<void> handleEvtUpdatePresencePacket(ApiResponse<EvtUpdatePresencePacket> 
   _logger.info("User presence updated: ${user.displayName} to ${user.presence}");
 }
 
-Future<void> handleResCreateChannelMessagePacket(ApiResponse<ResCreateChannelMessagePacket> packet, Client client, PacketManager packetManager) async {
-  packetManager.runResolve(packet.requestId!, packet);
+Future<void> handleResCreateChannelMessagePacket(ApiResponse<ResCreateChannelMessagePacket> packet, Connection connection) async {
+  connection.packetManager.runResolve(packet.requestId!, packet);
 
   if (packet.error != null) {
     _logger.severe("Message error: ${packet.error}");
   } else {
-    final db = Database(client.serverId!);
+    final db = connection.database!;
     db.messages.addItem(packet.data!.message!);
     db.channelMessages.addRelation(packet.data!.relation!);
     _logger.info("Message added: ${packet.data!.message!.content}");
 
-    if (packet.data!.mentions != null && packet.data!.mentions!.contains(client.userId!)) {
+    if (packet.data!.mentions != null && packet.data!.mentions!.contains(connection.currentUserId!)) {
       AudioManager.playSingleShot("Message", AssetSource("audio/mention.wav"));
 
       final user = db.users.firstWhereOrNull((element) => element.id == packet.data!.message!.user);
@@ -159,11 +154,11 @@ Future<void> handleResCreateChannelMessagePacket(ApiResponse<ResCreateChannelMes
   }
 }
 
-Future<void> handleResSetUserStatusPacket(ApiResponse<ResSetUserStatusPacket> packet, Client client, PacketManager packetManager) async {
-  packetManager.runResolve(packet.requestId!, packet);
+Future<void> handleResSetUserStatusPacket(ApiResponse<ResSetUserStatusPacket> packet, Connection connection) async {
+  connection.packetManager.runResolve(packet.requestId!, packet);
 
   if (packet.error == null) {
-    final db = Database(client.serverId!);
+    final db = connection.database!;
     final user = db.users.get("User:${packet.data!.userId}");
     if (user != null) {
       user.status = packet.data!.status;
@@ -173,11 +168,11 @@ Future<void> handleResSetUserStatusPacket(ApiResponse<ResSetUserStatusPacket> pa
   }
 }
 
-Future<void> handleResSetUserPresencePacket(ApiResponse<ResSetUserPresencePacket> packet, Client client, PacketManager packetManager) async {
-  packetManager.runResolve(packet.requestId!, packet);
+Future<void> handleResSetUserPresencePacket(ApiResponse<ResSetUserPresencePacket> packet, Connection connection) async {
+  connection.packetManager.runResolve(packet.requestId!, packet);
 
   if (packet.error == null) {
-    final db = Database(client.serverId!);
+    final db = connection.database!;
     final user = db.users.get("User:${packet.data!.userId}");
     if (user != null) {
       user.presence = packet.data!.presence;
@@ -187,11 +182,11 @@ Future<void> handleResSetUserPresencePacket(ApiResponse<ResSetUserPresencePacket
   }
 }
 
-Future<void> handleResSetUserAvatarPacket(ApiResponse<ResSetUserAvatarPacket> packet, Client client, PacketManager packetManager) async {
-  packetManager.runResolve(packet.requestId!, packet);
+Future<void> handleResSetUserAvatarPacket(ApiResponse<ResSetUserAvatarPacket> packet, Connection connection) async {
+  connection.packetManager.runResolve(packet.requestId!, packet);
 
   if (packet.error == null) {
-    final db = Database(client.serverId!);
+    final db = connection.database!;
     final user = db.users.get("User:${packet.data!.userId}");
     if (user != null) {
       user.avatar = packet.data!.avatar;
@@ -201,11 +196,11 @@ Future<void> handleResSetUserAvatarPacket(ApiResponse<ResSetUserAvatarPacket> pa
   }
 }
 
-Future<void> handleResSetUserDisplayNamePacket(ApiResponse<ResSetUserDisplayNamePacket> packet, Client client, PacketManager packetManager) async {
-  packetManager.runResolve(packet.requestId!, packet);
+Future<void> handleResSetUserDisplayNamePacket(ApiResponse<ResSetUserDisplayNamePacket> packet, Connection connection) async {
+  connection.packetManager.runResolve(packet.requestId!, packet);
 
   if (packet.error == null) {
-    final db = Database(client.serverId!);
+    final db = connection.database!;
     final user = db.users.get("User:${packet.data!.userId}");
     if (user != null) {
       final displayName = user.displayName;
@@ -216,8 +211,8 @@ Future<void> handleResSetUserDisplayNamePacket(ApiResponse<ResSetUserDisplayName
   }
 }
 
-Future<void> handleResSetUserPasswordPacket(ApiResponse<ResSetUserPasswordPacket> packet, Client client, PacketManager packetManager) async {
-  packetManager.runResolve(packet.requestId!, packet);
+Future<void> handleResSetUserPasswordPacket(ApiResponse<ResSetUserPasswordPacket> packet, Connection connection) async {
+  connection.packetManager.runResolve(packet.requestId!, packet);
 
   if (packet.error == null) {
     _logger.info("UserChangePassword success");
@@ -226,11 +221,11 @@ Future<void> handleResSetUserPasswordPacket(ApiResponse<ResSetUserPasswordPacket
   }
 }
 
-Future<void> handleResFetchChannelMessagesPacket(ApiResponse<ResFetchChannelMessagesPacket> packet, Client client, PacketManager packetManager) async {
-  packetManager.runResolve(packet.requestId!, packet);
+Future<void> handleResFetchChannelMessagesPacket(ApiResponse<ResFetchChannelMessagesPacket> packet, Connection connection) async {
+  connection.packetManager.runResolve(packet.requestId!, packet);
 
   if (packet.error == null) {
-    final db = Database(client.serverId!);
+    final db = connection.database!;
     db.messages.addItems(packet.data!.messages);
     db.channelMessages.addRelations(packet.data!.relations);
     _logger.info("Fetched [${packet.data!.messages.length}, ${packet.data!.relations.length}] messages");
@@ -239,11 +234,11 @@ Future<void> handleResFetchChannelMessagesPacket(ApiResponse<ResFetchChannelMess
   }
 }
 
-Future<void> handleResCreateChannelPacket(ApiResponse<ResCreateChannelPacket> packet, Client client, PacketManager packetManager) async {
-  packetManager.runResolve(packet.requestId!, packet);
+Future<void> handleResCreateChannelPacket(ApiResponse<ResCreateChannelPacket> packet, Connection connection) async {
+  connection.packetManager.runResolve(packet.requestId!, packet);
 
   if (packet.error == null) {
-    final db = Database(client.serverId!);
+    final db = connection.database!;
     db.channels.addItem(packet.data!.channel!);
     db.channelUsers.addRelation(packet.data!.channelUserRelation!);
     db.serverChannels.addRelation(packet.data!.serverChannelRelation!);
@@ -253,11 +248,11 @@ Future<void> handleResCreateChannelPacket(ApiResponse<ResCreateChannelPacket> pa
   }
 }
 
-Future<void> handleResDeleteChannelPacket(ApiResponse<ResDeleteChannelPacket> packet, Client client, PacketManager packetManager) async {
-  packetManager.runResolve(packet.requestId!, packet);
+Future<void> handleResDeleteChannelPacket(ApiResponse<ResDeleteChannelPacket> packet, Connection connection) async {
+  connection.packetManager.runResolve(packet.requestId!, packet);
 
   if (packet.error == null) {
-    final db = Database(client.serverId!);
+    final db = connection.database!;
     final channel = db.channels.get("Channel:${packet.data!.channelId}");
     if (channel != null) {
       db.channels.removeItem(channel);
@@ -270,11 +265,11 @@ Future<void> handleResDeleteChannelPacket(ApiResponse<ResDeleteChannelPacket> pa
   }
 }
 
-Future<void> handleResModifyChannelPacket(ApiResponse<ResModifyChannelPacket> packet, Client client, PacketManager packetManager) async {
-  packetManager.runResolve(packet.requestId!, packet);
+Future<void> handleResModifyChannelPacket(ApiResponse<ResModifyChannelPacket> packet, Connection connection) async {
+  connection.packetManager.runResolve(packet.requestId!, packet);
 
   if (packet.error == null) {
-    final db = Database(client.serverId!);
+    final db = connection.database!;
     final packetChannel = packet.data!.channel!;
     final channel = db.channels.get("Channel:${packetChannel.id}");
     if (channel != null) {
@@ -291,11 +286,11 @@ Future<void> handleResModifyChannelPacket(ApiResponse<ResModifyChannelPacket> pa
   }
 }
 
-Future<void> handleResAddUserToChannelPacket(ApiResponse<ResAddUserToChannelPacket> packet, Client client, PacketManager packetManager) async {
-  packetManager.runResolve(packet.requestId!, packet);
+Future<void> handleResAddUserToChannelPacket(ApiResponse<ResAddUserToChannelPacket> packet, Connection connection) async {
+  connection.packetManager.runResolve(packet.requestId!, packet);
 
   if (packet.error == null) {
-    final db = Database(client.serverId!);
+    final db = connection.database!;
     db.channelUsers.addRelation(packet.data!.relation!);
     _logger.info("ChannelAddUser success");
   } else {
@@ -303,15 +298,15 @@ Future<void> handleResAddUserToChannelPacket(ApiResponse<ResAddUserToChannelPack
   }
 }
 
-Future<void> handleResRemoveUserFromChannelPacket(ApiResponse<ResDeleteUserFromChannelPacket> packet, Client client, PacketManager packetManager) async {
-  packetManager.runResolve(packet.requestId!, packet);
+Future<void> handleResRemoveUserFromChannelPacket(ApiResponse<ResDeleteUserFromChannelPacket> packet, Connection connection) async {
+  connection.packetManager.runResolve(packet.requestId!, packet);
 
   if (packet.error == null) {
-    final db = Database(client.serverId!);
+    final db = connection.database!;
     db.channelUsers.removeRelation(packet.data!.relation!);
 
     // IF we are the user being removed, remove the channel from our list
-    if (packet.data!.relation!.output == client.userId) {
+    if (packet.data!.relation!.output == connection.currentUserId) {
       final channel = db.channels.get("Channel:${packet.data!.relation!.input}");
       if (channel != null) {
         db.channels.removeItem(channel);
@@ -326,8 +321,8 @@ Future<void> handleResRemoveUserFromChannelPacket(ApiResponse<ResDeleteUserFromC
   }
 }
 
-Future<void> handleResJoinVoiceChannelPacket(ApiResponse<ResJoinVoiceChannelPacket> packet, Client client, PacketManager packetManager) async {
-  packetManager.runResolve(packet.requestId!, packet);
+Future<void> handleResJoinVoiceChannelPacket(ApiResponse<ResJoinVoiceChannelPacket> packet, Connection connection) async {
+  connection.packetManager.runResolve(packet.requestId!, packet);
 
   if (packet.error == null) {
     _logger.info("JoinVoiceChannel success");

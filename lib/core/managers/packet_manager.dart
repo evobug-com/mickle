@@ -1,18 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:talk/core/connection/client.dart';
+import 'package:talk/areas/connection/connection.dart';
 import 'package:talk/core/network/utils.dart';
 
-import '../database.dart';
 import '../network/api_types.dart';
 
 class PacketManager {
   // Each connection has own packet manager
-  static final Map<Client, PacketManager> _packetManagers = {};
+  static final Map<Connection, PacketManager> _packetManagers = {};
   final Map<int, Completer<ApiResponse>> _requests = {};
   int _requestId = 0;
-  Client _client;
+  Connection _connection;
 
   int _getNewRequestId() {
     if(_requestId >= 65535) {
@@ -22,9 +21,9 @@ class PacketManager {
     return _requestId++;
   }
 
-  PacketManager._(this._client);
+  PacketManager._(this._connection);
 
-  factory PacketManager(Client connection) {
+  factory PacketManager(Connection connection) {
     return _packetManagers.putIfAbsent(connection, () => PacketManager._(connection));
   }
 
@@ -53,7 +52,7 @@ class PacketManager {
     reqPacketJson['data'].remove('type');
 
     String json = jsonEncode(reqPacketJson);
-    _client.send(utf8.encode(json));
+    _connection.send(utf8.encode(json));
 
     return completer.future;
   }
@@ -130,7 +129,7 @@ class PacketManager {
     required String value,
     required String channelId,
   }) {
-    final mentions = parseMessageMentions(value, database: Database(_client.serverId!));
+    final mentions = parseMessageMentions(value, database: _connection.database!);
 
     return sendRequest((requestId) => ReqCreateChannelMessagePacket(
       requestId: requestId,

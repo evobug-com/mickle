@@ -1,37 +1,37 @@
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
-import 'package:talk/core/connection/client.dart';
+import 'package:talk/areas/connection/connection.dart';
 import 'package:talk/core/database.dart';
 import 'package:talk/core/managers/packet_manager.dart';
 import 'package:talk/core/models/models.dart';
 
 class ConnectionProvider extends ChangeNotifier {
-  late Client? client;
+  late Connection? connection;
   late User user;
   late Server server;
   late Database database;
   late PacketManager packetManager;
   bool _isClientConnected = false;
 
-  ConnectionProvider(this.client) {
-    if (client != null && client!.serverData.user != null) {
-      user = client!.serverData.user!;
-      server = client!.serverData.server!;
-      database = Database(client!.serverData.serverId!);
-      packetManager = PacketManager(client!);
+  ConnectionProvider(this.connection) {
+    if (connection != null && connection!.currentUser != null) {
+      user = connection!.currentUser!;
+      server = connection!.mainServer!;
+      database = connection!.database!;
+      packetManager = connection!.packetManager;
       _isClientConnected = true;
     } else {
       _isClientConnected = false;
     }
   }
 
-  update(Client? client) {
-    this.client = client;
-    if (client != null && client!.serverData.user != null) {
-      user = client.serverData.user!;
-      server = client.serverData.server!;
-      database = Database(client.serverData.serverId!);
-      packetManager = PacketManager(client);
+  update(Connection? connection) {
+    this.connection = connection;
+    if (connection != null && connection.currentUser != null) {
+      user = connection.currentUser!;
+      server = connection.mainServer!;
+      database = connection.database!;
+      packetManager = connection.packetManager;
       _isClientConnected = true;
     } else {
       _isClientConnected = false;

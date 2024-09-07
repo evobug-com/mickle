@@ -4,10 +4,10 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
+import 'package:talk/areas/connection/connection.dart';
+import 'package:talk/core/managers/audio_manager.dart';
 import 'package:talk/core/models/models.dart';
 
-import '../../../../core/managers/audio_manager.dart';
-import '../../../../core/connection/client.dart';
 final _logger = Logger("VoiceRoomCurrent");
 
 class VoiceRoomCurrent extends ChangeNotifier {
@@ -28,7 +28,7 @@ class VoiceRoomCurrent extends ChangeNotifier {
     );
   }
 
-  void joinVoice(Client client, Channel channel) async {
+  void joinVoice(Connection connection, Channel channel) async {
     // _logger.info("Joining voice channel ${channel.id}");
     // AudioManager.playSingleShot("SFX", AssetSource("audio/enter_voice.wav"));
     // _currentChannel = channel;

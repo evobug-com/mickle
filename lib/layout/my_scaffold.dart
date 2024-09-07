@@ -8,7 +8,6 @@ import 'package:talk/core/providers/scoped/connection_provider.dart';
 import '../components/console/widgets/console_widget.dart';
 import '../components/server_list/widgets/server_list_widget.dart';
 import '../core/version.dart';
-import '../ui/lost_connection_bar.dart';
 import '../ui/window_caption.dart';
 
 class MyScaffold extends StatefulWidget {
@@ -31,10 +30,10 @@ class _MyScaffoldState extends State<MyScaffold> {
     return Consumer<SelectedServerProvider>(
       builder: (context, selectedServerProvider, child) {
         return ChangeNotifierProxyProvider<SelectedServerProvider, ConnectionProvider>(
-          create: (context) => ConnectionProvider(selectedServerProvider.client),
+          create: (context) => ConnectionProvider(selectedServerProvider.connection),
           update: (context, selectedServerProvider, connectionProvider) {
-            if(connectionProvider == null) return ConnectionProvider(selectedServerProvider.client!);
-            connectionProvider.update(selectedServerProvider.client);
+            if(connectionProvider == null) return ConnectionProvider(selectedServerProvider.connection!);
+            connectionProvider.update(selectedServerProvider.connection);
             return connectionProvider;
           },
           child: Scaffold(
@@ -48,13 +47,12 @@ class _MyScaffoldState extends State<MyScaffold> {
             backgroundColor: colorScheme.surfaceContainerLow,
             body: Row(
               children: [
-                if(widget.showSidebar) ServerListWidget(showAddServerButton: !isLoginScreen),
+                if(widget.showSidebar) ServerListWidget(showAddServerButton: !isLoginScreen, showMainServersOnly: isLoginScreen),
                 Expanded(
                   child: Stack(
                     alignment: Alignment.topCenter,
                     children: [
                       widget.body,
-                      if (!kDebugMode) const LostConnectionBarWidget(),
                       const ConsoleWidget(),
                     ],
                   ),

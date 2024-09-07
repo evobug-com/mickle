@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:talk/core/connection/client.dart';
-import 'package:talk/core/managers/client_manager.dart';
+import 'package:talk/areas/connection/connection.dart';
+import 'package:talk/areas/connection/connection_manager.dart';
+import 'package:talk/areas/connection/connection_status.dart';
 import '../../context_menu/context_menu.dart' as context_menu;
 
 class ServerListClientContextMenu extends StatelessWidget {
   final Widget child;
-  final Client client;
-  const ServerListClientContextMenu({super.key, required this.child, required this.client});
+  final Connection connection;
+  const ServerListClientContextMenu({super.key, required this.child, required this.connection});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +18,7 @@ class ServerListClientContextMenu extends StatelessWidget {
                 label: 'Disconnect',
                 value: 'disconnect',
                 icon: Icons.power_settings_new,
-                isDisabled: client.connection.state != ClientConnectionState.connected
+                isDisabled: connection.status.value == ConnectionStatus.disconnected || connection.status.value == ConnectionStatus.error
             ),
             // Drop server
             const context_menu.MenuItem(
@@ -30,10 +31,10 @@ class ServerListClientContextMenu extends StatelessWidget {
       ),
       onItemSelected: (value) async {
         if(value == 'remove') {
-          ClientManager.of(context, listen: false).removeClient(client);
+          ConnectionManager().remove(connection);
         } else if(value == 'disconnect') {
-          ClientManager.of(context, listen: false).toggleReconnection(client, false);
-          client.disconnect();
+          connection.isReconnectEnabled = false;
+          connection.disconnect();
         }
       },
       child: child,
