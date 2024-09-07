@@ -13,3 +13,16 @@ extension BuildContextExtensions on BuildContext {
   ColorScheme get colorScheme => Theme.of(this).colorScheme;
   TextTheme get textTheme => Theme.of(this).textTheme;
 }
+
+final Tween<double> reverseTween = Tween<double>(
+  begin: 0,
+  end: -1,
+);
+
+/// Extension on [Animation<double>] to provide reverse animation functionality.
+/// Returns an [Animation<double>] that goes from 0 to -1, reversing the direction of the original animation.
+extension ReverseAnimation on Animation<double> {
+  Animation<double> toReversed() {
+    return reverseTween.animate(this);
+  }
+}

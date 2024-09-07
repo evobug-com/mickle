@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:talk/areas/connection/connection.dart';
 import 'package:talk/areas/connection/connection_manager.dart';
+import 'package:talk/components/context_menu/components/menu_header.dart';
+import 'package:talk/components/context_menu/core/utils/extensions.dart';
 import 'package:talk/components/server_list/components/server_list_client_context_menu.dart';
 import 'package:talk/core/models/models.dart';
 import 'package:talk/core/providers/global/selected_server_provider.dart';
@@ -31,10 +33,11 @@ class _ServerListNavigatorState extends State<ServerListNavigator> with TickerPr
       duration: const Duration(seconds: 2),
       vsync: this,
     )..repeat();
+
     _animation = CurvedAnimation(
       parent: _controller,
       curve: Curves.fastOutSlowIn,
-    );
+    ).toReversed();
   }
 
   @override

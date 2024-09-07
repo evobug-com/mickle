@@ -23,8 +23,9 @@ class UserAvatar extends StatelessWidget {
   final String? imageUrl;
   final UserPresence? presence;
   final double size;
-  
-  const UserAvatar({super.key, this.imageUrl, this.presence, this.size = 12});
+  final double? presenceSize;
+
+  const UserAvatar({super.key, this.imageUrl, this.presence, this.size = 20, this.presenceSize = 12});
 
 
   @override
@@ -32,7 +33,7 @@ class UserAvatar extends StatelessWidget {
     return Stack(
       children: [
         CircleAvatar(
-          radius: 20,
+          radius: size,
           backgroundImage: SafeNetworkImageProvider(imageUrl, defaultAssetPath: 'assets/images/default_avatar.png'),
           onBackgroundImageError: (exception, stackTrace) {
             print('Error loading image: $exception');
@@ -45,8 +46,8 @@ class UserAvatar extends StatelessWidget {
           bottom: 0,
           right: 0,
           child: Container(
-            width: size,
-            height: size,
+            width: presenceSize,
+            height: presenceSize,
             decoration: BoxDecoration(
               color: _getColor(presence!),
               shape: BoxShape.circle,

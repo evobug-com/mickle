@@ -189,15 +189,10 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
     return Center(
       child: Column(
         children: [
-          CircleAvatar(
-            radius: 50,
-            backgroundColor: colorScheme.primary,
-            backgroundImage: Image.network(_avatarUrlController.text, errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace,) {
-              return Icon(Icons.person, size: 50, color: colorScheme.onPrimary);
-            },).image,
-            child: _avatarUrlController.text.isEmpty
-                ? Icon(Icons.person, size: 50, color: colorScheme.onPrimary)
-                : null,
+          UserAvatar(
+            presence: null,
+            imageUrl: _avatarUrlController.text,
+            size: 50,
           ),
           SizedBox(height: 16),
           Row(

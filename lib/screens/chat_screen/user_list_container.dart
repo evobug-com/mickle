@@ -39,7 +39,6 @@ class UserListContainer extends StatelessWidget {
                           listenable: users[index],
                           builder: (context, widget) {
                             return ListTile(
-                              // contentPadding: EdgeInsets.fromLTRB(4,0,4,0),
                               // Avatar leading
                               leading: UserAvatar(
                                 presence: UserPresence
