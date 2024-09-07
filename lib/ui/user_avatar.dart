@@ -1,5 +1,6 @@
 // User avatar has a badge for states: Online, Away, Do not disturb, Offline
 import 'package:flutter/material.dart';
+import 'package:talk/core/images/safe_network_image_provider.dart';
 
 import '../core/database.dart';
 
@@ -32,16 +33,10 @@ class UserAvatar extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 20,
-          backgroundImage: imageUrl != null ? FadeInImage.assetNetwork(
-            placeholder: 'assets/images/default_avatar.png',
-            image: imageUrl!,
-            imageErrorBuilder: (context, error, stackTrace) {
-              print('Error loading image: $error');
-              return const Image(
-                image: AssetImage('assets/images/default_avatar.png'),
-              );
-            },
-          ).image : const AssetImage('assets/images/default_avatar.png'),
+          backgroundImage: SafeNetworkImageProvider(imageUrl, defaultAssetPath: 'assets/images/default_avatar.png'),
+          onBackgroundImageError: (exception, stackTrace) {
+            print('Error loading image: $exception');
+          },
           backgroundColor: Colors.transparent,
 
         ),

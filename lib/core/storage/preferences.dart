@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:collection/collection.dart';
 import 'package:talk/core/storage/secure_storage.dart';
 
@@ -29,10 +31,10 @@ class Preferences {
     return SecureStorage().writeJSONArray("servers", servers);
   }
 
-  static Future<void> removeServer(String serverId) {
-    final servers = SecureStorage().readJSONArray("servers");
+  static Future<void> removeServer(String serverId) async {
+    final servers = await SecureStorage().readJSONArray("servers");
     servers.removeWhere((server) => server["serverId"] == serverId);
-    return SecureStorage().write("servers", servers);
+    return SecureStorage().write("servers", jsonEncode(servers));
   }
 
   static getServerList() {

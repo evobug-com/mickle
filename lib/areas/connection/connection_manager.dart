@@ -62,6 +62,7 @@ class ConnectionManager extends ChangeNotifier {
 
     await SecureStorage().write("${connection.connectionUrl + connection.mainServerId!}.token", connection.token!);
     await SecureStorage().write("${connection.connectionUrl + connection.mainServerId!}.serverId", connection.mainServerId!);
+    await SecureStorage().write("${connection.connectionUrl + connection.mainServerId!}.connectionUrl", connection.connectionUrl!);
     final servers = await SecureStorage().readJSONArray("servers") as List<dynamic> ?? [];
     if (!servers.contains(connection.connectionUrl + connection.mainServerId!)) {
       servers.add(connection.connectionUrl + connection.mainServerId!);
@@ -99,7 +100,9 @@ class ConnectionManager extends ChangeNotifier {
       }
 
       _logger.info('Connection(${connection.connectionUrl}) reconnected');
+      connection.reconnectTimer?.cancel();
       connection.reconnectAttempts = 0;
+      connection.isReconnectEnabled = false;
 
       final token = await getToken(connection.connectionUrl, connection.mainServerId!);
       if(token == null) {
@@ -116,6 +119,7 @@ class ConnectionManager extends ChangeNotifier {
         return;
       }
 
+      connection.isReconnectEnabled = true;
       _logger.info('Connection(${connection.connectionUrl}) re-authenticated');
     } catch (e) {
       _logger.severe('Connection(${connection.connectionUrl}) reconnect failed: $e');

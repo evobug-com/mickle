@@ -28,7 +28,7 @@ class SecureStorage {
     return result;
   }
   
-  readJSONArray(String key) async {
+  Future<List<dynamic>> readJSONArray(String key) async {
     final result = await read(key);
     if (result == null) {
       return [];

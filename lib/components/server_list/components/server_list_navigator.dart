@@ -1,15 +1,48 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:talk/areas/connection/connection.dart';
 import 'package:talk/areas/connection/connection_manager.dart';
+import 'package:talk/components/server_list/components/server_list_client_context_menu.dart';
 import 'package:talk/core/models/models.dart';
+import 'package:talk/core/providers/global/selected_server_provider.dart';
 
 import '../../../areas/connection/connection_status.dart';
 
-class ServerListNavigator extends StatelessWidget {
+class ServerListNavigator extends StatefulWidget {
   const ServerListNavigator({Key? key}) : super(key: key);
+
+  @override
+  State<ServerListNavigator> createState() => _ServerListNavigatorState();
+}
+
+class _ServerListNavigatorState extends State<ServerListNavigator> with TickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _animation;
+  bool _isDisposed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat();
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.fastOutSlowIn,
+    );
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +52,7 @@ class ServerListNavigator extends StatelessWidget {
     return ListenableBuilder(
         listenable: connectionManager,
         builder: (context, _) {
+          if (_isDisposed) return Container();
           return SizedBox(
             width: 72,
             child: Material(
@@ -40,6 +74,7 @@ class ServerListNavigator extends StatelessWidget {
     return ValueListenableBuilder(
       valueListenable: connection.status,
       builder: (context, status, _) {
+        if (_isDisposed) return Container();
         print('Connection status: $status');
         return _buildClientIcon(context, connection);
 
@@ -78,66 +113,65 @@ class ServerListNavigator extends StatelessWidget {
     String serverName = connection.status.value == ConnectionStatus.authenticated ? connection.mainServer!.name : connection.connectionUrl;
     String initials = _getServerInitials(serverName);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Tooltip(
-        message: _getTooltipMessage(connection, serverName),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Center(
-                child: Text(
-                  initials,
-                  style: TextStyle(
-                    color: colorScheme.onPrimaryContainer,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
+    return ServerListClientContextMenu(
+      connection: connection,
+      child: GestureDetector(
+        onTap: () {
+          if(connection.error != null) {
+            return;
+          } else {
+            SelectedServerProvider().selectServer(connection);
+            context.goNamed('chat');
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Tooltip(
+            message: _getTooltipMessage(connection, serverName),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: colorScheme.tertiaryContainer,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Center(
+                    child: Text(
+                      initials,
+                      style: TextStyle(
+                        color: colorScheme.onPrimaryContainer,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                if(connection.status.value == ConnectionStatus.error || connection.status.value == ConnectionStatus.connecting)
+                  BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
+                    child: Container(),
+                  ),
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: _buildConnectionStatusIndicator(context, connection) ?? Container(),
+                ),
+              ],
             ),
-            Positioned(
-              right: 0,
-              bottom: 0,
-              child: _buildConnectionStatusIndicator(context, connection),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildConnectionStatusIndicator(BuildContext context, Connection connection) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final connectionColor = _getConnectionColor(connection.status.value, colorScheme);
+  Widget? _buildConnectionStatusIndicator(BuildContext context, Connection connection) {
+    if (_isDisposed) return null;
 
-    if (connection.status.value == ConnectionStatus.disconnected && connection.isReconnectEnabled) {
-      return SizedBox(
-        width: 14,
-        height: 14,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          valueColor: AlwaysStoppedAnimation<Color>(connectionColor),
-        ),
-      );
-    } else {
-      return Container(
-        width: 14,
-        height: 14,
-        decoration: BoxDecoration(
-          color: connectionColor,
-          shape: BoxShape.circle,
-          border: Border.all(color: colorScheme.surface, width: 2),
-        ),
-      );
-    }
+    final colorScheme = Theme.of(context).colorScheme;
+    return _getConnectionStatusIcon(connection.status.value, colorScheme);
   }
 
   String _getTooltipMessage(Connection connection, String serverName) {
@@ -195,19 +229,19 @@ class ServerListNavigator extends StatelessWidget {
     return (words[0][0] + words[1][0]).toUpperCase();
   }
 
-  Color _getConnectionColor(ConnectionStatus status, ColorScheme colorScheme) {
+  Widget? _getConnectionStatusIcon(ConnectionStatus status, ColorScheme colorScheme) {
     switch (status) {
       case ConnectionStatus.authenticated:
       case ConnectionStatus.connected:
-        return Colors.green;
+        return null;
       case ConnectionStatus.authenticating:
       case ConnectionStatus.connecting:
-        return Colors.yellow;
+        return RotationTransition(turns: _animation, child: Icon(Icons.sync, size: 20, color: colorScheme.onTertiaryContainer));
       case ConnectionStatus.disconnected:
       case ConnectionStatus.error:
-        return colorScheme.error;
+        return Icon(Icons.error_outline, size: 20, color: colorScheme.onTertiaryContainer);
       default:
-        return colorScheme.surfaceVariant;
+        return null;
     }
   }
 }

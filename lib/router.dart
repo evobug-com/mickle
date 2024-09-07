@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:talk/core/providers/global/selected_server_provider.dart';
+import 'package:talk/screens/splash_screen.dart';
 import 'package:talk/screens/update_screen.dart';
 import 'core/providers/global/update_provider.dart';
 import 'screens/chat_screen.dart';
@@ -14,6 +15,10 @@ import 'screens/settings_screen.dart';
 final _logger = Logger('Router');
 
 FutureOr<String?> _redirect(BuildContext context, GoRouterState state) async {
+  if(state.uri.path == '/splash') {
+    return null;
+  }
+
   final updateProvider = UpdateProvider.of(context, listen: false);
   // Check if update is available and not skipped
   if (updateProvider.updateAvailable) {
@@ -36,6 +41,11 @@ final GoRouter router = GoRouter(
       BotToastNavigatorObserver(),
     ],
     routes: <RouteBase>[
+      GoRoute(
+        name: 'splash',
+        path: '/splash',
+        pageBuilder: (context, state) => NoTransitionPage(key: state.pageKey, child: const SplashScreen()),
+      ),
       GoRoute(
         name: 'update',
         path: '/update',
