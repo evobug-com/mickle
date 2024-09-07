@@ -22,6 +22,7 @@ enum ConnectionStatus {
 
   /// The connection is authenticated.
   /// This status is used when the connection is authenticated.
+  /// And Welcome packet is received.
   authenticated,
 
   /// The connection has an error.

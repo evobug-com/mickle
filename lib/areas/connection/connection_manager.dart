@@ -10,7 +10,7 @@
 // The Connection Manager is notified only when we are connecting to a new server or removing a server.
 // It is not notified when the connection status changes. In this case, the Connection class is responsible for notifying the listeners.
 //
-// Example: vps.sionzee.cz:45034
+// Example: localhost:55000
 
 import 'dart:async';
 import 'dart:math';
@@ -56,13 +56,13 @@ class ConnectionManager extends ChangeNotifier {
   }
 
   Future<bool> save(Connection connection) async {
-    if (connection.status.value != ConnectionStatus.authenticated) {
-      throw ConnectionError.fromException('Connection is not in authenticated state');
+    if (connection.token == null || connection.mainServerId == null) {
+      throw ConnectionError.fromException('Connection token or main server ID is null');
     }
 
     await SecureStorage().write("${connection.connectionUrl + connection.mainServerId!}.token", connection.token!);
     await SecureStorage().write("${connection.connectionUrl + connection.mainServerId!}.serverId", connection.mainServerId!);
-    final servers = await SecureStorage().readJSONArray("servers") as List<String> ?? [];
+    final servers = await SecureStorage().readJSONArray("servers") as List<dynamic> ?? [];
     if (!servers.contains(connection.connectionUrl + connection.mainServerId!)) {
       servers.add(connection.connectionUrl + connection.mainServerId!);
       await SecureStorage().writeJSONArray("servers", servers);

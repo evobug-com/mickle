@@ -67,9 +67,11 @@ class Connection {
     _status.value = ConnectionStatus.connecting;
 
     try {
+      final [host, port] = connectionUrl.split(':');
+
       _socket = await SecureSocket.connect(
-        connectionUrl,
-        int.parse(connectionUrl.split(':')[1]),
+        host,
+        int.parse(port),
         onBadCertificate: (certificate) {
           _logger.warning('Bad certificate: $certificate');
           return true;
@@ -140,13 +142,18 @@ class Connection {
       serverIds = authResult.data!.serverIds;
       this.token = authResult.data!.token;
       database = Database(mainServerId!);
-      _status.value = ConnectionStatus.authenticated;
     } else {
       _logger.warning('Authentication failed: ${authResult.error}');
       _handleError(ConnectionError.authenticationFailed(authResult.error?.message ?? "Unknown authentication error"));
     }
     
     return authResult;
+  }
+
+  onWelcome(EvtWelcomePacket packet) {
+    currentUser = database!.users.firstWhereOrNull((element) => element.id == currentUserId!);
+    mainServer = database!.servers.firstWhereOrNull((element) => element.id == mainServerId!);
+    _status.value = ConnectionStatus.authenticated;
   }
 
   void send(Uint8List data) {

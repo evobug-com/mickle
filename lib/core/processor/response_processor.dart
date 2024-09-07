@@ -108,9 +108,7 @@ Future<void> handleEvtWelcomePacket(ApiResponse<EvtWelcomePacket> packet, Connec
   db.permissions.addItems(packet.data!.permissions);
   db.rolePermissions.addRelations(packet.data!.rolePermissions);
   db.serverChannels.addRelations(packet.data!.serverChannels);
-
-  connection.currentUser = db.users.firstWhereOrNull((element) => element.id == connection.currentUserId);
-  connection.mainServer = db.servers.firstWhereOrNull((element) => element.id == connection.mainServerId);
+  connection.onWelcome(packet.data!);
 }
 
 Future<void> handleEvtUpdatePresencePacket(ApiResponse<EvtUpdatePresencePacket> packet, Connection connection) async {
