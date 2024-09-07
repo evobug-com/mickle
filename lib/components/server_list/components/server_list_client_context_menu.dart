@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:talk/areas/connection/connection.dart';
 import 'package:talk/areas/connection/connection_manager.dart';
 import 'package:talk/areas/connection/connection_status.dart';
+import '../../../core/providers/global/selected_server_provider.dart';
 import '../../context_menu/context_menu.dart' as context_menu;
 
 class ServerListClientContextMenu extends StatelessWidget {
@@ -35,6 +36,13 @@ class ServerListClientContextMenu extends StatelessWidget {
         } else if(value == 'disconnect') {
           connection.isReconnectEnabled = false;
           connection.disconnect();
+        }
+
+        if(value == 'remove' || value == 'disconnect') {
+          // If the connection is the selected server, clear the selected server
+          if(connection == SelectedServerProvider.of(context, listen: false).connection) {
+            SelectedServerProvider.of(context, listen: false).selectServer(null);
+          }
         }
       },
       child: child,

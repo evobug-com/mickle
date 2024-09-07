@@ -10,6 +10,7 @@ class PacketManager {
   // Each connection has own packet manager
   static final Map<Connection, PacketManager> _packetManagers = {};
   final Map<int, Completer<ApiResponse>> _requests = {};
+  final Map<int, Type> _requestsTypes = {};
   int _requestId = 0;
   Connection _connection;
 
@@ -33,12 +34,33 @@ class PacketManager {
     }
   }
 
+  void runResolveError(int requestId, ApiResponse<dynamic> response) {
+    if (_requests.containsKey(requestId)) {
+      final typeString = _requestsTypes.remove(requestId)!.toString();
+      final completer = _requests.remove(requestId)!;
+
+      final type = PacketFactory.getTypeFromString(typeString);
+      if (type != null) {
+        final typedResponse = PacketFactory.createErrorResponse(
+          type,
+          response.requestId,
+          response.type,
+          response.error,
+        );
+        completer.complete(typedResponse);
+      } else {
+        completer.completeError(Exception('Unknown response type: $typeString'));
+      }
+    }
+  }
+
   Future<ApiResponse<TRes>> sendRequest<TRes extends ResponseData, TReq extends RequestPacket>(
       TReq Function(int requestId) requestBuilder
       ) async {
     final requestId = _getNewRequestId();
     final completer = Completer<ApiResponse<TRes>>();
     _requests[requestId] = completer;
+    _requestsTypes[requestId] = TRes;
 
     final TReq reqPacket = requestBuilder(requestId);
 
@@ -55,14 +77,6 @@ class PacketManager {
     _connection.send(utf8.encode(json));
 
     return completer.future;
-  }
-
-  void handleResponse(Map<String, dynamic> jsonResponse) {
-    final response = ApiResponse.fromJson(jsonResponse);
-    final completer = _requests.remove(response.requestId);
-    if (completer != null) {
-      completer.complete(response);
-    }
   }
 
   Future<ApiResponse<ResLoginPacket>> sendLogin({

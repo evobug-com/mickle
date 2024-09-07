@@ -5,42 +5,28 @@ import 'package:talk/core/database.dart';
 import 'package:talk/core/managers/packet_manager.dart';
 import 'package:talk/core/models/models.dart';
 
+import '../../../areas/connection/connection_status.dart';
+
 class ConnectionProvider extends ChangeNotifier {
   late Connection? connection;
-  late User user;
-  late Server server;
-  late Database database;
-  late PacketManager packetManager;
-  bool _isClientConnected = false;
+  User get user => connection!.currentUser!;
+  Server get server => connection!.mainServer!;
+  Database get database => connection!.database;
+  PacketManager get packetManager => connection!.packetManager;
 
-  ConnectionProvider(this.connection) {
-    if (connection != null && connection!.currentUser != null) {
-      user = connection!.currentUser!;
-      server = connection!.mainServer!;
-      database = connection!.database!;
-      packetManager = connection!.packetManager;
-      _isClientConnected = true;
-    } else {
-      _isClientConnected = false;
-    }
-  }
+  ConnectionProvider(this.connection);
 
   update(Connection? connection) {
     this.connection = connection;
-    if (connection != null && connection.currentUser != null) {
-      user = connection.currentUser!;
-      server = connection.mainServer!;
-      database = connection.database!;
-      packetManager = connection.packetManager;
-      _isClientConnected = true;
-    } else {
-      _isClientConnected = false;
-    }
     notifyListeners();
   }
 
   get isClientConnected {
-    return _isClientConnected;
+    return connection != null;
+  }
+
+  get isAuthedAndConnected {
+    return connection != null && (connection?.status.value ?? ConnectionStatus.disconnected) == ConnectionStatus.authenticated;
   }
 
   static ConnectionProvider of(BuildContext context, {bool listen = true}) {

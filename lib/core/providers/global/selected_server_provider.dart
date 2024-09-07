@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:talk/areas/connection/connection.dart';
 import 'package:talk/core/storage/preferences.dart';
 
+import '../scoped/connection_provider.dart';
+
 class SelectedServerProvider extends ChangeNotifier {
   Connection? connection;
 

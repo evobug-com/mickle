@@ -14,8 +14,6 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('[LoginScreen] Build');
-
     return Builder(
       builder: (context) {
         // if (auth.errorMessage != null || auth.isLoading) {

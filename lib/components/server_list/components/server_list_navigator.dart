@@ -1,12 +1,10 @@
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:talk/areas/connection/connection.dart';
 import 'package:talk/areas/connection/connection_manager.dart';
-import 'package:talk/components/context_menu/components/menu_header.dart';
 import 'package:talk/components/context_menu/core/utils/extensions.dart';
 import 'package:talk/components/server_list/components/server_list_client_context_menu.dart';
 import 'package:talk/core/models/models.dart';
@@ -78,7 +76,6 @@ class _ServerListNavigatorState extends State<ServerListNavigator> with TickerPr
       valueListenable: connection.status,
       builder: (context, status, _) {
         if (_isDisposed) return Container();
-        print('Connection status: $status');
         return _buildClientIcon(context, connection);
 
         // if (status != ConnectionStatus.authenticated) {

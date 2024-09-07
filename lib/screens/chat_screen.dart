@@ -8,6 +8,7 @@ import 'package:talk/components/text_room/widgets/text_room_widget.dart';
 import 'package:talk/components/voice_room/components/voice_room_control_panel.dart';
 import 'package:talk/components/voice_room/core/models/voice_room_current.dart';
 import 'package:talk/core/providers/scoped/connection_provider.dart';
+import 'package:talk/ui/shimmer.dart';
 
 import '../core/providers/global/selected_server_provider.dart';
 import '../layout/my_scaffold.dart';
@@ -36,16 +37,19 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildMainContent(BuildContext context, ConnectionProvider connection) {
     return Expanded(
-      child: Consumer<ChannelListSelectedChannel>(
-        builder: (context, value, _) {
-          return value.getChannel(connection.server) != null
-              ? TextRoomWidget(
-            channel: value.getChannel(connection.server),
-            connection: connection,
-          )
-              : const Center(child: Text('No channel selected'));
-        },
-      ),
+        child: ShimmerLoading(
+          isLoading: !connection.isAuthedAndConnected,
+          child: Consumer<ChannelListSelectedChannel>(
+            builder: (context, value, _) {
+              return value.getChannel(connection.server) != null
+                  ? TextRoomWidget(
+                channel: value.getChannel(connection.server),
+                connection: connection,
+              )
+                  : const Center(child: Text('No channel selected'));
+            },
+          ),
+        )
     );
   }
 
@@ -56,10 +60,23 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            UserInfoBox(connection: connection),
-            _buildVoiceRoomControlPanel(currentVoiceRoom),
+
+            ShimmerLoading(
+              isLoading: !connection.isAuthedAndConnected,
+              child: UserInfoBox(connection: connection),
+            ),
+
+            ShimmerLoading(
+              isLoading: !connection.isAuthedAndConnected,
+              child: _buildVoiceRoomControlPanel(currentVoiceRoom),
+            ),
+
             const SizedBox(height: 8.0),
-            Expanded(child: UserListContainer(connection: connection)),
+
+            Expanded(child: ShimmerLoading(
+              isLoading: !connection.isAuthedAndConnected,
+              child: UserListContainer(connection: connection),
+            )),
           ],
         ),
       ),
@@ -90,16 +107,15 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final selectedServerProvider = Provider.of<SelectedServerProvider>(context);
-    if (selectedServerProvider.connection == null) {
-      throw Exception("No client selected");
+    if(selectedServerProvider.connection == null) {
+      return MyScaffold(body: Center(child: Text('No server selected')));
     }
-
     return MyScaffold(
       body: ValueListenableBuilder(
-        valueListenable: selectedServerProvider.connection!.status,
+        valueListenable: selectedServerProvider!.connection!.status,
         builder: (context, status, _) {
-          if (status != ConnectionStatus.authenticated) {
-            return const Center(child: CircularProgressIndicator());
+          if(status != ConnectionStatus.authenticated) {
+            return const Center(child: Text('Not authenticated'));
           }
 
           return Consumer2<ConnectionProvider, VoiceRoomCurrent>(

@@ -39,7 +39,7 @@ class ConnectionManager extends ChangeNotifier {
     final connection = _connections.putIfAbsent(connectionUrl, () => Connection(connectionUrl: connectionUrl));
 
     if(connection.status.value != ConnectionStatus.disconnected && connection.status.value != ConnectionStatus.error) {
-      throw ConnectionError.fromException('Connection is not in disconnected state');
+      throw ConnectionError.fromException('Connection is not in disconnected state (${connection.status.value})');
     }
 
     _connections[connectionUrl] = connection;
@@ -123,6 +123,10 @@ class ConnectionManager extends ChangeNotifier {
       _logger.info('Connection(${connection.connectionUrl}) re-authenticated');
     } catch (e) {
       _logger.severe('Connection(${connection.connectionUrl}) reconnect failed: $e');
+      if(e is Error) {
+        print(e.stackTrace);
+      }
+
       connection.reconnectAttempts++;
       if(connection.isReconnectEnabled) {
         _scheduleReconnect(connection);

@@ -5,6 +5,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:flutter/foundation.dart';
 import '../models/models.dart';
+import 'package:collection/collection.dart';
 
 part 'api_types.g.dart';
 
@@ -103,6 +104,63 @@ class EventData {
 
   factory EventData.fromJson(Map<String, dynamic> json) => _$EventDataFromJson(json);
   Map<String, dynamic> toJson() => _$EventDataToJson(this);
+}
+
+class PacketError {
+  final String message;
+
+  PacketError(this.message);
+
+  factory PacketError.fromJson(Map<String, dynamic> json) {
+    return PacketError(json['message'] as String);
+  }
+
+  Map<String, dynamic> toJson() => {'message': message};
+  
+  @override
+  String toString() {
+    return 'PacketError{message: $message}';
+  }
+}
+
+class ApiResponse<T> {
+  final int? requestId;
+  final T? data;
+  final PacketError? error;
+  final String type;
+
+  ApiResponse({required this.requestId, required this.type, this.data, this.error});
+
+  factory ApiResponse.fromJson(Map<String, dynamic> json) {
+    return ApiResponse<T>(
+      requestId: json['request_id'] as int?,
+      type: json['type'] as String,
+      data: json['data'],
+      error: json['error'] != null ? PacketError(json['error'] as String) : null,
+    );
+  }
+
+  factory ApiResponse.success(T data, int? requestId, String type) =>
+      ApiResponse(requestId: requestId, data: data, type: type);
+
+  factory ApiResponse.error(String message, int? requestId, String type) =>
+      ApiResponse(requestId: requestId, error: PacketError(message), type: type);
+
+  bool get isSuccess => error == null;
+
+  cast<TSub>(TSub Function(Map<String, dynamic> json) fromJson) {
+    return ApiResponse<TSub>(
+      requestId: requestId,
+      type: type,
+      data: data != null ? fromJson(data as Map<String, dynamic>) : null,
+      error: error,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'ApiResponse{requestId: $requestId, data: ${data?.toString()}, error: $error, type: $type}';
+  }
 }
 
 @JsonSerializable()
@@ -1080,3 +1138,111 @@ class EvtUpdatePresencePacket extends EventData {
   }
 }
 
+class PacketFactory {
+  static final Map<Type, ApiResponse<ResponseData> Function(int?, String, PacketError?)> _creators = {
+        ResPingPacket: (requestId, type, error) => ApiResponse<ResPingPacket>(
+      requestId: requestId,
+      type: type,
+      data: null,
+      error: error,
+    ),
+        ResLoginPacket: (requestId, type, error) => ApiResponse<ResLoginPacket>(
+      requestId: requestId,
+      type: type,
+      data: null,
+      error: error,
+    ),
+        ResCreateChannelMessagePacket: (requestId, type, error) => ApiResponse<ResCreateChannelMessagePacket>(
+      requestId: requestId,
+      type: type,
+      data: null,
+      error: error,
+    ),
+        ResFetchChannelMessagesPacket: (requestId, type, error) => ApiResponse<ResFetchChannelMessagesPacket>(
+      requestId: requestId,
+      type: type,
+      data: null,
+      error: error,
+    ),
+        ResSetUserPasswordPacket: (requestId, type, error) => ApiResponse<ResSetUserPasswordPacket>(
+      requestId: requestId,
+      type: type,
+      data: null,
+      error: error,
+    ),
+        ResSetUserDisplayNamePacket: (requestId, type, error) => ApiResponse<ResSetUserDisplayNamePacket>(
+      requestId: requestId,
+      type: type,
+      data: null,
+      error: error,
+    ),
+        ResSetUserStatusPacket: (requestId, type, error) => ApiResponse<ResSetUserStatusPacket>(
+      requestId: requestId,
+      type: type,
+      data: null,
+      error: error,
+    ),
+        ResSetUserAvatarPacket: (requestId, type, error) => ApiResponse<ResSetUserAvatarPacket>(
+      requestId: requestId,
+      type: type,
+      data: null,
+      error: error,
+    ),
+        ResSetUserPresencePacket: (requestId, type, error) => ApiResponse<ResSetUserPresencePacket>(
+      requestId: requestId,
+      type: type,
+      data: null,
+      error: error,
+    ),
+        ResCreateChannelPacket: (requestId, type, error) => ApiResponse<ResCreateChannelPacket>(
+      requestId: requestId,
+      type: type,
+      data: null,
+      error: error,
+    ),
+        ResDeleteChannelPacket: (requestId, type, error) => ApiResponse<ResDeleteChannelPacket>(
+      requestId: requestId,
+      type: type,
+      data: null,
+      error: error,
+    ),
+        ResModifyChannelPacket: (requestId, type, error) => ApiResponse<ResModifyChannelPacket>(
+      requestId: requestId,
+      type: type,
+      data: null,
+      error: error,
+    ),
+        ResAddUserToChannelPacket: (requestId, type, error) => ApiResponse<ResAddUserToChannelPacket>(
+      requestId: requestId,
+      type: type,
+      data: null,
+      error: error,
+    ),
+        ResDeleteUserFromChannelPacket: (requestId, type, error) => ApiResponse<ResDeleteUserFromChannelPacket>(
+      requestId: requestId,
+      type: type,
+      data: null,
+      error: error,
+    ),
+        ResJoinVoiceChannelPacket: (requestId, type, error) => ApiResponse<ResJoinVoiceChannelPacket>(
+      requestId: requestId,
+      type: type,
+      data: null,
+      error: error,
+    ),
+  };
+  
+  static ApiResponse<ResponseData> createErrorResponse(Type type, int? requestId, String responseType, PacketError? error) {
+    final creator = _creators[type];
+    if (creator == null) {
+      throw Exception('Unknown packet type: $type');
+    }
+    return creator(requestId, responseType, error);
+  }
+
+  static Type? getTypeFromString(String typeString) {
+    return _creators.keys.firstWhereOrNull(
+      (type) => type.toString() == typeString,
+    );
+  }
+}

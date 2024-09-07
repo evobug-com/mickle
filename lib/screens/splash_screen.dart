@@ -48,6 +48,10 @@ class _SplashScreenState extends State<SplashScreen> {
 
     final token = await SecureStorage().read("$server.token");
     await connection.authenticate(token: token);
+    if(connection.error != null) {
+      connection.isReconnectEnabled = false;
+      await connection.disconnect();
+    }
   }
 
   void _navigateBasedOnConnections(ConnectionManager connectionManager) {

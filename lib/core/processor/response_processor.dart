@@ -7,7 +7,6 @@ import 'package:local_notifier/local_notifier.dart';
 import 'package:logging/logging.dart';
 import 'package:talk/areas/connection/connection.dart';
 import 'package:talk/core/managers/audio_manager.dart';
-import 'package:talk/core/database.dart';
 import 'package:talk/core/network/api_types.dart';
 import 'package:talk/core/network/utils.dart';
 import 'package:window_manager/window_manager.dart';
@@ -83,6 +82,16 @@ Future<void> _handlePacket(ApiResponse packet, Connection connection) async {
     case "ResJoinVoiceChannelPacket":
       await handleResJoinVoiceChannelPacket(packet.cast(ResJoinVoiceChannelPacket.fromJson), connection);
       break;
+    case "ErrorPacket":
+      await handleErrorPacket(packet, connection);
+      break;
+  }
+}
+
+Future<void> handleErrorPacket(ApiResponse packet, Connection connection) async {
+  _logger.severe("ErrorPacket: ${packet.error}");
+  if(packet.requestId != null) {
+    connection.packetManager.runResolveError(packet.requestId!, packet);
   }
 }
 

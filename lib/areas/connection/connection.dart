@@ -16,7 +16,6 @@ import 'package:talk/core/database.dart';
 import 'package:talk/core/managers/packet_manager.dart';
 import 'package:talk/core/models/models.dart';
 import 'package:talk/core/network/api_types.dart';
-import 'package:talk/core/network/utils.dart';
 import '../../core/connection/message_stream_handler.dart';
 import '../../core/processor/response_processor.dart';
 import 'connection_status.dart';
@@ -24,7 +23,7 @@ import 'connection_status.dart';
 class Connection {
   final String connectionUrl;
   final ValueNotifier<ConnectionStatus> _status = ValueNotifier(ConnectionStatus.disconnected);
-  Database? database;
+  final Database database = Database();
   late PacketManager packetManager;
   String? currentUserId;
   User? currentUser;
@@ -48,10 +47,10 @@ class Connection {
 
   Connection({required this.connectionUrl}) {
     _logger = Logger('Connection($connectionUrl)');
+    packetManager = PacketManager(this);
     _messageStreamHandler = MessageStreamHandler((Uint8List data) async {
       return processResponse(this, data);
     });
-    packetManager = PacketManager(this);
   }
 
   Timer? get reconnectTimer => _reconnectTimer;
@@ -97,6 +96,7 @@ class Connection {
 
   /// If the socket closes and sends a done event, this handler is called.
   void _handleDone() {
+    _status.value = ConnectionStatus.disconnected;
     ConnectionManager().onConnectionDone(this);
   }
 
@@ -141,9 +141,10 @@ class Connection {
       mainServerId = authResult.data!.mainServerId;
       serverIds = authResult.data!.serverIds;
       this.token = authResult.data!.token;
-      database = Database(mainServerId!);
     } else {
       _logger.warning('Authentication failed: ${authResult.error}');
+      // Disable reconnect if authentication failed
+      isReconnectEnabled = false;
       _handleError(ConnectionError.authenticationFailed(authResult.error?.message ?? "Unknown authentication error"));
     }
     

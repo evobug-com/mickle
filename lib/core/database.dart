@@ -40,19 +40,6 @@ extension UserPresenceExtension on UserPresence {
 }
 
 class Database {
-  // Map of server id to Databases
-  static final Map<String, Database> _servers = {};
-
-  factory Database(String serverId) {
-    if (!_servers.containsKey(serverId)) {
-      _servers[serverId] = Database._internal();
-    }
-
-    return _servers[serverId]!;
-  }
-
-  Database._internal();
-
   final ListStream<Server> servers = ListStream<Server>();
   final ListStream<User> users = ListStream<User>();
   final ListStream<Channel> channels = ListStream<Channel>();

@@ -52,6 +52,7 @@ class RustToDartGenerator {
     output.writeln(_generateEnums(requests, responses, events));
     output.writeln(_generateBaseClasses());
     output.writeln(_generateDartClasses(allClasses));
+    output.writeln(_generatePacketFactory(responses));
 
     await File(_dartOutputPath).writeAsString(output.toString());
     print('Generated Dart network classes have been written to $_dartOutputPath');
@@ -79,6 +80,7 @@ class RustToDartGenerator {
 import 'package:json_annotation/json_annotation.dart';
 import 'package:flutter/foundation.dart';
 import '../models/models.dart';
+import 'package:collection/collection.dart';
 
 part '${path.basename(_dartOutputPath).replaceFirst('.dart', '.g.dart')}';
 
@@ -100,6 +102,35 @@ part '${path.basename(_dartModelOutputPath).replaceFirst('.dart', '.g.dart')}';
     return '@JsonEnum()\nenum PacketType {\n  '
         '${allNames.map((name) => '@JsonValue("$name")\n  ${ReCase(name).camelCase},').join('\n  ')}\n'
         '}\n\n';
+  }
+
+  String _generatePacketFactory(List<RustStruct> structs) {
+    return '''
+class PacketFactory {
+  static final Map<Type, ApiResponse<ResponseData> Function(int?, String, PacketError?)> _creators = {
+    ${structs.where((struct) => struct.name.startsWith('Res')).map((struct) => '''
+    ${struct.name}: (requestId, type, error) => ApiResponse<${struct.name}>(
+      requestId: requestId,
+      type: type,
+      data: null,
+      error: error,
+    ),''').join('\n    ')}
+  };
+  
+  static ApiResponse<ResponseData> createErrorResponse(Type type, int? requestId, String responseType, PacketError? error) {
+    final creator = _creators[type];
+    if (creator == null) {
+      throw Exception('Unknown packet type: \$type');
+    }
+    return creator(requestId, responseType, error);
+  }
+
+  static Type? getTypeFromString(String typeString) {
+    return _creators.keys.firstWhereOrNull(
+      (type) => type.toString() == typeString,
+    );
+  }
+}''';
   }
 
   String _generateBaseClasses() {
@@ -129,6 +160,63 @@ class EventData {
 
   factory EventData.fromJson(Map<String, dynamic> json) => _\$EventDataFromJson(json);
   Map<String, dynamic> toJson() => _\$EventDataToJson(this);
+}
+
+class PacketError {
+  final String message;
+
+  PacketError(this.message);
+
+  factory PacketError.fromJson(Map<String, dynamic> json) {
+    return PacketError(json['message'] as String);
+  }
+
+  Map<String, dynamic> toJson() => {'message': message};
+  
+  @override
+  String toString() {
+    return 'PacketError{message: \$message}';
+  }
+}
+
+class ApiResponse<T> {
+  final int? requestId;
+  final T? data;
+  final PacketError? error;
+  final String type;
+
+  ApiResponse({required this.requestId, required this.type, this.data, this.error});
+
+  factory ApiResponse.fromJson(Map<String, dynamic> json) {
+    return ApiResponse<T>(
+      requestId: json['request_id'] as int?,
+      type: json['type'] as String,
+      data: json['data'],
+      error: json['error'] != null ? PacketError(json['error'] as String) : null,
+    );
+  }
+
+  factory ApiResponse.success(T data, int? requestId, String type) =>
+      ApiResponse(requestId: requestId, data: data, type: type);
+
+  factory ApiResponse.error(String message, int? requestId, String type) =>
+      ApiResponse(requestId: requestId, error: PacketError(message), type: type);
+
+  bool get isSuccess => error == null;
+
+  cast<TSub>(TSub Function(Map<String, dynamic> json) fromJson) {
+    return ApiResponse<TSub>(
+      requestId: requestId,
+      type: type,
+      data: data != null ? fromJson(data as Map<String, dynamic>) : null,
+      error: error,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'ApiResponse{requestId: \$requestId, data: \${data?.toString()}, error: \$error, type: \$type}';
+  }
 }
 ''';
   }
