@@ -110,7 +110,7 @@ Future<UpdateInfo> _checkForUpdates() async {
   // Set dry run with a fake version
   final currentVersion = SemVer.fromString(version);
   // final fakeVersion = SemVer(currentVersion.major, currentVersion.minor, currentVersion.patch + 1);
-  final SemVer? fakeVersion = null;
+  const SemVer? fakeVersion = null;
 
   // Enable dry run mode
   const bool isDryRun = kDebugMode; // You can change this to false to disable dry run

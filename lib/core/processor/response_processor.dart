@@ -8,7 +8,6 @@ import 'package:logging/logging.dart';
 import 'package:talk/areas/connection/connection.dart';
 import 'package:talk/core/managers/audio_manager.dart';
 import 'package:talk/core/network/api_types.dart';
-import 'package:talk/core/network/utils.dart';
 import 'package:window_manager/window_manager.dart';
 
 final _logger = Logger('ResponseProcessor');
@@ -106,7 +105,7 @@ Future<void> handleResPingPacket(Connection connection) async {
 }
 
 Future<void> handleEvtWelcomePacket(ApiResponse<EvtWelcomePacket> packet, Connection connection) async {
-  final db = connection.database!;
+  final db = connection.database;
   db.users.addItems(packet.data!.users);
   db.servers.addItems(packet.data!.servers);
   db.channels.addItems(packet.data!.channels);
@@ -121,7 +120,7 @@ Future<void> handleEvtWelcomePacket(ApiResponse<EvtWelcomePacket> packet, Connec
 }
 
 Future<void> handleEvtUpdatePresencePacket(ApiResponse<EvtUpdatePresencePacket> packet, Connection connection) async {
-  final user = connection.database!.users.firstWhere((element) {
+  final user = connection.database.users.firstWhere((element) {
     return element.id == packet.data!.userId;
   });
   user.presence = packet.data!.presence;
@@ -135,19 +134,19 @@ Future<void> handleResCreateChannelMessagePacket(ApiResponse<ResCreateChannelMes
   if (packet.error != null) {
     _logger.severe("Message error: ${packet.error}");
   } else {
-    final db = connection.database!;
-    db.messages.addItem(packet.data!.message!);
-    db.channelMessages.addRelation(packet.data!.relation!);
-    _logger.info("Message added: ${packet.data!.message!.content}");
+    final db = connection.database;
+    db.messages.addItem(packet.data!.message);
+    db.channelMessages.addRelation(packet.data!.relation);
+    _logger.info("Message added: ${packet.data!.message.content}");
 
     if (packet.data!.mentions != null && packet.data!.mentions!.contains(connection.currentUserId!)) {
       AudioManager.playSingleShot("Message", AssetSource("audio/mention.wav"));
 
-      final user = db.users.firstWhereOrNull((element) => element.id == packet.data!.message!.user);
+      final user = db.users.firstWhereOrNull((element) => element.id == packet.data!.message.user);
       if (user != null && !await windowManager.isFocused()) {
         LocalNotification notification = LocalNotification(
           title: "Mention from ${user.displayName}",
-          body: packet.data!.message!.content,
+          body: packet.data!.message.content,
         );
         notification.show();
       }
@@ -155,7 +154,7 @@ Future<void> handleResCreateChannelMessagePacket(ApiResponse<ResCreateChannelMes
       AudioManager.playSingleShot("Message", AssetSource("audio/new_message_received.wav"));
     }
 
-    if (packet.data!.message!.content.contains("porno")) {
+    if (packet.data!.message.content.contains("porno")) {
       AudioManager.playSingleShot("EasterEgg", AssetSource("audio/easter_egg.wav"));
     }
   }
@@ -165,7 +164,7 @@ Future<void> handleResSetUserStatusPacket(ApiResponse<ResSetUserStatusPacket> pa
   connection.packetManager.runResolve(packet.requestId!, packet);
 
   if (packet.error == null) {
-    final db = connection.database!;
+    final db = connection.database;
     final user = db.users.get("User:${packet.data!.userId}");
     if (user != null) {
       user.status = packet.data!.status;
@@ -179,7 +178,7 @@ Future<void> handleResSetUserPresencePacket(ApiResponse<ResSetUserPresencePacket
   connection.packetManager.runResolve(packet.requestId!, packet);
 
   if (packet.error == null) {
-    final db = connection.database!;
+    final db = connection.database;
     final user = db.users.get("User:${packet.data!.userId}");
     if (user != null) {
       user.presence = packet.data!.presence;
@@ -193,7 +192,7 @@ Future<void> handleResSetUserAvatarPacket(ApiResponse<ResSetUserAvatarPacket> pa
   connection.packetManager.runResolve(packet.requestId!, packet);
 
   if (packet.error == null) {
-    final db = connection.database!;
+    final db = connection.database;
     final user = db.users.get("User:${packet.data!.userId}");
     if (user != null) {
       user.avatar = packet.data!.avatar;
@@ -207,7 +206,7 @@ Future<void> handleResSetUserDisplayNamePacket(ApiResponse<ResSetUserDisplayName
   connection.packetManager.runResolve(packet.requestId!, packet);
 
   if (packet.error == null) {
-    final db = connection.database!;
+    final db = connection.database;
     final user = db.users.get("User:${packet.data!.userId}");
     if (user != null) {
       final displayName = user.displayName;
@@ -232,7 +231,7 @@ Future<void> handleResFetchChannelMessagesPacket(ApiResponse<ResFetchChannelMess
   connection.packetManager.runResolve(packet.requestId!, packet);
 
   if (packet.error == null) {
-    final db = connection.database!;
+    final db = connection.database;
     db.messages.addItems(packet.data!.messages);
     db.channelMessages.addRelations(packet.data!.relations);
     _logger.info("Fetched [${packet.data!.messages.length}, ${packet.data!.relations.length}] messages");
@@ -245,11 +244,11 @@ Future<void> handleResCreateChannelPacket(ApiResponse<ResCreateChannelPacket> pa
   connection.packetManager.runResolve(packet.requestId!, packet);
 
   if (packet.error == null) {
-    final db = connection.database!;
-    db.channels.addItem(packet.data!.channel!);
-    db.channelUsers.addRelation(packet.data!.channelUserRelation!);
-    db.serverChannels.addRelation(packet.data!.serverChannelRelation!);
-    _logger.info("Channel created: ${packet.data!.channel!.name}");
+    final db = connection.database;
+    db.channels.addItem(packet.data!.channel);
+    db.channelUsers.addRelation(packet.data!.channelUserRelation);
+    db.serverChannels.addRelation(packet.data!.serverChannelRelation);
+    _logger.info("Channel created: ${packet.data!.channel.name}");
   } else {
     _logger.severe("ChannelCreate error: ${packet.error}");
   }
@@ -259,7 +258,7 @@ Future<void> handleResDeleteChannelPacket(ApiResponse<ResDeleteChannelPacket> pa
   connection.packetManager.runResolve(packet.requestId!, packet);
 
   if (packet.error == null) {
-    final db = connection.database!;
+    final db = connection.database;
     final channel = db.channels.get("Channel:${packet.data!.channelId}");
     if (channel != null) {
       db.channels.removeItem(channel);
@@ -276,8 +275,8 @@ Future<void> handleResModifyChannelPacket(ApiResponse<ResModifyChannelPacket> pa
   connection.packetManager.runResolve(packet.requestId!, packet);
 
   if (packet.error == null) {
-    final db = connection.database!;
-    final packetChannel = packet.data!.channel!;
+    final db = connection.database;
+    final packetChannel = packet.data!.channel;
     final channel = db.channels.get("Channel:${packetChannel.id}");
     if (channel != null) {
       channel.name = packetChannel.name;
@@ -297,8 +296,8 @@ Future<void> handleResAddUserToChannelPacket(ApiResponse<ResAddUserToChannelPack
   connection.packetManager.runResolve(packet.requestId!, packet);
 
   if (packet.error == null) {
-    final db = connection.database!;
-    db.channelUsers.addRelation(packet.data!.relation!);
+    final db = connection.database;
+    db.channelUsers.addRelation(packet.data!.relation);
     _logger.info("ChannelAddUser success");
   } else {
     _logger.severe("ChannelAddUser error: ${packet.error}");
@@ -309,12 +308,12 @@ Future<void> handleResRemoveUserFromChannelPacket(ApiResponse<ResDeleteUserFromC
   connection.packetManager.runResolve(packet.requestId!, packet);
 
   if (packet.error == null) {
-    final db = connection.database!;
-    db.channelUsers.removeRelation(packet.data!.relation!);
+    final db = connection.database;
+    db.channelUsers.removeRelation(packet.data!.relation);
 
     // IF we are the user being removed, remove the channel from our list
-    if (packet.data!.relation!.output == connection.currentUserId) {
-      final channel = db.channels.get("Channel:${packet.data!.relation!.input}");
+    if (packet.data!.relation.output == connection.currentUserId) {
+      final channel = db.channels.get("Channel:${packet.data!.relation.input}");
       if (channel != null) {
         db.channels.removeItem(channel);
         db.channelUsers.removeRelationInput(channel.id);

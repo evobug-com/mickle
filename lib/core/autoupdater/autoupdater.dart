@@ -193,7 +193,7 @@ class AutoUpdater {
     _logger.info('Preparing for update');
     await prepareUpdate();
     if (_dryRun) {
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(const Duration(seconds: 1));
     }
     updateProgress(ProgressInfo(progress: 1.0, message: 'Preparation complete'));
   }
@@ -231,7 +231,7 @@ class AutoUpdater {
   Future<void> _verifyStep(void Function(ProgressInfo) updateProgress) async {
     _logger.info('Verifying update');
     if (_dryRun) {
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(const Duration(seconds: 1));
     } else {
       // Implement actual verification logic here
       // For example, check file integrity, signatures, etc.
@@ -269,7 +269,7 @@ class AutoUpdater {
   Future<void> _finalizeStep(void Function(ProgressInfo) updateProgress) async {
     _logger.info('Finalizing update');
     if (_dryRun) {
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(const Duration(seconds: 1));
       _logger.info('Dry run completed. The update would be applied now in a real scenario.');
     } else {
       await _applyUpdate(_platform!);
@@ -280,10 +280,10 @@ class AutoUpdater {
   Future<void> _simulateDownload(
       void Function(double progress, String message, int bytesProcessed, int totalBytes, double speed) updateProgress
       ) async {
-    final totalBytes = 100 * 1024 * 1024; // 100 MB
+    const totalBytes = 100 * 1024 * 1024; // 100 MB
     int bytesProcessed = 0;
     for (int i = 1; i <= 10; i++) {
-      await Future.delayed(Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 500));
       bytesProcessed = (totalBytes * i / 10).round();
       final speed = bytesProcessed / (i * 0.5); // bytes per second
       updateProgress(i * 0.1, 'Simulating download', bytesProcessed, totalBytes, speed);
@@ -293,10 +293,10 @@ class AutoUpdater {
   Future<void> _simulateExtract(
       void Function(double progress, String message, int bytesProcessed, int totalBytes) updateProgress
       ) async {
-    final totalBytes = 200 * 1024 * 1024; // 200 MB (assuming extracted size is larger)
+    const totalBytes = 200 * 1024 * 1024; // 200 MB (assuming extracted size is larger)
     int bytesProcessed = 0;
     for (int i = 1; i <= 5; i++) {
-      await Future.delayed(Duration(milliseconds: 300));
+      await Future.delayed(const Duration(milliseconds: 300));
       bytesProcessed = (totalBytes * i / 5).round();
       updateProgress(0.7 + i * 0.06, 'Simulating extraction', bytesProcessed, totalBytes);
     }

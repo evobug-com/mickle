@@ -8,7 +8,7 @@ class SemVer {
   factory SemVer.fromString(String version) {
     final parts = version.split('.');
     if (parts.length != 3) {
-      throw FormatException('Invalid version format');
+      throw const FormatException('Invalid version format');
     }
     return SemVer(
       int.parse(parts[0]),

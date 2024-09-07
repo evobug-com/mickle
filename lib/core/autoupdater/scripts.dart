@@ -27,12 +27,12 @@ if not exist "%DEST_DIR%" (
 
 :: Clear destination directory
 echo Updating contents of "%DEST_DIR%"...
-for /D %%x in ("%DEST_DIR%\*") do rd /s /q "%%x" 2>nul
-for %%x in ("%DEST_DIR%\*") do del /q "%%x" 2>nul
+for /D %%x in ("%DEST_DIR%*") do rd /s /q "%%x" 2>nul
+for %%x in ("%DEST_DIR%*") do del /q "%%x" 2>nul
 
 :: Move new content to destination directory
 echo Moving contents from "%SOURCE_DIR%" to "%DEST_DIR%"
-xcopy /s /e /q /y "%SOURCE_DIR%\*" "%DEST_DIR%\" || (
+xcopy /s /e /q /y "%SOURCE_DIR%*" "%DEST_DIR%" || (
     echo Failed to copy new contents. Update aborted.
     exit /b 1
 )

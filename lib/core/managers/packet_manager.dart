@@ -143,7 +143,7 @@ class PacketManager {
     required String value,
     required String channelId,
   }) {
-    final mentions = parseMessageMentions(value, database: _connection.database!);
+    final mentions = parseMessageMentions(value, database: _connection.database);
 
     return sendRequest((requestId) => ReqCreateChannelMessagePacket(
       requestId: requestId,

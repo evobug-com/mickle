@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:talk/core/models/models.dart';
 import 'package:talk/core/models/utils.dart';
 import 'package:talk/core/providers/scoped/connection_provider.dart';
-import 'package:talk/screens/chat_screen/sidebar.dart';
 import 'package:talk/screens/chat_screen/sidebar_box.dart';
 import 'package:talk/ui/shimmer.dart';
 

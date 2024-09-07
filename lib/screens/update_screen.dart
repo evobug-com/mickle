@@ -11,7 +11,7 @@ import '../layout/my_scaffold.dart';
 final _logger = Logger('UpdateScreen');
 
 class UpdateScreen extends StatefulWidget {
-  const UpdateScreen({Key? key}) : super(key: key);
+  const UpdateScreen({super.key});
 
   @override
   _UpdateScreenState createState() => _UpdateScreenState();
@@ -39,7 +39,7 @@ class _UpdateScreenState extends State<UpdateScreen> {
     return MyScaffold(
       showSidebar: false,
       body: Container(
-        color: colorScheme.background,
+        color: colorScheme.surface,
         child: Center(
           child: Container(
             width: MediaQuery.of(context).size.width * 0.9,
@@ -63,7 +63,7 @@ class _UpdateScreenState extends State<UpdateScreen> {
                     padding: const EdgeInsets.all(24.0),
                     decoration: BoxDecoration(
                       color: colorScheme.surfaceContainer,
-                      borderRadius: BorderRadius.only(
+                      borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(16),
                         bottomLeft: Radius.circular(16),
                       ),
@@ -103,7 +103,7 @@ class _UpdateScreenState extends State<UpdateScreen> {
                           child: Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: colorScheme.surfaceVariant,
+                              color: colorScheme.surfaceContainerHighest,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: SingleChildScrollView(
@@ -125,7 +125,7 @@ class _UpdateScreenState extends State<UpdateScreen> {
                                     backgroundColor: colorScheme.primary,
                                     foregroundColor: colorScheme.onPrimary,
                                   ),
-                                  child: Text('Update Now'),
+                                  child: const Text('Update Now'),
                                 ),
                               ),
                               const SizedBox(width: 16),
@@ -281,11 +281,11 @@ class UpdateProgressIndicator extends StatelessWidget {
   final ProgressInfo? currentProgress;
 
   const UpdateProgressIndicator({
-    Key? key,
+    super.key,
     required this.currentStep,
     required this.steps,
     this.currentProgress,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -306,7 +306,7 @@ class UpdateProgressIndicator extends StatelessWidget {
             curve: Curves.easeInOut,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: isActive ? colorScheme.primaryContainer : (isCompleted ? colorScheme.surfaceVariant : Colors.transparent),
+              color: isActive ? colorScheme.primaryContainer : (isCompleted ? colorScheme.surfaceContainerHighest : Colors.transparent),
               borderRadius: BorderRadius.circular(12),
               boxShadow: isActive ? [
                 BoxShadow(
@@ -354,7 +354,7 @@ class UpdateProgressIndicator extends StatelessWidget {
                       children: [
                         LinearProgressIndicator(
                           value: currentProgress!.progress,
-                          backgroundColor: colorScheme.surfaceVariant,
+                          backgroundColor: colorScheme.surfaceContainerHighest,
                           valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
                         ),
                         const SizedBox(height: 4),

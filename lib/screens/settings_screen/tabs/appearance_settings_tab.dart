@@ -137,7 +137,7 @@ class _AppearanceSettingsTabState extends State<AppearanceSettingsTab> {
 }
 
 class ChatPreviewWrapper extends StatelessWidget {
-  const ChatPreviewWrapper({Key? key}) : super(key: key);
+  const ChatPreviewWrapper({super.key});
 
   @override
   Widget build(BuildContext context) {

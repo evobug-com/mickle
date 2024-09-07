@@ -76,7 +76,7 @@ class Connection {
           return true;
         },
         context: SecurityContext.defaultContext,
-        timeout: Duration(seconds: 5),
+        timeout: const Duration(seconds: 5),
       );
 
       _socket!.setOption(SocketOption.tcpNoDelay, true);
@@ -152,8 +152,8 @@ class Connection {
   }
 
   onWelcome(EvtWelcomePacket packet) {
-    currentUser = database!.users.firstWhereOrNull((element) => element.id == currentUserId!);
-    mainServer = database!.servers.firstWhereOrNull((element) => element.id == mainServerId!);
+    currentUser = database.users.firstWhereOrNull((element) => element.id == currentUserId!);
+    mainServer = database.servers.firstWhereOrNull((element) => element.id == mainServerId!);
     _status.value = ConnectionStatus.authenticated;
   }
 

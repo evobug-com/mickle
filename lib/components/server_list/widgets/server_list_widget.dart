@@ -9,6 +9,6 @@ class ServerListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ServerListNavigator();
+    return const ServerListNavigator();
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:talk/components/server_list/components/server_list_navigator.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:provider/provider.dart';
 import '../core/providers/global/update_provider.dart';

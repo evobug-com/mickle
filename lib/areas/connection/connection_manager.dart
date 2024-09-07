@@ -29,7 +29,7 @@ class ConnectionManager extends ChangeNotifier {
   ConnectionManager._internal();
 
   final Logger _logger = Logger('ConnectionManager');
-  Map<String, Connection> _connections = {};
+  final Map<String, Connection> _connections = {};
   Iterable<Connection> get connections => _connections.values;
 
   /// The maximum number of backoff seconds for reconnection attempts.
@@ -62,8 +62,8 @@ class ConnectionManager extends ChangeNotifier {
 
     await SecureStorage().write("${connection.connectionUrl + connection.mainServerId!}.token", connection.token!);
     await SecureStorage().write("${connection.connectionUrl + connection.mainServerId!}.serverId", connection.mainServerId!);
-    await SecureStorage().write("${connection.connectionUrl + connection.mainServerId!}.connectionUrl", connection.connectionUrl!);
-    final servers = await SecureStorage().readJSONArray("servers") as List<dynamic> ?? [];
+    await SecureStorage().write("${connection.connectionUrl + connection.mainServerId!}.connectionUrl", connection.connectionUrl);
+    final servers = await SecureStorage().readJSONArray("servers") ?? [];
     if (!servers.contains(connection.connectionUrl + connection.mainServerId!)) {
       servers.add(connection.connectionUrl + connection.mainServerId!);
       await SecureStorage().writeJSONArray("servers", servers);

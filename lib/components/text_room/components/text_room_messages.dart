@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:talk/core/models/utils.dart';
 import 'package:talk/core/network/api_types.dart';
-import 'package:talk/core/network/utils.dart';
 import 'package:talk/core/providers/scoped/connection_provider.dart';
 
 import '../../../core/models/models.dart';
@@ -44,7 +43,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
       _fetchMessages();
     } else {
       // Set fetching messages to completed future because we have messages already
-      fetchingMessages = Future.value(ApiResponse.success(ResFetchChannelMessagesPacket(messages: [], relations: []), 0, "ResFetchChannelMessagesPacket"));
+      fetchingMessages = Future.value(ApiResponse.success(const ResFetchChannelMessagesPacket(messages: [], relations: []), 0, "ResFetchChannelMessagesPacket"));
     }
   }
 

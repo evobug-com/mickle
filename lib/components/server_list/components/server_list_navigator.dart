@@ -13,7 +13,7 @@ import 'package:talk/core/providers/global/selected_server_provider.dart';
 import '../../../areas/connection/connection_status.dart';
 
 class ServerListNavigator extends StatefulWidget {
-  const ServerListNavigator({Key? key}) : super(key: key);
+  const ServerListNavigator({super.key});
 
   @override
   State<ServerListNavigator> createState() => _ServerListNavigatorState();

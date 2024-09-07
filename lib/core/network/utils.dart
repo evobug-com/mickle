@@ -1,4 +1,3 @@
-import 'package:talk/core/network/api_types.dart';
 
 import '../database.dart';
 

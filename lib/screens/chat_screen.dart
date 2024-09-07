@@ -108,11 +108,11 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     final selectedServerProvider = Provider.of<SelectedServerProvider>(context);
     if(selectedServerProvider.connection == null) {
-      return MyScaffold(body: Center(child: Text('No server selected')));
+      return const MyScaffold(body: Center(child: Text('No server selected')));
     }
     return MyScaffold(
       body: ValueListenableBuilder(
-        valueListenable: selectedServerProvider!.connection!.status,
+        valueListenable: selectedServerProvider.connection!.status,
         builder: (context, status, _) {
           if(status != ConnectionStatus.authenticated) {
             return const Center(child: Text('Not authenticated'));

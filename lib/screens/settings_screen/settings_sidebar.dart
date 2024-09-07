@@ -12,12 +12,12 @@ class SettingsSidebar extends StatefulWidget {
   final List<SettingMetadata> settingsCategories;
 
   const SettingsSidebar({
-    Key? key,
+    super.key,
     this.tab,
     required this.isSearching,
     required this.onSearch,
     required this.settingsCategories,
-  }) : super(key: key);
+  });
 
   @override
   State<SettingsSidebar> createState() => _SettingsSidebarState();

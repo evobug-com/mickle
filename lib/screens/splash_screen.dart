@@ -12,7 +12,7 @@ import '../core/storage/preferences.dart';
 import '../core/storage/secure_storage.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   _SplashScreenState createState() => _SplashScreenState();

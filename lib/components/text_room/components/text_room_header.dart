@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../../core/models/models.dart';
-import '../../voice_room/core/models/voice_room_current.dart';
 
 class TextRoomHeader extends StatefulWidget {
   final Channel channel;

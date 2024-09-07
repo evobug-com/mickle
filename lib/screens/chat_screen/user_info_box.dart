@@ -4,7 +4,6 @@ import 'package:talk/core/database.dart';
 import 'package:talk/core/providers/scoped/connection_provider.dart';
 import 'package:talk/screens/chat_screen/sidebar_box.dart';
 import 'package:talk/ui/user_avatar.dart';
-import 'package:talk/core/completer.dart';
 
 enum AvatarUploadMethod { url, localFile }
 
@@ -37,7 +36,7 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
     _newPresence = widget.connection.user.presence;
     _animationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
     );
     _animation = CurvedAnimation(
       parent: _animationController,
@@ -129,12 +128,12 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
                             BoxShadow(
                               color: colorScheme.shadow.withOpacity(0.1),
                               blurRadius: 10,
-                              offset: Offset(0, 5),
+                              offset: const Offset(0, 5),
                             ),
                           ],
                         ),
                         child: SingleChildScrollView(
-                          padding: EdgeInsets.all(24),
+                          padding: const EdgeInsets.all(24),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
@@ -147,25 +146,25 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              SizedBox(height: 24),
+                              const SizedBox(height: 24),
                               _buildAvatarSection(colorScheme, setState),
-                              SizedBox(height: 24),
+                              const SizedBox(height: 24),
                               _buildInfoField('Display Name', _buildDisplayNameField(colorScheme)),
-                              SizedBox(height: 16),
+                              const SizedBox(height: 16),
                               _buildInfoField('Status', _buildStatusField(colorScheme)),
-                              SizedBox(height: 16),
+                              const SizedBox(height: 16),
                               _buildInfoField('Presence', _buildPresenceDropdown(colorScheme, setState)),
-                              SizedBox(height: 24),
+                              const SizedBox(height: 24),
                               if (_isLoading)
                                 Center(child: CircularProgressIndicator(color: colorScheme.primary))
                               else if (_errorMessage != null)
                                 Text(_errorMessage!, style: TextStyle(color: colorScheme.error)),
-                              SizedBox(height: 24),
+                              const SizedBox(height: 24),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   _buildAnimatedButton('Cancel', colorScheme, () => Navigator.of(context).pop()),
-                                  SizedBox(width: 16),
+                                  const SizedBox(width: 16),
                                   _buildAnimatedButton('Apply', colorScheme, _isLoading ? null : () => _applyChanges(context, widget.connection)),
                                 ],
                               ),
@@ -194,7 +193,7 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
             imageUrl: _avatarUrlController.text,
             size: 50,
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -212,7 +211,7 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
             ],
           ),
           if (_avatarUploadMethod == AvatarUploadMethod.url) ...[
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             _buildCustomTextField(
               controller: _avatarUrlController,
               hint: 'Enter avatar URL',
@@ -236,7 +235,7 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
             color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         content,
       ],
     );
@@ -260,7 +259,7 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
           hintText: hint,
           hintStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.5)),
           border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),
       ),
     );
@@ -289,7 +288,7 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: colorScheme.onSurface.withOpacity(0.1)),
       ),
-      padding: EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: _newPresence,
@@ -311,7 +310,7 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
                     size: 12,
                     color: _getPresenceColor(value, colorScheme),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text(value),
                 ],
               ),
@@ -339,7 +338,7 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
 
   Widget _buildAnimatedButton(String text, ColorScheme colorScheme, VoidCallback? onPressed) {
     return AnimatedContainer(
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -351,7 +350,7 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
               borderRadius: BorderRadius.circular(8),
             ),
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
                 text,
                 style: TextStyle(

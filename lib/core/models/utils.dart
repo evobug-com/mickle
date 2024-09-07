@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 
 import '../database.dart';
 import 'models.dart';
@@ -59,7 +58,7 @@ extension ChannelExtension on Channel {
 
     // Get all messages for channelMessagesRelations by id
     final channelMessages = channelMessagesRelations.map((relation) => database.messages.get(relation.output)!).toList();
-    channelMessages.sort((a, b) => a.createdAt!.compareTo(b.createdAt!));
+    channelMessages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
     return channelMessages;
   }
 
