@@ -392,8 +392,10 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
           ..displayName = _displayNameController.text;
         user.notify();
       }
-      if (_statusController.text != widget.connection.user.status) {
-        final result = await packetManager.sendUserChangeStatus(status: _statusController.text);
+
+      final status = _statusController.text.isEmpty ? null : _statusController.text;
+      if (status != widget.connection.user.status) {
+        final result = await packetManager.sendUserChangeStatus(status: status);
         if (result.error != null) {
           _errorMessage = result.error?.message;
           return;
@@ -402,7 +404,7 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
         // Update the status in the local database
         final db = connection.database;
         final user = db.users.firstWhere((user) => user.id == connection.user.id)
-          ..status = _statusController.text;
+          ..status = status;
         user.notify();
       }
       if (_newPresence != widget.connection.user.presence) {
@@ -418,9 +420,10 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
           ..presence = _newPresence;
         user.notify();
       }
+      final avatar = _avatarUrlController.text.isEmpty ? null : _avatarUrlController.text;
       if (_avatarUploadMethod == AvatarUploadMethod.url &&
-          _avatarUrlController.text != widget.connection.user.avatar) {
-        final result = await packetManager.sendUserChangeAvatar(avatar: _avatarUrlController.text);
+          avatar != widget.connection.user.avatar) {
+        final result = await packetManager.sendUserChangeAvatar(avatar: avatar);
         if (result.error != null) {
           _errorMessage = result.error?.message;
           return;
@@ -429,7 +432,7 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
         // Update the avatar in the local database
         final db = connection.database;
         final user = db.users.firstWhere((user) => user.id == connection.user.id)
-          ..avatar = _avatarUrlController.text;
+          ..avatar = avatar;
         user.notify();
       }
 

@@ -357,7 +357,7 @@ class ReqSetUserStatusPacket extends RequestPacket {
   @JsonKey(name: "request_id")
   final int requestId;
   @JsonKey(name: "status")
-  final String status;
+  final String? status;
 
   ReqSetUserStatusPacket({
     required this.requestId,
@@ -386,7 +386,7 @@ class ReqSetUserAvatarPacket extends RequestPacket {
   @JsonKey(name: "request_id")
   final int requestId;
   @JsonKey(name: "avatar")
-  final String avatar;
+  final String? avatar;
 
   ReqSetUserAvatarPacket({
     required this.requestId,
@@ -807,7 +807,7 @@ class ResSetUserStatusPacket extends ResponseData {
   @JsonKey(name: "user_id")
   final String userId;
   @JsonKey(name: "status")
-  final String status;
+  final String? status;
 
   const ResSetUserStatusPacket({
     required this.userId,
@@ -836,7 +836,7 @@ class ResSetUserAvatarPacket extends ResponseData {
   @JsonKey(name: "user_id")
   final String userId;
   @JsonKey(name: "avatar")
-  final String avatar;
+  final String? avatar;
 
   const ResSetUserAvatarPacket({
     required this.userId,

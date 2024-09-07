@@ -16,8 +16,6 @@ class TextRoomHeaderState extends State<TextRoomHeader> {
 
   @override
   Widget build(BuildContext context) {
-    print("[TextRoomHeader] Rendering '${widget.channel.description}'");
-
     // First line: Title with badge of how many pinned messages is there
     // Second line: Description of the current room
     // On hover, it will show Row with pinned messages

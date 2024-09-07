@@ -123,7 +123,7 @@ ReqSetUserStatusPacket _$ReqSetUserStatusPacketFromJson(
         Map<String, dynamic> json) =>
     ReqSetUserStatusPacket(
       requestId: (json['request_id'] as num).toInt(),
-      status: json['status'] as String,
+      status: json['status'] as String?,
     );
 
 Map<String, dynamic> _$ReqSetUserStatusPacketToJson(
@@ -137,7 +137,7 @@ ReqSetUserAvatarPacket _$ReqSetUserAvatarPacketFromJson(
         Map<String, dynamic> json) =>
     ReqSetUserAvatarPacket(
       requestId: (json['request_id'] as num).toInt(),
-      avatar: json['avatar'] as String,
+      avatar: json['avatar'] as String?,
     );
 
 Map<String, dynamic> _$ReqSetUserAvatarPacketToJson(
@@ -343,7 +343,7 @@ ResSetUserStatusPacket _$ResSetUserStatusPacketFromJson(
         Map<String, dynamic> json) =>
     ResSetUserStatusPacket(
       userId: json['user_id'] as String,
-      status: json['status'] as String,
+      status: json['status'] as String?,
     );
 
 Map<String, dynamic> _$ResSetUserStatusPacketToJson(
@@ -357,7 +357,7 @@ ResSetUserAvatarPacket _$ResSetUserAvatarPacketFromJson(
         Map<String, dynamic> json) =>
     ResSetUserAvatarPacket(
       userId: json['user_id'] as String,
-      avatar: json['avatar'] as String,
+      avatar: json['avatar'] as String?,
     );
 
 Map<String, dynamic> _$ResSetUserAvatarPacketToJson(

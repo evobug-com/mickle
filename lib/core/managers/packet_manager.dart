@@ -102,7 +102,7 @@ class PacketManager {
   }
 
   Future<ApiResponse<ResSetUserStatusPacket>> sendUserChangeStatus({
-    required String status
+    required String? status
   }) {
     return sendRequest((requestId) => ReqSetUserStatusPacket(
       requestId: requestId,
@@ -111,7 +111,7 @@ class PacketManager {
   }
 
   Future<ApiResponse<ResSetUserAvatarPacket>> sendUserChangeAvatar({
-    required String avatar
+    required String? avatar
   }) {
     return sendRequest((requestId) => ReqSetUserAvatarPacket(
       requestId: requestId,
