@@ -33,113 +33,104 @@ class _ChannelListContainerState extends State<ChannelListContainer> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 8, 8, 8),
-      child: Sidebar(
-        // Left sidebar will have top and bottom parts
-        // Top is channel list and bottom is private channel list
-        // They will be equally divided
-        // Add border and padding around the lists
-        child: Column(
-          children: <Widget>[
-            Expanded(
-              child: SidebarBox(
-                child: StreamBuilder(
-                  stream: widget.connection.database.channels.stream,
-                  initialData: widget.connection.server.getChannels(database: widget.connection.database),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return ChannelListWidget(
-                        connection: widget.connection,
-                        server: widget.connection.server,
-                        contextMenuHandler: (channel, action) {
-                          switch (action) {
-                            case 'archive':
-                              widget.connection.packetManager
-                                  .sendChannelDelete(
-                                  channelId: channel.id);
-                              break;
-                            case 'edit':
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return ChannelListRoomDialog(
-                                      onSubmitted: (title,
-                                          description, isPrivate) {
-                                        widget.connection.packetManager
-                                            .sendChannelUpdate(
-                                            channelId:
-                                            channel.id,
-                                            name: title,
-                                            description:
-                                            description);
-                                      },
-                                      inputName: channel.name,
-                                      inputDescription:
-                                      channel.description ?? '',
-                                      isEdit: true);
-                                },
-                              );
-                              break;
-                            case "leave":
-                              widget.connection.packetManager
-                                  .sendChannelRemoveUser(
-                                channelId: channel.id,
-                                userId: widget.connection.user.id,
-                              )
-                                  .then((value) {
-                                if (value.error != null) {
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(SnackBar(
-                                    content: Text(value.error!.message),
-                                    duration:
-                                    const Duration(seconds: 10),
-                                  ));
-                                } else {
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(const SnackBar(
-                                    content: Text(
-                                        'Odešel jste z místnosti'),
-                                    duration: Duration(seconds: 10),
-                                  ));
-                                  ChannelListSelectedChannel.of(
-                                      context,
-                                      listen: false)
-                                      .setChannel(widget.connection.server, null);
-                                }
-                              });
-                              break;
-                            default:
-                              break;
-                          }
-                        },
-                      );
-                    } else {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                  },
-                ),
-              ),
+    return Column(
+      children: <Widget>[
+        Expanded(
+          child: SidebarBox(
+            child: StreamBuilder(
+              stream: widget.connection.database.channels.stream,
+              initialData: widget.connection.server.getChannels(database: widget.connection.database),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return ChannelListWidget(
+                    connection: widget.connection,
+                    server: widget.connection.server,
+                    contextMenuHandler: (channel, action) {
+                      switch (action) {
+                        case 'archive':
+                          widget.connection.packetManager
+                              .sendChannelDelete(
+                              channelId: channel.id);
+                          break;
+                        case 'edit':
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return ChannelListRoomDialog(
+                                  onSubmitted: (title,
+                                      description, isPrivate) {
+                                    widget.connection.packetManager
+                                        .sendChannelUpdate(
+                                        channelId:
+                                        channel.id,
+                                        name: title,
+                                        description:
+                                        description);
+                                  },
+                                  inputName: channel.name,
+                                  inputDescription:
+                                  channel.description ?? '',
+                                  isEdit: true);
+                            },
+                          );
+                          break;
+                        case "leave":
+                          widget.connection.packetManager
+                              .sendChannelRemoveUser(
+                            channelId: channel.id,
+                            userId: widget.connection.user.id,
+                          )
+                              .then((value) {
+                            if (value.error != null) {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: Text(value.error!.message),
+                                duration:
+                                const Duration(seconds: 10),
+                              ));
+                            } else {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(const SnackBar(
+                                content: Text(
+                                    'Odešel jste z místnosti'),
+                                duration: Duration(seconds: 10),
+                              ));
+                              ChannelListSelectedChannel.of(
+                                  context,
+                                  listen: false)
+                                  .setChannel(widget.connection.server, null);
+                            }
+                          });
+                          break;
+                        default:
+                          break;
+                      }
+                    },
+                  );
+                } else {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+              },
             ),
-
-            // Spacer between the two lists
-            // const SizedBox(height: 8.0),
-            // Expanded(
-            //     child: SidebarBox(
-            //         child: PrivateRoomList(
-            //           controller: _selectedRoomController,
-            //           rooms: List<RoomInfo>.generate(
-            //               100000,
-            //                   (index) => RoomInfo(index.toString(), 'Channel $index')
-            //           ),
-            //         )
-            //     )
-            // ),
-          ],
+          ),
         ),
-      ),
+
+        // Spacer between the two lists
+        // const SizedBox(height: 8.0),
+        // Expanded(
+        //     child: SidebarBox(
+        //         child: PrivateRoomList(
+        //           controller: _selectedRoomController,
+        //           rooms: List<RoomInfo>.generate(
+        //               100000,
+        //                   (index) => RoomInfo(index.toString(), 'Channel $index')
+        //           ),
+        //         )
+        //     )
+        // ),
+      ],
     );
   }
 }
