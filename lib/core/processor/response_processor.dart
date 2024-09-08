@@ -282,7 +282,7 @@ Future<void> handleResModifyChannelPacket(ApiResponse<ResModifyChannelPacket> pa
   if (packet.error == null) {
     final db = connection.database;
     final packetChannel = packet.data!.channel;
-    final channel = db.channels.get("Channel:${packetChannel.id}");
+    final channel = db.channels.get(packetChannel.id);
     if (channel != null) {
       channel.name = packetChannel.name;
       channel.description = packetChannel.description;
