@@ -4,7 +4,7 @@ class ChannelListRoomDialog extends StatefulWidget {
   final bool isEdit;
   final String inputName;
   final String inputDescription;
-  final void Function(String title, String description, bool? isPrivate) onSubmitted;
+  final void Function(String title, String description, bool isPrivate) onSubmitted;
 
   const ChannelListRoomDialog({
     Key? key,

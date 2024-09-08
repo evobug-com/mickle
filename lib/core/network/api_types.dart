@@ -413,11 +413,14 @@ class ReqCreateChannelPacket extends RequestPacket {
   final String name;
   @JsonKey(name: "description", includeIfNull: false)
   final String? description;
+  @JsonKey(name: "private")
+  final bool private;
 
   ReqCreateChannelPacket({required this.requestId,
     required this.serverId,
     required this.name,
-    required this.description,}) : super(packetType: "ReqCreateChannelPacket");
+    required this.description,
+    required this.private,}) : super(packetType: "ReqCreateChannelPacket");
 
   factory ReqCreateChannelPacket.fromJson(Map<String, dynamic> json) => _$ReqCreateChannelPacketFromJson(json);
     @override
@@ -429,7 +432,7 @@ class ReqCreateChannelPacket extends RequestPacket {
 
   @override
   String toString() {
-    return 'ReqCreateChannelPacket{requestId: $requestId, serverId: $serverId, name: $name, description: $description}';
+    return 'ReqCreateChannelPacket{requestId: $requestId, serverId: $serverId, name: $name, description: $description, private: $private}';
   }
 }
 
@@ -801,13 +804,13 @@ class ResSetUserPresencePacket extends ResponseData {
 class ResCreateChannelPacket extends ResponseData {
   @JsonKey(name: "channel")
   final Channel channel;
-  @JsonKey(name: "channel_user_relation")
-  final Relation channelUserRelation;
+  @JsonKey(name: "channel_users_relation")
+  final List<Relation> channelUsersRelation;
   @JsonKey(name: "server_channel_relation")
   final Relation serverChannelRelation;
 
   const ResCreateChannelPacket({required this.channel,
-    required this.channelUserRelation,
+    required this.channelUsersRelation,
     required this.serverChannelRelation,}) : super();
 
   factory ResCreateChannelPacket.fromJson(Map<String, dynamic> json) => _$ResCreateChannelPacketFromJson(json);
@@ -820,7 +823,7 @@ class ResCreateChannelPacket extends ResponseData {
 
   @override
   String toString() {
-    return 'ResCreateChannelPacket{channel: $channel, channelUserRelation: $channelUserRelation, serverChannelRelation: $serverChannelRelation}';
+    return 'ResCreateChannelPacket{channel: $channel, channelUsersRelation: $channelUsersRelation, serverChannelRelation: $serverChannelRelation}';
   }
 }
 

@@ -55,7 +55,13 @@ class _ChannelListWidgetState extends State<ChannelListWidget> {
                   builder: (context) {
                     return ChannelListRoomDialog(
                       onSubmitted: (title, description, isPrivate) async {
-                        final result = await widget.connection.packetManager.sendCreateChannel(serverId: widget.server.id, name: title, description: description);
+                        final result = await widget.connection.packetManager
+                            .sendCreateChannel(
+                                serverId: widget.server.id,
+                                name: title,
+                                description: description,
+                                private: isPrivate
+                        );
                         // TODO: Handle errors
                       },
                       isEdit: false,

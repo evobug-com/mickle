@@ -77,8 +77,8 @@ Future<void> _handlePacket(ApiResponse packet, Connection connection) async {
     case "ResAddUserToChannelPacket":
       await handleResAddUserToChannelPacket(packet.cast(ResAddUserToChannelPacket.fromJson), connection);
       break;
-    case "ResRemoveUserFromChannelPacket":
-      await handleResRemoveUserFromChannelPacket(packet.cast(ResDeleteUserFromChannelPacket.fromJson), connection);
+    case "ResDeleteUserFromChannelPacket":
+      await handleResDeleteUserFromChannelPacket(packet.cast(ResDeleteUserFromChannelPacket.fromJson), connection);
       break;
     case "ResJoinVoiceChannelPacket":
       await handleResJoinVoiceChannelPacket(packet.cast(ResJoinVoiceChannelPacket.fromJson), connection);
@@ -170,7 +170,7 @@ Future<void> handleResSetUserStatusPacket(ApiResponse<ResSetUserStatusPacket> pa
 
   if (packet.error == null) {
     final db = connection.database;
-    final user = db.users.get("User:${packet.data!.userId}");
+    final user = db.users.get("${packet.data!.userId}");
     if (user != null) {
       user.status = packet.data!.status;
       user.notify();
@@ -184,7 +184,7 @@ Future<void> handleResSetUserPresencePacket(ApiResponse<ResSetUserPresencePacket
 
   if (packet.error == null) {
     final db = connection.database;
-    final user = db.users.get("User:${packet.data!.userId}");
+    final user = db.users.get("${packet.data!.userId}");
     if (user != null) {
       user.presence = packet.data!.presence;
       user.notify();
@@ -198,7 +198,7 @@ Future<void> handleResSetUserAvatarPacket(ApiResponse<ResSetUserAvatarPacket> pa
 
   if (packet.error == null) {
     final db = connection.database;
-    final user = db.users.get("User:${packet.data!.userId}");
+    final user = db.users.get("${packet.data!.userId}");
     if (user != null) {
       user.avatar = packet.data!.avatar;
       user.notify();
@@ -212,7 +212,7 @@ Future<void> handleResSetUserDisplayNamePacket(ApiResponse<ResSetUserDisplayName
 
   if (packet.error == null) {
     final db = connection.database;
-    final user = db.users.get("User:${packet.data!.userId}");
+    final user = db.users.get("${packet.data!.userId}");
     if (user != null) {
       final displayName = user.displayName;
       user.displayName = packet.data!.displayName;
@@ -251,7 +251,7 @@ Future<void> handleResCreateChannelPacket(ApiResponse<ResCreateChannelPacket> pa
   if (packet.error == null) {
     final db = connection.database;
     db.channels.addItem(packet.data!.channel);
-    db.channelUsers.addRelation(packet.data!.channelUserRelation);
+    db.channelUsers.addRelations(packet.data!.channelUsersRelation);
     db.serverChannels.addRelation(packet.data!.serverChannelRelation);
     _logger.info("Channel created: ${packet.data!.channel.name}");
   } else {
@@ -264,7 +264,7 @@ Future<void> handleResDeleteChannelPacket(ApiResponse<ResDeleteChannelPacket> pa
 
   if (packet.error == null) {
     final db = connection.database;
-    final channel = db.channels.get("Channel:${packet.data!.channelId}");
+    final channel = db.channels.get("${packet.data!.channelId}");
     if (channel != null) {
       db.channels.removeItem(channel);
     }
@@ -309,7 +309,7 @@ Future<void> handleResAddUserToChannelPacket(ApiResponse<ResAddUserToChannelPack
   }
 }
 
-Future<void> handleResRemoveUserFromChannelPacket(ApiResponse<ResDeleteUserFromChannelPacket> packet, Connection connection) async {
+Future<void> handleResDeleteUserFromChannelPacket(ApiResponse<ResDeleteUserFromChannelPacket> packet, Connection connection) async {
   connection.packetManager.runResolve(packet.requestId!, packet);
 
   if (packet.error == null) {
@@ -318,7 +318,7 @@ Future<void> handleResRemoveUserFromChannelPacket(ApiResponse<ResDeleteUserFromC
 
     // IF we are the user being removed, remove the channel from our list
     if (packet.data!.relation.output == connection.currentUserId) {
-      final channel = db.channels.get("Channel:${packet.data!.relation.input}");
+      final channel = db.channels.get("${packet.data!.relation.input}");
       if (channel != null) {
         db.channels.removeItem(channel);
         db.channelUsers.removeRelationInput(channel.id);

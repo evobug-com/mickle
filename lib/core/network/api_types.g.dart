@@ -213,6 +213,7 @@ ReqCreateChannelPacket _$ReqCreateChannelPacketFromJson(
       serverId: json['server_id'] as String,
       name: json['name'] as String,
       description: json['description'] as String?,
+      private: json['private'] as bool,
     );
 
 Map<String, dynamic> _$ReqCreateChannelPacketToJson(
@@ -230,6 +231,7 @@ Map<String, dynamic> _$ReqCreateChannelPacketToJson(
   }
 
   writeNotNull('description', instance.description);
+  val['private'] = instance.private;
   return val;
 }
 
@@ -475,8 +477,9 @@ ResCreateChannelPacket _$ResCreateChannelPacketFromJson(
         Map<String, dynamic> json) =>
     ResCreateChannelPacket(
       channel: Channel.fromJson(json['channel'] as Map<String, dynamic>),
-      channelUserRelation: Relation.fromJson(
-          json['channel_user_relation'] as Map<String, dynamic>),
+      channelUsersRelation: (json['channel_users_relation'] as List<dynamic>)
+          .map((e) => Relation.fromJson(e as Map<String, dynamic>))
+          .toList(),
       serverChannelRelation: Relation.fromJson(
           json['server_channel_relation'] as Map<String, dynamic>),
     );
@@ -485,7 +488,7 @@ Map<String, dynamic> _$ResCreateChannelPacketToJson(
         ResCreateChannelPacket instance) =>
     <String, dynamic>{
       'channel': instance.channel,
-      'channel_user_relation': instance.channelUserRelation,
+      'channel_users_relation': instance.channelUsersRelation,
       'server_channel_relation': instance.serverChannelRelation,
     };
 

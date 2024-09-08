@@ -168,12 +168,14 @@ class PacketManager {
     required String serverId,
     required String name,
     required String? description,
+    required bool private
   }) {
     return sendRequest((requestId) => ReqCreateChannelPacket(
         requestId: requestId,
         name: name,
         serverId: serverId,
-        description: description
+        description: description,
+        private: private
     ));
   }
 
