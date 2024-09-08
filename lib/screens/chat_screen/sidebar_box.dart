@@ -9,9 +9,11 @@ class SidebarBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Surface.surfaceContainer(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: scheme.surfaceContainerHighest),
         ),
         child: child);
   }

@@ -28,7 +28,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildLeftSidebar(BuildContext context, ConnectionProvider connection) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 8, 8, 8),
+      padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
       child: Sidebar(
         child: ChannelListContainer(connection: connection),
       ),

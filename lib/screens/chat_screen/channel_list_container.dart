@@ -59,14 +59,18 @@ class _ChannelListContainerState extends State<ChannelListContainer> {
                               builder: (context) {
                                 return ChannelListRoomDialog(
                                     onSubmitted: (title,
-                                        description, isPrivate) {
-                                      widget.connection.packetManager
+                                        description, isPrivate) async {
+                                      final result = await widget.connection.packetManager
                                           .sendChannelUpdate(
                                           channelId:
                                           channel.id,
                                           name: title,
                                           description:
                                           description);
+
+                                      if (result.type == "Success") {
+
+                                      }
                                     },
                                     inputName: channel.name,
                                     inputDescription:
