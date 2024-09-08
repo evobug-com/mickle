@@ -120,7 +120,7 @@ class _ServerListNavigatorState extends State<ServerListNavigator> with TickerPr
           if(connection.error != null) {
             return;
           } else {
-            SelectedServerProvider().selectServer(connection);
+            SelectedServerProvider.of(context, listen: false).selectServer(connection);
             context.goNamed('chat');
           }
         },

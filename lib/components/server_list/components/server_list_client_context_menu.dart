@@ -28,6 +28,13 @@ class ServerListClientContextMenu extends StatelessWidget {
                 icon: Icons.delete,
                 isDisabled: false
             ),
+            // Reconnect
+            context_menu.MenuItem(
+                label: 'Reconnect',
+                value: 'reconnect',
+                icon: Icons.refresh,
+                isDisabled: connection.status.value != ConnectionStatus.error && connection.status.value != ConnectionStatus.disconnected
+            ),
           ]
       ),
       onItemSelected: (value) async {
@@ -43,6 +50,13 @@ class ServerListClientContextMenu extends StatelessWidget {
           if(connection == SelectedServerProvider.of(context, listen: false).connection) {
             SelectedServerProvider.of(context, listen: false).selectServer(null);
           }
+        }
+
+        if(value == 'reconnect') {
+          connection.isReconnectEnabled = true;
+          connection.reconnectAttempts = 0;
+          connection.reconnectTimer?.cancel();
+          ConnectionManager().onConnectionDone(connection);
         }
       },
       child: child,

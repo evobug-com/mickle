@@ -60,13 +60,13 @@ class ConnectionManager extends ChangeNotifier {
       throw ConnectionError.fromException('Connection token or main server ID is null');
     }
 
-    await SecureStorage().write("${connection.connectionUrl + connection.mainServerId!}.token", connection.token!);
-    await SecureStorage().write("${connection.connectionUrl + connection.mainServerId!}.serverId", connection.mainServerId!);
-    await SecureStorage().write("${connection.connectionUrl + connection.mainServerId!}.connectionUrl", connection.connectionUrl);
-    final servers = await SecureStorage().readJSONArray("servers") ?? [];
-    if (!servers.contains(connection.connectionUrl + connection.mainServerId!)) {
-      servers.add(connection.connectionUrl + connection.mainServerId!);
-      await SecureStorage().writeJSONArray("servers", servers);
+    await SecureStorage().write("${connection.connectionUrl}.token", connection.token!);
+    await SecureStorage().write("${connection.connectionUrl}.serverId", connection.mainServerId!);
+    await SecureStorage().write("${connection.connectionUrl}.connectionUrl", connection.connectionUrl);
+    final endpoints = await SecureStorage().readJSONArray("endpoints") ?? [];
+    if (!endpoints.contains(connection.connectionUrl)) {
+      endpoints.add(connection.connectionUrl);
+      await SecureStorage().writeJSONArray("endpoints", endpoints);
     }
 
     return true;
@@ -104,7 +104,7 @@ class ConnectionManager extends ChangeNotifier {
       connection.reconnectAttempts = 0;
       connection.isReconnectEnabled = false;
 
-      final token = await getToken(connection.connectionUrl, connection.mainServerId!);
+      final token = await getToken(connection.connectionUrl);
       if(token == null) {
         _logger.warning('Connection(${connection.connectionUrl}) token not found');
         // TODO: Require re-authentication, notify user somehow
@@ -134,8 +134,8 @@ class ConnectionManager extends ChangeNotifier {
     }
   }
 
-  Future<String?> getToken(String connectionUrl, String serverId) async {
-    return await SecureStorage().read("${connectionUrl + serverId}.token");
+  Future<String?> getToken(String connectionUrl) async {
+    return await SecureStorage().read("${connectionUrl}.token");
   }
 
   @override

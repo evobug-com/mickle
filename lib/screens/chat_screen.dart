@@ -115,7 +115,7 @@ class _ChatScreenState extends State<ChatScreen> {
         valueListenable: selectedServerProvider.connection!.status,
         builder: (context, status, _) {
           if(status != ConnectionStatus.authenticated) {
-            return const Center(child: Text('Not authenticated'));
+            return Center(child: Text(selectedServerProvider.connection!.error?.toString() ?? 'Unable to show server, connection status: $status'));
           }
 
           return Consumer2<ConnectionProvider, VoiceRoomCurrent>(

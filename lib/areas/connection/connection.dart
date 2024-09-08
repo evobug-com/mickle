@@ -63,6 +63,7 @@ class Connection {
 
 
   connect() async {
+    error = null;
     _status.value = ConnectionStatus.connecting;
 
     try {
@@ -128,6 +129,7 @@ class Connection {
   }
 
   Future<ApiResponse<ResLoginPacket>> authenticate({String? username, String? password, String? token}) async {
+    error = null;
     _status.value = ConnectionStatus.authenticating;
     
     final authResult = await packetManager.sendLogin(
