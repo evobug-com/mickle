@@ -1,6 +1,7 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:talk/screens/settings_screen/settings_provider.dart';
 
 import '../../../core/managers/audio_manager.dart';
 import '../core/models/error_item.dart';
@@ -14,7 +15,9 @@ class Errors {
     final originalOnError = FlutterError.onError;
     FlutterError.onError = (FlutterErrorDetails details) {
       errors.add(ErrorItem(details.exceptionAsString(), details.stack.toString()));
-      AudioManager.playSingleShot("Master", AssetSource("audio/error.wav"));
+      if(SettingsProvider().playSoundOnError) {
+        AudioManager.playSingleShot("Master", AssetSource("audio/error.wav"));
+      }
       if(originalOnError != null) {
         originalOnError(details);
       }

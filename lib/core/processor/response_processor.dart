@@ -10,6 +10,8 @@ import 'package:talk/core/managers/audio_manager.dart';
 import 'package:talk/core/network/api_types.dart';
 import 'package:window_manager/window_manager.dart';
 
+import '../../screens/settings_screen/settings_provider.dart';
+
 final _logger = Logger('ResponseProcessor');
 
 Future<void> processResponse(Connection connection, Uint8List data) async {
@@ -138,10 +140,12 @@ Future<void> handleResCreateChannelMessagePacket(ApiResponse<ResCreateChannelMes
     _logger.info("Message added: ${packet.data!.message.content}");
 
     if (packet.data!.mentions != null && packet.data!.mentions!.contains(connection.currentUserId!)) {
-      AudioManager.playSingleShot("Message", AssetSource("audio/mention.wav"));
+      if(SettingsProvider().playSoundOnMention) {
+        AudioManager.playSingleShot("Message", AssetSource("audio/mention.wav"));
+      }
 
       final user = db.users.firstWhereOrNull((element) => element.id == packet.data!.message.user);
-      if (user != null && !await windowManager.isFocused()) {
+      if (user != null && !await windowManager.isFocused() && SettingsProvider().showDesktopNotifications) {
         LocalNotification notification = LocalNotification(
           title: "Mention from ${user.displayName}",
           body: packet.data!.message.content,
@@ -149,7 +153,9 @@ Future<void> handleResCreateChannelMessagePacket(ApiResponse<ResCreateChannelMes
         notification.show();
       }
     } else {
-      AudioManager.playSingleShot("Message", AssetSource("audio/new_message_received.wav"));
+      if(SettingsProvider().playSoundOnAnyMessage) {
+        AudioManager.playSingleShot("Message", AssetSource("audio/new_message_received.wav"));
+      }
     }
 
     if (packet.data!.message.content.contains("porno")) {

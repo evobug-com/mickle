@@ -39,6 +39,13 @@ final List<SettingMetadata> settingsCategories = [
         'account-logout': SettingItem(tab: 'general', key: 'account-logout', name: 'Account Logout'),
       }
   ),
+  SettingMetadata(tab: 'notifications', icon: Icons.notifications, title: 'Notifications',
+      items: {
+        'notifications-sound-any-message': SettingItem(tab: 'notifications', key: 'notifications-sound-any-message', name: 'Sound on Any Message'),
+        'notifications-sound-mention': SettingItem(tab: 'notifications', key: 'notifications-sound-mention', name: 'Sound on Mention'),
+        'notifications-sound-error': SettingItem(tab: 'notifications', key: 'notifications-sound-error', name: 'Sound on Error'),
+        'notifications-desktop': SettingItem(tab: 'notifications', key: 'notifications-desktop', name: 'Desktop Notifications'),
+      }),
   SettingMetadata(tab: 'audio', icon: Icons.audiotrack, title: 'Audio', items: {
     'audio-microphone': SettingItem(tab: 'audio', key: 'audio-microphone', name: 'Microphone'),
     'audio-speaker': SettingItem(tab: 'audio', key: 'audio-speaker', name: 'Speaker'),

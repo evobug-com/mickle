@@ -44,4 +44,29 @@ class SettingsProvider extends ChangeNotifier {
     Storage().write('locale', value);
     notifyListeners();
   }
+
+  // New notification settings
+  bool get playSoundOnAnyMessage => Storage().readBoolean('playSoundOnAnyMessage', defaultValue: true);
+  set playSoundOnAnyMessage(bool value) {
+    Storage().write('playSoundOnAnyMessage', value.toString());
+    notifyListeners();
+  }
+
+  bool get playSoundOnMention => Storage().readBoolean('playSoundOnMention', defaultValue: true);
+  set playSoundOnMention(bool value) {
+    Storage().write('playSoundOnMention', value.toString());
+    notifyListeners();
+  }
+
+  bool get playSoundOnError => Storage().readBoolean('playSoundOnError', defaultValue: true);
+  set playSoundOnError(bool value) {
+    Storage().write('playSoundOnError', value.toString());
+    notifyListeners();
+  }
+
+  bool get showDesktopNotifications => Storage().readBoolean('showDesktopNotifications', defaultValue: true);
+  set showDesktopNotifications(bool value) {
+    Storage().write('showDesktopNotifications', value.toString());
+    notifyListeners();
+  }
 }
