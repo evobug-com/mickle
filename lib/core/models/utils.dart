@@ -1,4 +1,7 @@
 
+import 'package:collection/collection.dart';
+import 'package:talk/components/console/components/console_list_roles_item.dart';
+
 import '../database.dart';
 import 'models.dart';
 
@@ -37,6 +40,11 @@ extension UserExtension on User {
       canDeleteMessages: permissions.any((permission) => permission.id == 'channel_delete_message'),
       canManageRoom: permissions.any((permission) => permission.id == 'channel_update'),
     );
+  }
+
+  UnreadMessageRelation? getUnreadMessagesForChannel(Channel channel, {required Database database}) {
+    final unreadMessages = database.unreadMessages.inputs(id);
+    return unreadMessages.firstWhereOrNull((relation) => relation.output == channel.id);
   }
 }
 

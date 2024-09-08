@@ -168,9 +168,7 @@ class ReqPingPacket extends RequestPacket {
   @JsonKey(name: "request_id")
   final int requestId;
 
-  ReqPingPacket({
-    required this.requestId,
-  }) : super(packetType: "ReqPingPacket");
+  ReqPingPacket({required this.requestId,}) : super(packetType: "ReqPingPacket");
 
   factory ReqPingPacket.fromJson(Map<String, dynamic> json) => _$ReqPingPacketFromJson(json);
     @override
@@ -180,8 +178,6 @@ class ReqPingPacket extends RequestPacket {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ReqPingPacket{requestId: $requestId}';
@@ -193,19 +189,17 @@ class ReqPingPacket extends RequestPacket {
 class ReqLoginPacket extends RequestPacket {
   @JsonKey(name: "request_id")
   final int requestId;
-  @JsonKey(name: "username")
+  @JsonKey(name: "username", includeIfNull: false)
   final String? username;
-  @JsonKey(name: "password")
+  @JsonKey(name: "password", includeIfNull: false)
   final String? password;
-  @JsonKey(name: "token")
+  @JsonKey(name: "token", includeIfNull: false)
   final String? token;
 
-  ReqLoginPacket({
-    required this.requestId,
+  ReqLoginPacket({required this.requestId,
     required this.username,
     required this.password,
-    required this.token,
-  }) : super(packetType: "ReqLoginPacket");
+    required this.token,}) : super(packetType: "ReqLoginPacket");
 
   factory ReqLoginPacket.fromJson(Map<String, dynamic> json) => _$ReqLoginPacketFromJson(json);
     @override
@@ -215,8 +209,6 @@ class ReqLoginPacket extends RequestPacket {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ReqLoginPacket{requestId: $requestId, username: $username, password: $password, token: $token}';
@@ -232,15 +224,13 @@ class ReqCreateChannelMessagePacket extends RequestPacket {
   final String channelId;
   @JsonKey(name: "message")
   final String message;
-  @JsonKey(name: "mentions")
+  @JsonKey(name: "mentions", includeIfNull: false)
   final List<String>? mentions;
 
-  ReqCreateChannelMessagePacket({
-    required this.requestId,
+  ReqCreateChannelMessagePacket({required this.requestId,
     required this.channelId,
     required this.message,
-    required this.mentions,
-  }) : super(packetType: "ReqCreateChannelMessagePacket");
+    required this.mentions,}) : super(packetType: "ReqCreateChannelMessagePacket");
 
   factory ReqCreateChannelMessagePacket.fromJson(Map<String, dynamic> json) => _$ReqCreateChannelMessagePacketFromJson(json);
     @override
@@ -250,8 +240,6 @@ class ReqCreateChannelMessagePacket extends RequestPacket {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ReqCreateChannelMessagePacket{requestId: $requestId, channelId: $channelId, message: $message, mentions: $mentions}';
@@ -265,14 +253,12 @@ class ReqFetchChannelMessagesPacket extends RequestPacket {
   final int requestId;
   @JsonKey(name: "channel_id")
   final String channelId;
-  @JsonKey(name: "last_message_id")
+  @JsonKey(name: "last_message_id", includeIfNull: false)
   final String? lastMessageId;
 
-  ReqFetchChannelMessagesPacket({
-    required this.requestId,
+  ReqFetchChannelMessagesPacket({required this.requestId,
     required this.channelId,
-    required this.lastMessageId,
-  }) : super(packetType: "ReqFetchChannelMessagesPacket");
+    required this.lastMessageId,}) : super(packetType: "ReqFetchChannelMessagesPacket");
 
   factory ReqFetchChannelMessagesPacket.fromJson(Map<String, dynamic> json) => _$ReqFetchChannelMessagesPacketFromJson(json);
     @override
@@ -282,8 +268,6 @@ class ReqFetchChannelMessagesPacket extends RequestPacket {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ReqFetchChannelMessagesPacket{requestId: $requestId, channelId: $channelId, lastMessageId: $lastMessageId}';
@@ -300,11 +284,9 @@ class ReqSetUserPasswordPacket extends RequestPacket {
   @JsonKey(name: "new_password")
   final String newPassword;
 
-  ReqSetUserPasswordPacket({
-    required this.requestId,
+  ReqSetUserPasswordPacket({required this.requestId,
     required this.oldPassword,
-    required this.newPassword,
-  }) : super(packetType: "ReqSetUserPasswordPacket");
+    required this.newPassword,}) : super(packetType: "ReqSetUserPasswordPacket");
 
   factory ReqSetUserPasswordPacket.fromJson(Map<String, dynamic> json) => _$ReqSetUserPasswordPacketFromJson(json);
     @override
@@ -314,8 +296,6 @@ class ReqSetUserPasswordPacket extends RequestPacket {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ReqSetUserPasswordPacket{requestId: $requestId, oldPassword: $oldPassword, newPassword: $newPassword}';
@@ -330,10 +310,8 @@ class ReqSetUserDisplayNamePacket extends RequestPacket {
   @JsonKey(name: "display_name")
   final String displayName;
 
-  ReqSetUserDisplayNamePacket({
-    required this.requestId,
-    required this.displayName,
-  }) : super(packetType: "ReqSetUserDisplayNamePacket");
+  ReqSetUserDisplayNamePacket({required this.requestId,
+    required this.displayName,}) : super(packetType: "ReqSetUserDisplayNamePacket");
 
   factory ReqSetUserDisplayNamePacket.fromJson(Map<String, dynamic> json) => _$ReqSetUserDisplayNamePacketFromJson(json);
     @override
@@ -343,8 +321,6 @@ class ReqSetUserDisplayNamePacket extends RequestPacket {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ReqSetUserDisplayNamePacket{requestId: $requestId, displayName: $displayName}';
@@ -356,13 +332,11 @@ class ReqSetUserDisplayNamePacket extends RequestPacket {
 class ReqSetUserStatusPacket extends RequestPacket {
   @JsonKey(name: "request_id")
   final int requestId;
-  @JsonKey(name: "status")
+  @JsonKey(name: "status", includeIfNull: false)
   final String? status;
 
-  ReqSetUserStatusPacket({
-    required this.requestId,
-    required this.status,
-  }) : super(packetType: "ReqSetUserStatusPacket");
+  ReqSetUserStatusPacket({required this.requestId,
+    required this.status,}) : super(packetType: "ReqSetUserStatusPacket");
 
   factory ReqSetUserStatusPacket.fromJson(Map<String, dynamic> json) => _$ReqSetUserStatusPacketFromJson(json);
     @override
@@ -372,8 +346,6 @@ class ReqSetUserStatusPacket extends RequestPacket {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ReqSetUserStatusPacket{requestId: $requestId, status: $status}';
@@ -385,13 +357,11 @@ class ReqSetUserStatusPacket extends RequestPacket {
 class ReqSetUserAvatarPacket extends RequestPacket {
   @JsonKey(name: "request_id")
   final int requestId;
-  @JsonKey(name: "avatar")
+  @JsonKey(name: "avatar", includeIfNull: false)
   final String? avatar;
 
-  ReqSetUserAvatarPacket({
-    required this.requestId,
-    required this.avatar,
-  }) : super(packetType: "ReqSetUserAvatarPacket");
+  ReqSetUserAvatarPacket({required this.requestId,
+    required this.avatar,}) : super(packetType: "ReqSetUserAvatarPacket");
 
   factory ReqSetUserAvatarPacket.fromJson(Map<String, dynamic> json) => _$ReqSetUserAvatarPacketFromJson(json);
     @override
@@ -401,8 +371,6 @@ class ReqSetUserAvatarPacket extends RequestPacket {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ReqSetUserAvatarPacket{requestId: $requestId, avatar: $avatar}';
@@ -417,10 +385,8 @@ class ReqSetUserPresencePacket extends RequestPacket {
   @JsonKey(name: "presence")
   final String presence;
 
-  ReqSetUserPresencePacket({
-    required this.requestId,
-    required this.presence,
-  }) : super(packetType: "ReqSetUserPresencePacket");
+  ReqSetUserPresencePacket({required this.requestId,
+    required this.presence,}) : super(packetType: "ReqSetUserPresencePacket");
 
   factory ReqSetUserPresencePacket.fromJson(Map<String, dynamic> json) => _$ReqSetUserPresencePacketFromJson(json);
     @override
@@ -430,8 +396,6 @@ class ReqSetUserPresencePacket extends RequestPacket {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ReqSetUserPresencePacket{requestId: $requestId, presence: $presence}';
@@ -447,15 +411,13 @@ class ReqCreateChannelPacket extends RequestPacket {
   final String serverId;
   @JsonKey(name: "name")
   final String name;
-  @JsonKey(name: "description")
+  @JsonKey(name: "description", includeIfNull: false)
   final String? description;
 
-  ReqCreateChannelPacket({
-    required this.requestId,
+  ReqCreateChannelPacket({required this.requestId,
     required this.serverId,
     required this.name,
-    required this.description,
-  }) : super(packetType: "ReqCreateChannelPacket");
+    required this.description,}) : super(packetType: "ReqCreateChannelPacket");
 
   factory ReqCreateChannelPacket.fromJson(Map<String, dynamic> json) => _$ReqCreateChannelPacketFromJson(json);
     @override
@@ -465,8 +427,6 @@ class ReqCreateChannelPacket extends RequestPacket {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ReqCreateChannelPacket{requestId: $requestId, serverId: $serverId, name: $name, description: $description}';
@@ -481,10 +441,8 @@ class ReqDeleteChannelPacket extends RequestPacket {
   @JsonKey(name: "channel_id")
   final String channelId;
 
-  ReqDeleteChannelPacket({
-    required this.requestId,
-    required this.channelId,
-  }) : super(packetType: "ReqDeleteChannelPacket");
+  ReqDeleteChannelPacket({required this.requestId,
+    required this.channelId,}) : super(packetType: "ReqDeleteChannelPacket");
 
   factory ReqDeleteChannelPacket.fromJson(Map<String, dynamic> json) => _$ReqDeleteChannelPacketFromJson(json);
     @override
@@ -494,8 +452,6 @@ class ReqDeleteChannelPacket extends RequestPacket {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ReqDeleteChannelPacket{requestId: $requestId, channelId: $channelId}';
@@ -509,17 +465,15 @@ class ReqModifyChannelPacket extends RequestPacket {
   final int requestId;
   @JsonKey(name: "channel_id")
   final String channelId;
-  @JsonKey(name: "name")
+  @JsonKey(name: "name", includeIfNull: false)
   final String? name;
-  @JsonKey(name: "description")
+  @JsonKey(name: "description", includeIfNull: false)
   final String? description;
 
-  ReqModifyChannelPacket({
-    required this.requestId,
+  ReqModifyChannelPacket({required this.requestId,
     required this.channelId,
     required this.name,
-    required this.description,
-  }) : super(packetType: "ReqModifyChannelPacket");
+    required this.description,}) : super(packetType: "ReqModifyChannelPacket");
 
   factory ReqModifyChannelPacket.fromJson(Map<String, dynamic> json) => _$ReqModifyChannelPacketFromJson(json);
     @override
@@ -529,8 +483,6 @@ class ReqModifyChannelPacket extends RequestPacket {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ReqModifyChannelPacket{requestId: $requestId, channelId: $channelId, name: $name, description: $description}';
@@ -547,11 +499,9 @@ class ReqAddUserToChannelPacket extends RequestPacket {
   @JsonKey(name: "user_id")
   final String userId;
 
-  ReqAddUserToChannelPacket({
-    required this.requestId,
+  ReqAddUserToChannelPacket({required this.requestId,
     required this.channelId,
-    required this.userId,
-  }) : super(packetType: "ReqAddUserToChannelPacket");
+    required this.userId,}) : super(packetType: "ReqAddUserToChannelPacket");
 
   factory ReqAddUserToChannelPacket.fromJson(Map<String, dynamic> json) => _$ReqAddUserToChannelPacketFromJson(json);
     @override
@@ -561,8 +511,6 @@ class ReqAddUserToChannelPacket extends RequestPacket {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ReqAddUserToChannelPacket{requestId: $requestId, channelId: $channelId, userId: $userId}';
@@ -579,11 +527,9 @@ class ReqDeleteUserFromChannelPacket extends RequestPacket {
   @JsonKey(name: "user_id")
   final String userId;
 
-  ReqDeleteUserFromChannelPacket({
-    required this.requestId,
+  ReqDeleteUserFromChannelPacket({required this.requestId,
     required this.channelId,
-    required this.userId,
-  }) : super(packetType: "ReqDeleteUserFromChannelPacket");
+    required this.userId,}) : super(packetType: "ReqDeleteUserFromChannelPacket");
 
   factory ReqDeleteUserFromChannelPacket.fromJson(Map<String, dynamic> json) => _$ReqDeleteUserFromChannelPacketFromJson(json);
     @override
@@ -593,8 +539,6 @@ class ReqDeleteUserFromChannelPacket extends RequestPacket {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ReqDeleteUserFromChannelPacket{requestId: $requestId, channelId: $channelId, userId: $userId}';
@@ -609,10 +553,8 @@ class ReqJoinVoiceChannelPacket extends RequestPacket {
   @JsonKey(name: "channel_id")
   final String channelId;
 
-  ReqJoinVoiceChannelPacket({
-    required this.requestId,
-    required this.channelId,
-  }) : super(packetType: "ReqJoinVoiceChannelPacket");
+  ReqJoinVoiceChannelPacket({required this.requestId,
+    required this.channelId,}) : super(packetType: "ReqJoinVoiceChannelPacket");
 
   factory ReqJoinVoiceChannelPacket.fromJson(Map<String, dynamic> json) => _$ReqJoinVoiceChannelPacketFromJson(json);
     @override
@@ -622,8 +564,6 @@ class ReqJoinVoiceChannelPacket extends RequestPacket {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ReqJoinVoiceChannelPacket{requestId: $requestId, channelId: $channelId}';
@@ -645,8 +585,6 @@ class ResPingPacket extends ResponseData {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ResPingPacket{}';
@@ -665,12 +603,10 @@ class ResLoginPacket extends ResponseData {
   @JsonKey(name: "main_server_id")
   final String mainServerId;
 
-  const ResLoginPacket({
-    required this.token,
+  const ResLoginPacket({required this.token,
     required this.userId,
     required this.serverIds,
-    required this.mainServerId,
-  }) : super();
+    required this.mainServerId,}) : super();
 
   factory ResLoginPacket.fromJson(Map<String, dynamic> json) => _$ResLoginPacketFromJson(json);
     @override
@@ -680,8 +616,6 @@ class ResLoginPacket extends ResponseData {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ResLoginPacket{token: $token, userId: $userId, serverIds: $serverIds, mainServerId: $mainServerId}';
@@ -695,14 +629,12 @@ class ResCreateChannelMessagePacket extends ResponseData {
   final Message message;
   @JsonKey(name: "relation")
   final Relation relation;
-  @JsonKey(name: "mentions")
+  @JsonKey(name: "mentions", includeIfNull: false)
   final List<String>? mentions;
 
-  const ResCreateChannelMessagePacket({
-    required this.message,
+  const ResCreateChannelMessagePacket({required this.message,
     required this.relation,
-    required this.mentions,
-  }) : super();
+    required this.mentions,}) : super();
 
   factory ResCreateChannelMessagePacket.fromJson(Map<String, dynamic> json) => _$ResCreateChannelMessagePacketFromJson(json);
     @override
@@ -712,8 +644,6 @@ class ResCreateChannelMessagePacket extends ResponseData {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ResCreateChannelMessagePacket{message: $message, relation: $relation, mentions: $mentions}';
@@ -728,10 +658,8 @@ class ResFetchChannelMessagesPacket extends ResponseData {
   @JsonKey(name: "relations")
   final List<Relation> relations;
 
-  const ResFetchChannelMessagesPacket({
-    required this.messages,
-    required this.relations,
-  }) : super();
+  const ResFetchChannelMessagesPacket({required this.messages,
+    required this.relations,}) : super();
 
   factory ResFetchChannelMessagesPacket.fromJson(Map<String, dynamic> json) => _$ResFetchChannelMessagesPacketFromJson(json);
     @override
@@ -741,8 +669,6 @@ class ResFetchChannelMessagesPacket extends ResponseData {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ResFetchChannelMessagesPacket{messages: $messages, relations: $relations}';
@@ -764,8 +690,6 @@ class ResSetUserPasswordPacket extends ResponseData {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ResSetUserPasswordPacket{}';
@@ -780,10 +704,8 @@ class ResSetUserDisplayNamePacket extends ResponseData {
   @JsonKey(name: "display_name")
   final String displayName;
 
-  const ResSetUserDisplayNamePacket({
-    required this.userId,
-    required this.displayName,
-  }) : super();
+  const ResSetUserDisplayNamePacket({required this.userId,
+    required this.displayName,}) : super();
 
   factory ResSetUserDisplayNamePacket.fromJson(Map<String, dynamic> json) => _$ResSetUserDisplayNamePacketFromJson(json);
     @override
@@ -793,8 +715,6 @@ class ResSetUserDisplayNamePacket extends ResponseData {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ResSetUserDisplayNamePacket{userId: $userId, displayName: $displayName}';
@@ -806,13 +726,11 @@ class ResSetUserDisplayNamePacket extends ResponseData {
 class ResSetUserStatusPacket extends ResponseData {
   @JsonKey(name: "user_id")
   final String userId;
-  @JsonKey(name: "status")
+  @JsonKey(name: "status", includeIfNull: false)
   final String? status;
 
-  const ResSetUserStatusPacket({
-    required this.userId,
-    required this.status,
-  }) : super();
+  const ResSetUserStatusPacket({required this.userId,
+    required this.status,}) : super();
 
   factory ResSetUserStatusPacket.fromJson(Map<String, dynamic> json) => _$ResSetUserStatusPacketFromJson(json);
     @override
@@ -822,8 +740,6 @@ class ResSetUserStatusPacket extends ResponseData {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ResSetUserStatusPacket{userId: $userId, status: $status}';
@@ -835,13 +751,11 @@ class ResSetUserStatusPacket extends ResponseData {
 class ResSetUserAvatarPacket extends ResponseData {
   @JsonKey(name: "user_id")
   final String userId;
-  @JsonKey(name: "avatar")
+  @JsonKey(name: "avatar", includeIfNull: false)
   final String? avatar;
 
-  const ResSetUserAvatarPacket({
-    required this.userId,
-    required this.avatar,
-  }) : super();
+  const ResSetUserAvatarPacket({required this.userId,
+    required this.avatar,}) : super();
 
   factory ResSetUserAvatarPacket.fromJson(Map<String, dynamic> json) => _$ResSetUserAvatarPacketFromJson(json);
     @override
@@ -851,8 +765,6 @@ class ResSetUserAvatarPacket extends ResponseData {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ResSetUserAvatarPacket{userId: $userId, avatar: $avatar}';
@@ -867,10 +779,8 @@ class ResSetUserPresencePacket extends ResponseData {
   @JsonKey(name: "presence")
   final String presence;
 
-  const ResSetUserPresencePacket({
-    required this.userId,
-    required this.presence,
-  }) : super();
+  const ResSetUserPresencePacket({required this.userId,
+    required this.presence,}) : super();
 
   factory ResSetUserPresencePacket.fromJson(Map<String, dynamic> json) => _$ResSetUserPresencePacketFromJson(json);
     @override
@@ -880,8 +790,6 @@ class ResSetUserPresencePacket extends ResponseData {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ResSetUserPresencePacket{userId: $userId, presence: $presence}';
@@ -898,11 +806,9 @@ class ResCreateChannelPacket extends ResponseData {
   @JsonKey(name: "server_channel_relation")
   final Relation serverChannelRelation;
 
-  const ResCreateChannelPacket({
-    required this.channel,
+  const ResCreateChannelPacket({required this.channel,
     required this.channelUserRelation,
-    required this.serverChannelRelation,
-  }) : super();
+    required this.serverChannelRelation,}) : super();
 
   factory ResCreateChannelPacket.fromJson(Map<String, dynamic> json) => _$ResCreateChannelPacketFromJson(json);
     @override
@@ -912,8 +818,6 @@ class ResCreateChannelPacket extends ResponseData {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ResCreateChannelPacket{channel: $channel, channelUserRelation: $channelUserRelation, serverChannelRelation: $serverChannelRelation}';
@@ -926,9 +830,7 @@ class ResDeleteChannelPacket extends ResponseData {
   @JsonKey(name: "channel_id")
   final String channelId;
 
-  const ResDeleteChannelPacket({
-    required this.channelId,
-  }) : super();
+  const ResDeleteChannelPacket({required this.channelId,}) : super();
 
   factory ResDeleteChannelPacket.fromJson(Map<String, dynamic> json) => _$ResDeleteChannelPacketFromJson(json);
     @override
@@ -938,8 +840,6 @@ class ResDeleteChannelPacket extends ResponseData {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ResDeleteChannelPacket{channelId: $channelId}';
@@ -952,9 +852,7 @@ class ResModifyChannelPacket extends ResponseData {
   @JsonKey(name: "channel")
   final Channel channel;
 
-  const ResModifyChannelPacket({
-    required this.channel,
-  }) : super();
+  const ResModifyChannelPacket({required this.channel,}) : super();
 
   factory ResModifyChannelPacket.fromJson(Map<String, dynamic> json) => _$ResModifyChannelPacketFromJson(json);
     @override
@@ -964,8 +862,6 @@ class ResModifyChannelPacket extends ResponseData {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ResModifyChannelPacket{channel: $channel}';
@@ -978,9 +874,7 @@ class ResAddUserToChannelPacket extends ResponseData {
   @JsonKey(name: "relation")
   final Relation relation;
 
-  const ResAddUserToChannelPacket({
-    required this.relation,
-  }) : super();
+  const ResAddUserToChannelPacket({required this.relation,}) : super();
 
   factory ResAddUserToChannelPacket.fromJson(Map<String, dynamic> json) => _$ResAddUserToChannelPacketFromJson(json);
     @override
@@ -990,8 +884,6 @@ class ResAddUserToChannelPacket extends ResponseData {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ResAddUserToChannelPacket{relation: $relation}';
@@ -1004,9 +896,7 @@ class ResDeleteUserFromChannelPacket extends ResponseData {
   @JsonKey(name: "relation")
   final Relation relation;
 
-  const ResDeleteUserFromChannelPacket({
-    required this.relation,
-  }) : super();
+  const ResDeleteUserFromChannelPacket({required this.relation,}) : super();
 
   factory ResDeleteUserFromChannelPacket.fromJson(Map<String, dynamic> json) => _$ResDeleteUserFromChannelPacketFromJson(json);
     @override
@@ -1016,8 +906,6 @@ class ResDeleteUserFromChannelPacket extends ResponseData {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ResDeleteUserFromChannelPacket{relation: $relation}';
@@ -1034,11 +922,9 @@ class ResJoinVoiceChannelPacket extends ResponseData {
   @JsonKey(name: "token")
   final String token;
 
-  const ResJoinVoiceChannelPacket({
-    required this.userId,
+  const ResJoinVoiceChannelPacket({required this.userId,
     required this.channelId,
-    required this.token,
-  }) : super();
+    required this.token,}) : super();
 
   factory ResJoinVoiceChannelPacket.fromJson(Map<String, dynamic> json) => _$ResJoinVoiceChannelPacketFromJson(json);
     @override
@@ -1048,8 +934,6 @@ class ResJoinVoiceChannelPacket extends ResponseData {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'ResJoinVoiceChannelPacket{userId: $userId, channelId: $channelId, token: $token}';
@@ -1079,9 +963,10 @@ class EvtWelcomePacket extends EventData {
   final List<Relation> channelUsers;
   @JsonKey(name: "users")
   final List<User> users;
+  @JsonKey(name: "unread_messages")
+  final List<UnreadMessageRelation> unreadMessages;
 
-  const EvtWelcomePacket({
-    required this.servers,
+  const EvtWelcomePacket({required this.servers,
     required this.serverUsers,
     required this.serverChannels,
     required this.permissions,
@@ -1091,7 +976,7 @@ class EvtWelcomePacket extends EventData {
     required this.channels,
     required this.channelUsers,
     required this.users,
-  }) : super();
+    required this.unreadMessages,}) : super();
 
   factory EvtWelcomePacket.fromJson(Map<String, dynamic> json) => _$EvtWelcomePacketFromJson(json);
     @override
@@ -1101,11 +986,9 @@ class EvtWelcomePacket extends EventData {
     return json;
   }
 
-  
-  
   @override
   String toString() {
-    return 'EvtWelcomePacket{servers: $servers, serverUsers: $serverUsers, serverChannels: $serverChannels, permissions: $permissions, roles: $roles, roleUsers: $roleUsers, rolePermissions: $rolePermissions, channels: $channels, channelUsers: $channelUsers, users: $users}';
+    return 'EvtWelcomePacket{servers: $servers, serverUsers: $serverUsers, serverChannels: $serverChannels, permissions: $permissions, roles: $roles, roleUsers: $roleUsers, rolePermissions: $rolePermissions, channels: $channels, channelUsers: $channelUsers, users: $users, unreadMessages: $unreadMessages}';
   }
 }
 
@@ -1117,10 +1000,8 @@ class EvtUpdatePresencePacket extends EventData {
   @JsonKey(name: "presence")
   final String presence;
 
-  const EvtUpdatePresencePacket({
-    required this.userId,
-    required this.presence,
-  }) : super();
+  const EvtUpdatePresencePacket({required this.userId,
+    required this.presence,}) : super();
 
   factory EvtUpdatePresencePacket.fromJson(Map<String, dynamic> json) => _$EvtUpdatePresencePacketFromJson(json);
     @override
@@ -1130,8 +1011,6 @@ class EvtUpdatePresencePacket extends EventData {
     return json;
   }
 
-  
-  
   @override
   String toString() {
     return 'EvtUpdatePresencePacket{userId: $userId, presence: $presence}';

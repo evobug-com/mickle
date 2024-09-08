@@ -46,10 +46,11 @@ class Database {
   final ListStream<Message> messages = ListStream<Message>();
   final ListStream<Role> roles = ListStream<Role>();
   final ListStream<Permission> permissions = ListStream<Permission>();
-  final RelationListStream serverUsers = RelationListStream();
-  final RelationListStream serverChannels = RelationListStream();
-  final RelationListStream channelUsers = RelationListStream();
-  final RelationListStream channelMessages = RelationListStream();
-  final RelationListStream roleUsers = RelationListStream();
-  final RelationListStream rolePermissions = RelationListStream();
+  final RelationListStream<Relation> serverUsers = RelationListStream();
+  final RelationListStream<Relation> serverChannels = RelationListStream();
+  final RelationListStream<Relation> channelUsers = RelationListStream();
+  final RelationListStream<Relation> channelMessages = RelationListStream();
+  final RelationListStream<Relation> roleUsers = RelationListStream();
+  final RelationListStream<Relation> rolePermissions = RelationListStream();
+  final RelationListStream<UnreadMessageRelation> unreadMessages = RelationListStream();
 }

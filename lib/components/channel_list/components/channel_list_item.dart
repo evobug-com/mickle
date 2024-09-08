@@ -23,6 +23,8 @@ class ChannelListItem extends StatelessWidget {
     final permissions = user.getPermissionsForChannel(channel.id, database: connection.database);
     final channelListSelectedRoom = ChannelListSelectedChannel.of(context);
     final scheme = Theme.of(context).colorScheme;
+    final unreadMessages = user.getUnreadMessagesForChannel(channel, database: connection.database);
+    bool isUnread = (unreadMessages?.unreadCount ?? 0) > 0;
 
     return ContextMenuRegion(
       onItemSelected: (value) {
@@ -79,17 +81,17 @@ class ChannelListItem extends StatelessWidget {
         ],
       ),
       child: ListTile(
-        title: Text(channel.name),
-        // leading: const Icon(Icons.tag),
+        title: Text(channel.name, style: TextStyle(fontWeight: isUnread ? FontWeight.bold : FontWeight.normal, color: isUnread ? scheme.onSurface : scheme.onSurfaceVariant),),
+        leading: Icon(Icons.tag, color: isUnread ? scheme.onSurface : scheme.onSurfaceVariant),
         selected: channel.id == channelListSelectedRoom.getChannel(connection.server)?.id,
         selectedTileColor: scheme.surfaceContainerHigh,
         // Show badge in trailing
-        trailing: channel.id == channelListSelectedRoom.getChannel(connection.server)?.id
-            ? const CircleAvatar(
-                backgroundColor: Colors.red,
-                radius: 4,
-              )
-            : null,
+        // trailing: channel.id == channelListSelectedRoom.getChannel(connection.server)?.id
+        //     ? const CircleAvatar(
+        //         backgroundColor: Colors.red,
+        //         radius: 4,
+        //       )
+        //     : null,
         onTap: () {
           ChannelListSelectedChannel.of(context, listen: false).setChannel(connection.server, channel);
         },

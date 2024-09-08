@@ -45,13 +45,22 @@ ReqLoginPacket _$ReqLoginPacketFromJson(Map<String, dynamic> json) =>
       token: json['token'] as String?,
     );
 
-Map<String, dynamic> _$ReqLoginPacketToJson(ReqLoginPacket instance) =>
-    <String, dynamic>{
-      'request_id': instance.requestId,
-      'username': instance.username,
-      'password': instance.password,
-      'token': instance.token,
-    };
+Map<String, dynamic> _$ReqLoginPacketToJson(ReqLoginPacket instance) {
+  final val = <String, dynamic>{
+    'request_id': instance.requestId,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('username', instance.username);
+  writeNotNull('password', instance.password);
+  writeNotNull('token', instance.token);
+  return val;
+}
 
 ReqCreateChannelMessagePacket _$ReqCreateChannelMessagePacketFromJson(
         Map<String, dynamic> json) =>
@@ -65,13 +74,22 @@ ReqCreateChannelMessagePacket _$ReqCreateChannelMessagePacketFromJson(
     );
 
 Map<String, dynamic> _$ReqCreateChannelMessagePacketToJson(
-        ReqCreateChannelMessagePacket instance) =>
-    <String, dynamic>{
-      'request_id': instance.requestId,
-      'channel_id': instance.channelId,
-      'message': instance.message,
-      'mentions': instance.mentions,
-    };
+    ReqCreateChannelMessagePacket instance) {
+  final val = <String, dynamic>{
+    'request_id': instance.requestId,
+    'channel_id': instance.channelId,
+    'message': instance.message,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('mentions', instance.mentions);
+  return val;
+}
 
 ReqFetchChannelMessagesPacket _$ReqFetchChannelMessagesPacketFromJson(
         Map<String, dynamic> json) =>
@@ -82,12 +100,21 @@ ReqFetchChannelMessagesPacket _$ReqFetchChannelMessagesPacketFromJson(
     );
 
 Map<String, dynamic> _$ReqFetchChannelMessagesPacketToJson(
-        ReqFetchChannelMessagesPacket instance) =>
-    <String, dynamic>{
-      'request_id': instance.requestId,
-      'channel_id': instance.channelId,
-      'last_message_id': instance.lastMessageId,
-    };
+    ReqFetchChannelMessagesPacket instance) {
+  final val = <String, dynamic>{
+    'request_id': instance.requestId,
+    'channel_id': instance.channelId,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('last_message_id', instance.lastMessageId);
+  return val;
+}
 
 ReqSetUserPasswordPacket _$ReqSetUserPasswordPacketFromJson(
         Map<String, dynamic> json) =>
@@ -127,11 +154,20 @@ ReqSetUserStatusPacket _$ReqSetUserStatusPacketFromJson(
     );
 
 Map<String, dynamic> _$ReqSetUserStatusPacketToJson(
-        ReqSetUserStatusPacket instance) =>
-    <String, dynamic>{
-      'request_id': instance.requestId,
-      'status': instance.status,
-    };
+    ReqSetUserStatusPacket instance) {
+  final val = <String, dynamic>{
+    'request_id': instance.requestId,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('status', instance.status);
+  return val;
+}
 
 ReqSetUserAvatarPacket _$ReqSetUserAvatarPacketFromJson(
         Map<String, dynamic> json) =>
@@ -141,11 +177,20 @@ ReqSetUserAvatarPacket _$ReqSetUserAvatarPacketFromJson(
     );
 
 Map<String, dynamic> _$ReqSetUserAvatarPacketToJson(
-        ReqSetUserAvatarPacket instance) =>
-    <String, dynamic>{
-      'request_id': instance.requestId,
-      'avatar': instance.avatar,
-    };
+    ReqSetUserAvatarPacket instance) {
+  final val = <String, dynamic>{
+    'request_id': instance.requestId,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('avatar', instance.avatar);
+  return val;
+}
 
 ReqSetUserPresencePacket _$ReqSetUserPresencePacketFromJson(
         Map<String, dynamic> json) =>
@@ -171,13 +216,22 @@ ReqCreateChannelPacket _$ReqCreateChannelPacketFromJson(
     );
 
 Map<String, dynamic> _$ReqCreateChannelPacketToJson(
-        ReqCreateChannelPacket instance) =>
-    <String, dynamic>{
-      'request_id': instance.requestId,
-      'server_id': instance.serverId,
-      'name': instance.name,
-      'description': instance.description,
-    };
+    ReqCreateChannelPacket instance) {
+  final val = <String, dynamic>{
+    'request_id': instance.requestId,
+    'server_id': instance.serverId,
+    'name': instance.name,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('description', instance.description);
+  return val;
+}
 
 ReqDeleteChannelPacket _$ReqDeleteChannelPacketFromJson(
         Map<String, dynamic> json) =>
@@ -203,13 +257,22 @@ ReqModifyChannelPacket _$ReqModifyChannelPacketFromJson(
     );
 
 Map<String, dynamic> _$ReqModifyChannelPacketToJson(
-        ReqModifyChannelPacket instance) =>
-    <String, dynamic>{
-      'request_id': instance.requestId,
-      'channel_id': instance.channelId,
-      'name': instance.name,
-      'description': instance.description,
-    };
+    ReqModifyChannelPacket instance) {
+  final val = <String, dynamic>{
+    'request_id': instance.requestId,
+    'channel_id': instance.channelId,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('name', instance.name);
+  writeNotNull('description', instance.description);
+  return val;
+}
 
 ReqAddUserToChannelPacket _$ReqAddUserToChannelPacketFromJson(
         Map<String, dynamic> json) =>
@@ -292,12 +355,21 @@ ResCreateChannelMessagePacket _$ResCreateChannelMessagePacketFromJson(
     );
 
 Map<String, dynamic> _$ResCreateChannelMessagePacketToJson(
-        ResCreateChannelMessagePacket instance) =>
-    <String, dynamic>{
-      'message': instance.message,
-      'relation': instance.relation,
-      'mentions': instance.mentions,
-    };
+    ResCreateChannelMessagePacket instance) {
+  final val = <String, dynamic>{
+    'message': instance.message,
+    'relation': instance.relation,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('mentions', instance.mentions);
+  return val;
+}
 
 ResFetchChannelMessagesPacket _$ResFetchChannelMessagesPacketFromJson(
         Map<String, dynamic> json) =>
@@ -347,11 +419,20 @@ ResSetUserStatusPacket _$ResSetUserStatusPacketFromJson(
     );
 
 Map<String, dynamic> _$ResSetUserStatusPacketToJson(
-        ResSetUserStatusPacket instance) =>
-    <String, dynamic>{
-      'user_id': instance.userId,
-      'status': instance.status,
-    };
+    ResSetUserStatusPacket instance) {
+  final val = <String, dynamic>{
+    'user_id': instance.userId,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('status', instance.status);
+  return val;
+}
 
 ResSetUserAvatarPacket _$ResSetUserAvatarPacketFromJson(
         Map<String, dynamic> json) =>
@@ -361,11 +442,20 @@ ResSetUserAvatarPacket _$ResSetUserAvatarPacketFromJson(
     );
 
 Map<String, dynamic> _$ResSetUserAvatarPacketToJson(
-        ResSetUserAvatarPacket instance) =>
-    <String, dynamic>{
-      'user_id': instance.userId,
-      'avatar': instance.avatar,
-    };
+    ResSetUserAvatarPacket instance) {
+  final val = <String, dynamic>{
+    'user_id': instance.userId,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('avatar', instance.avatar);
+  return val;
+}
 
 ResSetUserPresencePacket _$ResSetUserPresencePacketFromJson(
         Map<String, dynamic> json) =>
@@ -495,6 +585,9 @@ EvtWelcomePacket _$EvtWelcomePacketFromJson(Map<String, dynamic> json) =>
       users: (json['users'] as List<dynamic>)
           .map((e) => User.fromJson(e as Map<String, dynamic>))
           .toList(),
+      unreadMessages: (json['unread_messages'] as List<dynamic>)
+          .map((e) => UnreadMessageRelation.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$EvtWelcomePacketToJson(EvtWelcomePacket instance) =>
@@ -509,6 +602,7 @@ Map<String, dynamic> _$EvtWelcomePacketToJson(EvtWelcomePacket instance) =>
       'channels': instance.channels,
       'channel_users': instance.channelUsers,
       'users': instance.users,
+      'unread_messages': instance.unreadMessages,
     };
 
 EvtUpdatePresencePacket _$EvtUpdatePresencePacketFromJson(

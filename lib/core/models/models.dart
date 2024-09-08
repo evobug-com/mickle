@@ -25,7 +25,7 @@ class Relation with ChangeNotifier {
   Map<String, dynamic> toJson() => _$RelationToJson(this);
 
   void notify() => notifyListeners();
-  
+
   @override
   String toString() {
     return 'Relation{id: $id, input: $input, output: $output}';
@@ -56,7 +56,7 @@ class Token with ChangeNotifier {
   Map<String, dynamic> toJson() => _$TokenToJson(this);
 
   void notify() => notifyListeners();
-  
+
   @override
   String toString() {
     return 'Token{id: $id, user: $user, token: $token, createdAt: $createdAt, expiresAt: $expiresAt}';
@@ -72,19 +72,19 @@ class Server with ChangeNotifier {
   String name;
   @JsonKey(name: "main")
   bool main;
-  @JsonKey(name: "parent")
+  @JsonKey(name: "parent", includeIfNull: false)
   String? parent;
 
   Server({required this.id,
     required this.name,
     required this.main,
-    required this.parent,});
+    this.parent,});
 
   factory Server.fromJson(Map<String, dynamic> json) => _$ServerFromJson(json);
   Map<String, dynamic> toJson() => _$ServerToJson(this);
 
   void notify() => notifyListeners();
-  
+
   @override
   String toString() {
     return 'Server{id: $id, name: $name, main: $main, parent: $parent}';
@@ -103,7 +103,7 @@ class Permission with ChangeNotifier {
   Map<String, dynamic> toJson() => _$PermissionToJson(this);
 
   void notify() => notifyListeners();
-  
+
   @override
   String toString() {
     return 'Permission{id: $id}';
@@ -131,7 +131,7 @@ class Role with ChangeNotifier {
   Map<String, dynamic> toJson() => _$RoleToJson(this);
 
   void notify() => notifyListeners();
-  
+
   @override
   String toString() {
     return 'Role{id: $id, name: $name, rank: $rank, createdAt: $createdAt}';
@@ -149,20 +149,20 @@ class Message with ChangeNotifier {
   String content;
   @JsonKey(name: "created_at")
   DateTime createdAt;
-  @JsonKey(name: "mentions")
+  @JsonKey(name: "mentions", includeIfNull: false)
   List<String>? mentions;
 
   Message({required this.id,
     required this.user,
     required this.content,
     required this.createdAt,
-    required this.mentions,});
+    this.mentions,});
 
   factory Message.fromJson(Map<String, dynamic> json) => _$MessageFromJson(json);
   Map<String, dynamic> toJson() => _$MessageToJson(this);
 
   void notify() => notifyListeners();
-  
+
   @override
   String toString() {
     return 'Message{id: $id, user: $user, content: $content, createdAt: $createdAt, mentions: $mentions}';
@@ -176,7 +176,7 @@ class Channel with ChangeNotifier {
   String id;
   @JsonKey(name: "name")
   String name;
-  @JsonKey(name: "description")
+  @JsonKey(name: "description", includeIfNull: false)
   String? description;
   @JsonKey(name: "created_at")
   DateTime createdAt;
@@ -185,7 +185,7 @@ class Channel with ChangeNotifier {
 
   Channel({required this.id,
     required this.name,
-    required this.description,
+    this.description,
     required this.createdAt,
     required this.archived,});
 
@@ -193,7 +193,7 @@ class Channel with ChangeNotifier {
   Map<String, dynamic> toJson() => _$ChannelToJson(this);
 
   void notify() => notifyListeners();
-  
+
   @override
   String toString() {
     return 'Channel{id: $id, name: $name, description: $description, createdAt: $createdAt, archived: $archived}';
@@ -205,41 +205,69 @@ class Channel with ChangeNotifier {
 class User with ChangeNotifier {
   @JsonKey(name: "id")
   String id;
-  @JsonKey(name: "display_name")
+  @JsonKey(name: "display_name", includeIfNull: false)
   String? displayName;
-  @JsonKey(name: "first_name")
+  @JsonKey(name: "first_name", includeIfNull: false)
   String? firstName;
-  @JsonKey(name: "last_name")
+  @JsonKey(name: "last_name", includeIfNull: false)
   String? lastName;
   @JsonKey(name: "created_at")
   DateTime createdAt;
-  @JsonKey(name: "last_seen")
+  @JsonKey(name: "last_seen", includeIfNull: false)
   DateTime? lastSeen;
-  @JsonKey(name: "status")
+  @JsonKey(name: "status", includeIfNull: false)
   String? status;
-  @JsonKey(name: "avatar")
+  @JsonKey(name: "avatar", includeIfNull: false)
   String? avatar;
   @JsonKey(name: "presence")
-  String? presence;
+  String presence;
 
   User({required this.id,
-    required this.displayName,
-    required this.firstName,
-    required this.lastName,
+    this.displayName,
+    this.firstName,
+    this.lastName,
     required this.createdAt,
-    required this.lastSeen,
-    required this.status,
-    required this.avatar,
+    this.lastSeen,
+    this.status,
+    this.avatar,
     required this.presence,});
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
   Map<String, dynamic> toJson() => _$UserToJson(this);
 
   void notify() => notifyListeners();
-  
+
   @override
   String toString() {
     return 'User{id: $id, displayName: $displayName, firstName: $firstName, lastName: $lastName, createdAt: $createdAt, lastSeen: $lastSeen, status: $status, avatar: $avatar, presence: $presence}';
+  }
+}
+
+
+@JsonSerializable()
+class UnreadMessageRelation extends Relation {
+  @JsonKey(name: "last_read_message_id", includeIfNull: false)
+  final String? lastReadMessageId;
+  @JsonKey(name: "unread_count")
+  final int unreadCount;
+  @JsonKey(name: "last_update")
+  final DateTime lastUpdate;
+
+  UnreadMessageRelation({required this.lastReadMessageId,
+    required this.unreadCount,
+    required this.lastUpdate, required String input, required String output, required String id}) : super(input: input, output: output, id: id);
+
+  factory UnreadMessageRelation.fromJson(Map<String, dynamic> json) => _$UnreadMessageRelationFromJson(json);
+    @override
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> json = _$UnreadMessageRelationToJson(this);
+    json.addAll(super.toJson());
+    return json;
+  }
+
+  @override
+  String toString() {
+    return 'UnreadMessageRelation{id: $id, input: $input, output: $output, lastReadMessageId: $lastReadMessageId, unreadCount: $unreadCount, lastUpdate: $lastUpdate}';
   }
 }
 

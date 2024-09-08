@@ -408,7 +408,7 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
         // Update the presence in the local database
         final db = connection.database;
         final user = db.users.firstWhere((user) => user.id == connection.user.id)
-          ..presence = _newPresence;
+          ..presence = _newPresence!;
         user.notify();
       }
       final avatar = _avatarUrlController.text.isEmpty ? null : _avatarUrlController.text;

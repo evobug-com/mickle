@@ -116,6 +116,7 @@ Future<void> handleEvtWelcomePacket(ApiResponse<EvtWelcomePacket> packet, Connec
   db.permissions.addItems(packet.data!.permissions);
   db.rolePermissions.addRelations(packet.data!.rolePermissions);
   db.serverChannels.addRelations(packet.data!.serverChannels);
+  db.unreadMessages.addRelations(packet.data!.unreadMessages);
   connection.onWelcome(packet.data!);
 }
 
