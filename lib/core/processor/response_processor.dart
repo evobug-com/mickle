@@ -34,7 +34,7 @@ Future<void> _handlePacket(ApiResponse packet, Connection connection) async {
       await handleResLoginPacket(packet.cast(ResLoginPacket.fromJson), connection);
       break;
     case "ResLoginPingPacket":
-      await handleResPingPacket(connection);
+      await handleResPingPacket(packet.cast(ResLoginPacket.fromJson), connection);
       break;
     case "EvtWelcomePacket":
       await handleEvtWelcomePacket(packet.cast(EvtWelcomePacket.fromJson), connection);
@@ -98,10 +98,8 @@ Future<void> handleResLoginPacket(ApiResponse<ResLoginPacket> packet, Connection
   connection.packetManager.runResolve(packet.requestId!, packet);
 }
 
-Future<void> handleResPingPacket(Connection connection) async {
-  // final duration = Duration(milliseconds: 100 + Random().nextInt(3000));
-  // await Future.delayed(duration);
-  // connection.send(request.Pong().serialize());
+Future<void> handleResPingPacket(ApiResponse<ResLoginPacket> packet, Connection connection) async {
+  connection.packetManager.runResolve(packet.requestId!, packet);
 }
 
 Future<void> handleEvtWelcomePacket(ApiResponse<EvtWelcomePacket> packet, Connection connection) async {

@@ -229,4 +229,10 @@ class PacketManager {
       channelId: channelId,
     ));
   }
+
+  Future<ApiResponse<ResPingPacket>> sendPing() {
+    return sendRequest((requestId) => ReqPingPacket(
+      requestId: requestId,
+    ));
+  }
 }

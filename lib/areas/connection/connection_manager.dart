@@ -35,6 +35,15 @@ class ConnectionManager extends ChangeNotifier {
   /// The maximum number of backoff seconds for reconnection attempts.
   static const int maxBackoffSeconds = 300;
 
+  // ignore: unused_field
+  final Timer _pingTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+    for (final connection in _instance._connections.values) {
+      if(connection.status.value == ConnectionStatus.authenticated) {
+        connection.packetManager.sendPing();
+      }
+    }
+  });
+
   Future<Connection> connect(String connectionUrl) async {
     final connection = _connections.putIfAbsent(connectionUrl, () => Connection(connectionUrl: connectionUrl));
 
