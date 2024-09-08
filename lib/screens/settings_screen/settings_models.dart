@@ -39,6 +39,18 @@ final List<SettingMetadata> settingsCategories = [
         'account-logout': SettingItem(tab: 'general', key: 'account-logout', name: 'Account Logout'),
       }
   ),
+  SettingMetadata(
+      tab: 'behaviour',
+      icon: Icons.rule,
+      title: 'Behaviour',
+      items: {
+        'behaviour-send-message-on-enter': SettingItem(
+            tab: 'behaviour',
+            key: 'behaviour-send-message-on-enter',
+            name: 'Send message on Enter'
+        ),
+      }
+  ),
   SettingMetadata(tab: 'notifications', icon: Icons.notifications, title: 'Notifications',
       items: {
         'notifications-sound-any-message': SettingItem(tab: 'notifications', key: 'notifications-sound-any-message', name: 'Sound on Any Message'),

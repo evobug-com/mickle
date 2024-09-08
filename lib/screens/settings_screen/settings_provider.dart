@@ -45,7 +45,7 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // New notification settings
+  // Notification settings
   bool get playSoundOnAnyMessage => Storage().readBoolean('playSoundOnAnyMessage', defaultValue: true);
   set playSoundOnAnyMessage(bool value) {
     Storage().write('playSoundOnAnyMessage', value.toString());
@@ -67,6 +67,13 @@ class SettingsProvider extends ChangeNotifier {
   bool get showDesktopNotifications => Storage().readBoolean('showDesktopNotifications', defaultValue: true);
   set showDesktopNotifications(bool value) {
     Storage().write('showDesktopNotifications', value.toString());
+    notifyListeners();
+  }
+
+  // Behaviour settings
+  bool get sendMessageOnEnter => Storage().readBoolean('sendMessageOnEnter', defaultValue: true);
+  set sendMessageOnEnter(bool value) {
+    Storage().write('sendMessageOnEnter', value.toString());
     notifyListeners();
   }
 }

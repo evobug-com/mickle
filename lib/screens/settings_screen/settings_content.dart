@@ -5,6 +5,7 @@ import 'settings_models.dart';
 import 'tabs/about_settings_tab.dart';
 import 'tabs/appearance_settings_tab.dart';
 import 'tabs/audio_settings_tab.dart';
+import 'tabs/behaviour_settings_tab.dart';
 import 'tabs/experimental_settings_tab.dart';
 import 'tabs/general_settings_tab.dart';
 import 'tabs/notifications_settings_tab.dart';
@@ -20,6 +21,8 @@ class SettingsContent extends StatelessWidget {
     switch (tab) {
       case 'general':
         return GeneralSettingsTab(item: item, settingsCategories: settingsCategories,);
+      case 'behaviour':
+        return BehaviourSettingsTab(item: item, settingsCategories: settingsCategories,);
       case 'audio':
         return AudioSettingsTab(item: item, settingsCategories: settingsCategories);
       case 'notifications':
