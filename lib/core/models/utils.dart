@@ -70,6 +70,14 @@ extension ChannelExtension on Channel {
     return channelMessages;
   }
 
+  List<User> getUsers({required Database database}) {
+    final channelUsersRelations = database.channelUsers.inputs(id);
+
+    // Get all users for channelUsersRelations by id
+    final channelUsers = channelUsersRelations.map((relation) => database.users.get(relation.output)!).toList();
+    return channelUsers;
+  }
+
   containsMessage(Message message, {required Database database}) {
     final channelMessagesRelations = database.channelMessages.outputs(message.id);
     return channelMessagesRelations.any((relation) => relation.input == id);

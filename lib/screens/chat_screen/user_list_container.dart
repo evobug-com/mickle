@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:talk/components/channel_list/core/models/channel_list_selected_room.dart';
+import 'package:talk/core/models/utils.dart';
 import 'package:talk/core/providers/scoped/connection_provider.dart';
 
 import '../../core/database.dart';
@@ -15,7 +17,6 @@ class UserListContainer extends StatelessWidget {
     return SidebarBox(
       child: Column(
         children: <Widget>[
-          const Text('Users'),
           const SizedBox(height: 8.0),
           Expanded(
             child: StreamBuilder(
@@ -29,8 +30,10 @@ class UserListContainer extends StatelessWidget {
                     );
                   }
 
-                  List<User> users =
-                      connection.database.users.items;
+                  final Channel? selectedChannel =
+                      ChannelListSelectedChannel.of(context).getChannel(connection.server);
+
+                  List<User> users = selectedChannel == null ? connection.database.users.items : selectedChannel.getUsers(database: connection.database);
 
                   return ListView.builder(
                     itemCount: users.length,
