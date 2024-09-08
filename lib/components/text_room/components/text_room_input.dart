@@ -147,9 +147,8 @@ class TextRoomInputState extends State<TextRoomInput> {
         children: [
           IconButton(
             icon: Icon(Icons.add, color: colorScheme.onSurfaceVariant, size: 20),
-            onPressed: () {
-              // TODO: Implement add attachment functionality
-            },
+            // TODO: Implement add attachment functionality
+            onPressed: null,
           ),
           Expanded(
             child: TextField(
@@ -183,9 +182,8 @@ class TextRoomInputState extends State<TextRoomInput> {
           ),
           IconButton(
             icon: Icon(Icons.sentiment_satisfied_alt, color: colorScheme.onSurfaceVariant, size: 20),
-            onPressed: () {
-              // TODO: Implement emoji picker functionality
-            },
+            // TODO: Implement emoji picker functionality
+            onPressed: null,
           ),
         ],
       ),
