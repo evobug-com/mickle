@@ -9,6 +9,6 @@ class ServerListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ServerListNavigator();
+    return ServerListNavigator(showAddServerButton: showAddServerButton, showMainServersOnly: showMainServersOnly);
   }
 }

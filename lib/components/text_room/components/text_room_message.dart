@@ -81,12 +81,12 @@ class TextRoomMessageState extends State<TextRoomMessage> {
                     children: [
                       Row(
                         children: [
-                          Text(widget.user?.displayName ?? '<user not found>', style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold),),
+                          SelectableText(widget.user?.displayName ?? '<user not found>', style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold),),
                           const SizedBox(width: 8),
-                          Text(DateFormat('HH:mm:ss').format(widget.message.createdAt), style: TextStyle(color: colorScheme.onSurface, fontStyle: FontStyle.italic)),
+                          Text(DateFormat('HH:mm:ss').format(widget.message.createdAt), style: TextStyle(color: colorScheme.onSurfaceVariant, fontStyle: FontStyle.italic)),
                         ],
                       ),
-                      Text(widget.message.content ?? '<No message>', style: TextStyle(color: colorScheme.onSurface)),
+                      SelectableText(widget.message.content ?? '<No message>', style: TextStyle(color: colorScheme.onSurface)),
                     ],
                   ),
                 ),

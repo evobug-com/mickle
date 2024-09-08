@@ -13,7 +13,9 @@ import 'package:talk/core/providers/global/selected_server_provider.dart';
 import '../../../areas/connection/connection_status.dart';
 
 class ServerListNavigator extends StatefulWidget {
-  const ServerListNavigator({super.key});
+  final bool showAddServerButton;
+  final bool showMainServersOnly;
+  const ServerListNavigator({super.key, required this.showAddServerButton, required this.showMainServersOnly});
 
   @override
   State<ServerListNavigator> createState() => _ServerListNavigatorState();
@@ -58,12 +60,25 @@ class _ServerListNavigatorState extends State<ServerListNavigator> with TickerPr
             width: 72,
             child: Material(
               color: Theme.of(context).colorScheme.surface,
-              child: ListView.builder(
-                itemCount: connectionManager.connections.length,
-                itemBuilder: (context, index) {
-                  final connection = connectionManager.connections.elementAt(index);
-                  return _buildClientServerList(context, connection);
-                },
+              child: Column(
+                children: [
+                  Expanded(child: ListView.builder(
+                    itemCount: connectionManager.connections.length,
+                    itemBuilder: (context, index) {
+                      final connection = connectionManager.connections.elementAt(index);
+                      return _buildClientServerList(context, connection);
+                    },
+                  ),),
+                  if(widget.showAddServerButton) Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: FloatingActionButton(
+                      onPressed: () {
+                        context.goNamed('login');
+                      },
+                      child: Icon(Icons.add),
+                    ),
+                  ),
+                ],
               ),
             ),
           );
