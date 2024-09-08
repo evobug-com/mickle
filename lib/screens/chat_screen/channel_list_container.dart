@@ -50,7 +50,7 @@ class _ChannelListContainerState extends State<ChannelListContainer> {
                         switch (action) {
                           case 'archive':
                             widget.connection.packetManager
-                                .sendChannelDelete(
+                                .sendDeleteChannel(
                                 channelId: channel.id);
                             break;
                           case 'edit':
@@ -61,7 +61,7 @@ class _ChannelListContainerState extends State<ChannelListContainer> {
                                     onSubmitted: (title,
                                         description, isPrivate) async {
                                       final result = await widget.connection.packetManager
-                                          .sendChannelUpdate(
+                                          .sendModifyChannel(
                                           channelId:
                                           channel.id,
                                           name: title,
@@ -81,7 +81,7 @@ class _ChannelListContainerState extends State<ChannelListContainer> {
                             break;
                           case "leave":
                             widget.connection.packetManager
-                                .sendChannelRemoveUser(
+                                .sendDeleteUserFromChannel(
                               channelId: channel.id,
                               userId: widget.connection.user.id,
                             )

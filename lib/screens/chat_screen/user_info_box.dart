@@ -371,7 +371,7 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
       }
 
       if (_displayNameController.text != widget.connection.user.displayName) {
-        final result = await packetManager.sendUserChangeDisplayName(displayName: _displayNameController.text);
+        final result = await packetManager.sendSetUserDisplayName(displayName: _displayNameController.text);
         if (result.error != null) {
           _errorMessage = result.error?.message;
           return;
@@ -386,7 +386,7 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
 
       final status = _statusController.text.isEmpty ? null : _statusController.text;
       if (status != widget.connection.user.status) {
-        final result = await packetManager.sendUserChangeStatus(status: status);
+        final result = await packetManager.sendSetUserStatus(status: status);
         if (result.error != null) {
           _errorMessage = result.error?.message;
           return;
@@ -399,7 +399,7 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
         user.notify();
       }
       if (_newPresence != widget.connection.user.presence) {
-        final result = await packetManager.sendUserChangePresence(presence: _newPresence!);
+        final result = await packetManager.sendSetUserPresence(presence: _newPresence!);
         if (result.error != null) {
           _errorMessage = result.error?.message;
           return;
@@ -414,7 +414,7 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
       final avatar = _avatarUrlController.text.isEmpty ? null : _avatarUrlController.text;
       if (_avatarUploadMethod == AvatarUploadMethod.url &&
           avatar != widget.connection.user.avatar) {
-        final result = await packetManager.sendUserChangeAvatar(avatar: avatar);
+        final result = await packetManager.sendSetUserAvatar(avatar: avatar);
         if (result.error != null) {
           _errorMessage = result.error?.message;
           return;

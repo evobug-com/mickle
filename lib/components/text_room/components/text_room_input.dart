@@ -195,7 +195,7 @@ class TextRoomInputState extends State<TextRoomInput> {
       return;
     }
 
-    widget.connection.packetManager.sendChannelMessageCreate(value: value, channelId: widget.channel.id);
+    widget.connection.packetManager.sendCreateChannelMessage(value: value, channelId: widget.channel.id);
 
     Provider.of<TextRoomScrollController>(context, listen: false)
         .nextRenderScrollToBottom = true;

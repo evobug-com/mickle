@@ -115,7 +115,7 @@ class ConsoleChangePasswordItemState extends State<ConsoleChangePasswordItem> {
                           }
 
                           setState(() {
-                            _futureResponse = packetManager.sendUserChangePassword(oldPassword: _oldPasswordController.text, newPassword: _newPasswordController.text).wrapInCompleter();
+                            _futureResponse = packetManager.sendSetUserPassword(oldPassword: _oldPasswordController.text, newPassword: _newPasswordController.text).wrapInCompleter();
                             _futureResponse!.future.whenComplete(() => setState(() {}));
                           });
                         },

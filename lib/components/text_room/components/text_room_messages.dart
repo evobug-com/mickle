@@ -49,7 +49,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
 
   /// Fetches messages from the backend for the current channel.
   void _fetchMessages() {
-    fetchingMessages = widget.connection.packetManager.sendChannelMessageFetch(
+    fetchingMessages = widget.connection.packetManager.sendFetchChannelMessages(
         channelId: widget.channel.id,
         lastMessageId: widget.channel.getMessages(database: widget.connection.database).firstOrNull?.id
     );

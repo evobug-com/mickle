@@ -92,7 +92,7 @@ class PacketManager {
     ));
   }
 
-  Future<ApiResponse<ResSetUserPresencePacket>> sendUserChangePresence({
+  Future<ApiResponse<ResSetUserPresencePacket>> sendSetUserPresence({
     required String presence
   }) {
     return sendRequest((requestId) => ReqSetUserPresencePacket(
@@ -101,7 +101,7 @@ class PacketManager {
     ));
   }
 
-  Future<ApiResponse<ResSetUserStatusPacket>> sendUserChangeStatus({
+  Future<ApiResponse<ResSetUserStatusPacket>> sendSetUserStatus({
     required String? status
   }) {
     return sendRequest((requestId) => ReqSetUserStatusPacket(
@@ -110,7 +110,7 @@ class PacketManager {
     ));
   }
 
-  Future<ApiResponse<ResSetUserAvatarPacket>> sendUserChangeAvatar({
+  Future<ApiResponse<ResSetUserAvatarPacket>> sendSetUserAvatar({
     required String? avatar
   }) {
     return sendRequest((requestId) => ReqSetUserAvatarPacket(
@@ -119,7 +119,7 @@ class PacketManager {
     ));
   }
 
-  Future<ApiResponse<ResSetUserPasswordPacket>> sendUserChangePassword({
+  Future<ApiResponse<ResSetUserPasswordPacket>> sendSetUserPassword({
     required String oldPassword,
     required String newPassword,
   }) {
@@ -130,7 +130,7 @@ class PacketManager {
     ));
   }
 
-  Future<ApiResponse<ResSetUserDisplayNamePacket>> sendUserChangeDisplayName({
+  Future<ApiResponse<ResSetUserDisplayNamePacket>> sendSetUserDisplayName({
     required String displayName
   }) {
     return sendRequest((requestId) => ReqSetUserDisplayNamePacket(
@@ -139,7 +139,7 @@ class PacketManager {
     ));
   }
 
-  Future<ApiResponse<ResCreateChannelMessagePacket>> sendChannelMessageCreate({
+  Future<ApiResponse<ResCreateChannelMessagePacket>> sendCreateChannelMessage({
     required String value,
     required String channelId,
   }) {
@@ -153,7 +153,7 @@ class PacketManager {
     ));
   }
 
-  Future<ApiResponse<ResFetchChannelMessagesPacket>> sendChannelMessageFetch({
+  Future<ApiResponse<ResFetchChannelMessagesPacket>> sendFetchChannelMessages({
     required String channelId,
     required String? lastMessageId,
   }) {
@@ -164,7 +164,7 @@ class PacketManager {
     ));
   }
 
-  Future<ApiResponse<ResCreateChannelPacket>> sendChannelCreate({
+  Future<ApiResponse<ResCreateChannelPacket>> sendCreateChannel({
     required String serverId,
     required String name,
     required String? description,
@@ -177,7 +177,7 @@ class PacketManager {
     ));
   }
 
-  Future<ApiResponse<ResDeleteChannelPacket>> sendChannelDelete({
+  Future<ApiResponse<ResDeleteChannelPacket>> sendDeleteChannel({
     required String channelId,
   }) {
     return sendRequest((requestId) => ReqDeleteChannelPacket(
@@ -186,7 +186,7 @@ class PacketManager {
     ));
   }
 
-  Future<ApiResponse<ResModifyChannelPacket>> sendChannelUpdate({
+  Future<ApiResponse<ResModifyChannelPacket>> sendModifyChannel({
     required String channelId,
     required String? name,
     required String? description,
@@ -199,7 +199,7 @@ class PacketManager {
     ));
   }
 
-  Future<ApiResponse<ResAddUserToChannelPacket>> sendChannelAddUser({
+  Future<ApiResponse<ResAddUserToChannelPacket>> sendAddUserToChannel({
     required String channelId,
     required String userId,
   }) {
@@ -210,7 +210,7 @@ class PacketManager {
     ));
   }
 
-  Future<ApiResponse<ResDeleteUserFromChannelPacket>> sendChannelRemoveUser({
+  Future<ApiResponse<ResDeleteUserFromChannelPacket>> sendDeleteUserFromChannel({
     required String channelId,
     required String userId,
   }) {
