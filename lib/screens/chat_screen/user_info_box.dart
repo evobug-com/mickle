@@ -138,15 +138,6 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(
-                                'Edit Profile',
-                                style: TextStyle(
-                                  color: colorScheme.onSurface,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 24),
                               _buildAvatarSection(colorScheme, setState),
                               const SizedBox(height: 24),
                               _buildInfoField('Display Name', _buildDisplayNameField(colorScheme)),
