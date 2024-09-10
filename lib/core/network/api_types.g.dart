@@ -37,6 +37,18 @@ Map<String, dynamic> _$ReqPingPacketToJson(ReqPingPacket instance) =>
       'request_id': instance.requestId,
     };
 
+ReqFetchPublicKeyPacket _$ReqFetchPublicKeyPacketFromJson(
+        Map<String, dynamic> json) =>
+    ReqFetchPublicKeyPacket(
+      requestId: (json['request_id'] as num).toInt(),
+    );
+
+Map<String, dynamic> _$ReqFetchPublicKeyPacketToJson(
+        ReqFetchPublicKeyPacket instance) =>
+    <String, dynamic>{
+      'request_id': instance.requestId,
+    };
+
 ReqLoginPacket _$ReqLoginPacketFromJson(Map<String, dynamic> json) =>
     ReqLoginPacket(
       requestId: (json['request_id'] as num).toInt(),
@@ -327,6 +339,20 @@ ResPingPacket _$ResPingPacketFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$ResPingPacketToJson(ResPingPacket instance) =>
     <String, dynamic>{};
+
+ResFetchPublicKeyPacket _$ResFetchPublicKeyPacketFromJson(
+        Map<String, dynamic> json) =>
+    ResFetchPublicKeyPacket(
+      publicKey: json['public_key'] as String,
+      signature: json['signature'] as String,
+    );
+
+Map<String, dynamic> _$ResFetchPublicKeyPacketToJson(
+        ResFetchPublicKeyPacket instance) =>
+    <String, dynamic>{
+      'public_key': instance.publicKey,
+      'signature': instance.signature,
+    };
 
 ResLoginPacket _$ResLoginPacketFromJson(Map<String, dynamic> json) =>
     ResLoginPacket(

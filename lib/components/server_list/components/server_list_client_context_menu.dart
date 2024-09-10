@@ -54,8 +54,6 @@ class ServerListClientContextMenu extends StatelessWidget {
 
         if(value == 'reconnect') {
           connection.isReconnectEnabled = true;
-          connection.reconnectAttempts = 0;
-          connection.reconnectTimer?.cancel();
           ConnectionManager().onConnectionDone(connection);
         }
       },

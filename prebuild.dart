@@ -282,6 +282,7 @@ class $className extends Relation {
 
 class RustToDartGenerator {
   static const Map<String, String> _rustToDartTypes = {
+    'u8': 'int',
     'u16': 'int',
     'u32': 'int',
     'u64': 'int',
@@ -579,6 +580,12 @@ class PacketFactory {
       final innerType = rustType.substring(7, rustType.length - 1);
       return '${_resolveDartType(innerType)}?';
     }
+
+    // Check if we are mapping Vec
+    if(_rustToDartTypes[rustType] != null) {
+      return _rustToDartTypes[rustType]!;
+    }
+
     if (rustType.startsWith('Vec<')) {
       final innerType = rustType.substring(4, rustType.length - 1);
       return 'List<${_resolveDartType(innerType)}>';

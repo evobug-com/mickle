@@ -8,27 +8,31 @@ class ConnectionError {
   ConnectionError._internal(this.type, this.message, this.exception);
 
   factory ConnectionError.socketException(SocketException e) {
-    return ConnectionError._internal('SocketException', e.message, e);
+    return ConnectionError._internal('SocketException', e.toString(), e);
   }
 
   factory ConnectionError.handshakeException(HandshakeException e) {
-    return ConnectionError._internal('HandshakeException', e.message, e);
+    return ConnectionError._internal('HandshakeException', e.toString(), e);
   }
 
   factory ConnectionError.certificateException(CertificateException e) {
-    return ConnectionError._internal('CertificateException', e.message, e);
+    return ConnectionError._internal('CertificateException', e.toString(), e);
   }
 
   factory ConnectionError.tlsException(TlsException e) {
-    return ConnectionError._internal('TlsException', e.message, e);
+    return ConnectionError._internal('TlsException', e.toString(), e);
   }
 
   factory ConnectionError.osError(OSError e) {
-    return ConnectionError._internal('OSError', e.message, e);
+    return ConnectionError._internal('OSError', e.toString(), e);
   }
 
   factory ConnectionError.authenticationFailed(String errorMessage) {
     return ConnectionError._internal('AuthenticationFailed', errorMessage, null);
+  }
+
+  factory ConnectionError.tofuError(String errorMessage) {
+    return ConnectionError._internal('TofuError', errorMessage, null);
   }
 
   factory ConnectionError.unknown(dynamic e) {

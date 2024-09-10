@@ -32,6 +32,9 @@ Future<void> processResponse(Connection connection, Uint8List data) async {
 
 Future<void> _handlePacket(ApiResponse packet, Connection connection) async {
   switch (packet.type) {
+    case "ResFetchPublicKeyPacket":
+      await handleResFetchPublicKeyPacket(packet.cast(ResFetchPublicKeyPacket.fromJson), connection);
+      break;
     case "ResLoginPacket":
       await handleResLoginPacket(packet.cast(ResLoginPacket.fromJson), connection);
       break;
@@ -94,6 +97,10 @@ Future<void> handleErrorPacket(ApiResponse packet, Connection connection) async 
   if(packet.requestId != null) {
     connection.packetManager.runResolveError(packet.requestId!, packet);
   }
+}
+
+Future<void> handleResFetchPublicKeyPacket(ApiResponse<ResFetchPublicKeyPacket> packet, Connection connection) async {
+  connection.packetManager.runResolve(packet.requestId!, packet);
 }
 
 Future<void> handleResLoginPacket(ApiResponse<ResLoginPacket> packet, Connection connection) async {

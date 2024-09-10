@@ -56,7 +56,13 @@ class Connection {
   Timer? get reconnectTimer => _reconnectTimer;
   set reconnectTimer(Timer? value) => _reconnectTimer = value;
   bool get isReconnectEnabled => _reconnectEnabled;
-  set isReconnectEnabled(bool value) => _reconnectEnabled = value;
+  set isReconnectEnabled(bool value) {
+    _reconnectEnabled = value;
+    if(!value) {
+      _reconnectAttempts = 0;
+      reconnectTimer?.cancel();
+    }
+  }
   int get reconnectAttempts => _reconnectAttempts;
   set reconnectAttempts(int value) => _reconnectAttempts = value;
   ValueListenable<ConnectionStatus> get status => _status;

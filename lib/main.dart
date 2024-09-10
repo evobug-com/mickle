@@ -15,6 +15,7 @@ import 'package:talk/core/storage/secure_storage.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart' hide WindowCaption, kWindowCaptionHeight;
 
+import 'areas/security/security_provider.dart';
 import 'components/console/widgets/console_errors_tab.dart';
 import 'core/autoupdater/autoupdater.dart';
 import 'core/autoupdater/version.dart';
@@ -90,6 +91,7 @@ Future<void> main() async {
 
         // Global providers
         ChangeNotifierProvider(create: (context) => SelectedServerProvider()),
+        ChangeNotifierProvider(create: (context) => SecurityWarningsProvider()),
       ],
       child: const AppWidget(),
     ),

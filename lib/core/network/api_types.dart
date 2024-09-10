@@ -14,6 +14,8 @@ part 'api_types.g.dart';
 enum PacketType {
   @JsonValue("ReqPingPacket")
   reqPingPacket,
+  @JsonValue("ReqFetchPublicKeyPacket")
+  reqFetchPublicKeyPacket,
   @JsonValue("ReqLoginPacket")
   reqLoginPacket,
   @JsonValue("ReqCreateChannelMessagePacket")
@@ -44,6 +46,8 @@ enum PacketType {
   reqJoinVoiceChannelPacket,
   @JsonValue("ResPingPacket")
   resPingPacket,
+  @JsonValue("ResFetchPublicKeyPacket")
+  resFetchPublicKeyPacket,
   @JsonValue("ResLoginPacket")
   resLoginPacket,
   @JsonValue("ResCreateChannelMessagePacket")
@@ -181,6 +185,28 @@ class ReqPingPacket extends RequestPacket {
   @override
   String toString() {
     return 'ReqPingPacket{requestId: $requestId}';
+  }
+}
+
+
+@JsonSerializable()
+class ReqFetchPublicKeyPacket extends RequestPacket {
+  @JsonKey(name: "request_id")
+  final int requestId;
+
+  ReqFetchPublicKeyPacket({required this.requestId,}) : super(packetType: "ReqFetchPublicKeyPacket");
+
+  factory ReqFetchPublicKeyPacket.fromJson(Map<String, dynamic> json) => _$ReqFetchPublicKeyPacketFromJson(json);
+    @override
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> json = _$ReqFetchPublicKeyPacketToJson(this);
+    json.addAll(super.toJson());
+    return json;
+  }
+
+  @override
+  String toString() {
+    return 'ReqFetchPublicKeyPacket{requestId: $requestId}';
   }
 }
 
@@ -591,6 +617,31 @@ class ResPingPacket extends ResponseData {
   @override
   String toString() {
     return 'ResPingPacket{}';
+  }
+}
+
+
+@JsonSerializable()
+class ResFetchPublicKeyPacket extends ResponseData {
+  @JsonKey(name: "public_key")
+  final String publicKey;
+  @JsonKey(name: "signature")
+  final String signature;
+
+  const ResFetchPublicKeyPacket({required this.publicKey,
+    required this.signature,}) : super();
+
+  factory ResFetchPublicKeyPacket.fromJson(Map<String, dynamic> json) => _$ResFetchPublicKeyPacketFromJson(json);
+    @override
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> json = _$ResFetchPublicKeyPacketToJson(this);
+    json.addAll(super.toJson());
+    return json;
+  }
+
+  @override
+  String toString() {
+    return 'ResFetchPublicKeyPacket{publicKey: $publicKey, signature: $signature}';
   }
 }
 
@@ -1023,6 +1074,12 @@ class EvtUpdatePresencePacket extends EventData {
 class PacketFactory {
   static final Map<Type, ApiResponse<ResponseData> Function(int?, String, PacketError?)> _creators = {
         ResPingPacket: (requestId, type, error) => ApiResponse<ResPingPacket>(
+      requestId: requestId,
+      type: type,
+      data: null,
+      error: error,
+    ),
+        ResFetchPublicKeyPacket: (requestId, type, error) => ApiResponse<ResFetchPublicKeyPacket>(
       requestId: requestId,
       type: type,
       data: null,

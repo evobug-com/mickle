@@ -15,7 +15,9 @@ class SelectedServerProvider extends ChangeNotifier {
 
     if(connection != null) {
       // Save the selected server to the storage
-      Preferences.setLastVisitedServerId(connection.mainServerId!);
+      if(connection.mainServerId != null) {
+        Preferences.setLastVisitedServerId(connection.mainServerId!);
+      }
     }
   }
 

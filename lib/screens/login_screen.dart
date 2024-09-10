@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:talk/areas/connection/connection_manager.dart';
+import 'package:talk/areas/connection/connection_tofu.dart';
 import 'package:talk/layout/my_scaffold.dart';
 
 import '../core/providers/global/selected_server_provider.dart';

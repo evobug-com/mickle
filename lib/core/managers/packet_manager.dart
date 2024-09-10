@@ -237,4 +237,10 @@ class PacketManager {
       requestId: requestId,
     ));
   }
+
+  Future<ApiResponse<ResFetchPublicKeyPacket>> sendFetchPublicKey() {
+    return sendRequest((requestId) => ReqFetchPublicKeyPacket(
+      requestId: requestId,
+    ));
+  }
 }

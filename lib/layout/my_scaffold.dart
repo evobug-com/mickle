@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:talk/areas/security/security.dart';
 import 'package:talk/core/providers/global/selected_server_provider.dart';
 import 'package:talk/core/providers/scoped/connection_provider.dart';
 
@@ -53,6 +54,7 @@ class _MyScaffoldState extends State<MyScaffold> {
                     children: [
                       widget.body,
                       const ConsoleWidget(),
+                      const SecurityWidget(),
                     ],
                   ),
                 ),

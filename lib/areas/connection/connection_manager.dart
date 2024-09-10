@@ -14,11 +14,15 @@
 
 import 'dart:async';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
+import 'package:talk/areas/connection/connection_tofu.dart';
 import 'package:talk/core/storage/secure_storage.dart';
 
+import '../security/security_provider.dart';
 import 'connection.dart';
 import 'connection_error.dart';
 import 'connection_status.dart';
@@ -44,7 +48,7 @@ class ConnectionManager extends ChangeNotifier {
     }
   });
 
-  Future<Connection> connect(String connectionUrl) async {
+  Future<Connection> connect(String connectionUrl, {bool? disconnectOnError}) async {
     final connection = _connections.putIfAbsent(connectionUrl, () => Connection(connectionUrl: connectionUrl));
 
     if(connection.status.value != ConnectionStatus.disconnected && connection.status.value != ConnectionStatus.error) {
@@ -53,6 +57,49 @@ class ConnectionManager extends ChangeNotifier {
 
     _connections[connectionUrl] = connection;
     await connection.connect();
+
+    final completion = Completer<Connection>();
+    var scheduledCompletion = false;
+
+    if(connection.error == null) {
+      final serverPublicKey = await connection.packetManager.sendFetchPublicKey();
+      if(serverPublicKey.error != null) {
+        connection.error = ConnectionError.tofuError('Failed to fetch public key: ${serverPublicKey.error}');
+      } else {
+        bool isVerified = await TOFUService.verifyServerIdentity(connectionUrl, serverPublicKey.data!.publicKey, serverPublicKey.data!.signature);
+        if(!isVerified) {
+          connection.error = ConnectionError.tofuError('Server identity verification failed');
+          SecurityWarningsProvider().addWarning(
+              SecurityWarning(
+                  connectionUrl,
+                  "The ${connectionUrl}'s identity has changed. This could indicate a security risk.\n\nExpected:\n${await TOFUService.getServerPublicKey(connectionUrl)}\nActual:\n${serverPublicKey.data!.publicKey}\n\nPlease verify the server's identity and contact the server administrator if necessary. If you are sure this is the correct server, you can proceed.\nIf you are not sure, this means that there is a security risk and you are probably connecting to a different server than you think.",
+                  onProceed: (warning) async {
+                    await TOFUService.resetStoredKey(warning.connectionUrl);
+                    SecurityWarningsProvider().removeWarning(warning.connectionUrl);
+                    await connection.connect();
+                    completion.complete(connection);
+                  },
+                  onDismiss: (warning) {
+                    SecurityWarningsProvider().removeWarning(warning.connectionUrl);
+                  }
+              )
+          );
+          scheduledCompletion = true;
+        }
+      }
+    }
+
+    if(connection.error != null && disconnectOnError == true) {
+      connection.isReconnectEnabled = false;
+      connection.disconnect();
+    }
+
+    notifyListeners();
+
+    if(scheduledCompletion) {
+      await completion.future;
+    }
+
     notifyListeners();
     return connection;
   }
@@ -109,8 +156,6 @@ class ConnectionManager extends ChangeNotifier {
       }
 
       _logger.info('Connection(${connection.connectionUrl}) reconnected');
-      connection.reconnectTimer?.cancel();
-      connection.reconnectAttempts = 0;
       connection.isReconnectEnabled = false;
 
       final token = await getToken(connection.connectionUrl);
@@ -151,7 +196,6 @@ class ConnectionManager extends ChangeNotifier {
   void dispose() {
     for (final connection in _connections.values) {
       connection.isReconnectEnabled = false;
-      connection.reconnectTimer?.cancel();
       connection.disconnect();
     }
     _connections.clear();

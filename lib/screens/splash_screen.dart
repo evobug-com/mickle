@@ -43,7 +43,7 @@ class _SplashScreenState extends State<SplashScreen> {
     final connectionUrl = await SecureStorage().read("$server.connectionUrl");
     if (connectionUrl == null) return;
 
-    final connection = await connectionManager.connect(connectionUrl);
+    final connection = await connectionManager.connect(connectionUrl, disconnectOnError: true);
     if (connection.error != null) return;
 
     final token = await SecureStorage().read("$server.token");
