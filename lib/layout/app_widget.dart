@@ -5,7 +5,7 @@ import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import '../core/notifiers/theme_controller.dart';
+import '../core/theme/theme_controller.dart';
 import '../core/storage/storage.dart';
 import '../router.dart';
 
@@ -38,7 +38,7 @@ class _AppWidgetState extends State<AppWidget> with TrayListener, WindowListener
     final botToastBuilder = BotToastInit();
 
     return MaterialApp.router(
-      title: 'TALK',
+      title: 'Mickle',
       debugShowCheckedModeBanner: false,
       routerConfig: router,
       theme: ThemeController.of(context).currentTheme,

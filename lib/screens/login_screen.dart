@@ -30,6 +30,7 @@ class LoginScreen extends StatelessWidget {
 
         return MyScaffold(
           showSidebar: ConnectionManager().connections.isNotEmpty,
+          showSearchBar: false,
           body: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

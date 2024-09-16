@@ -14,8 +14,9 @@ import '../ui/window_caption.dart';
 class MyScaffold extends StatefulWidget {
   final Widget body;
   final bool showSidebar;
+  final bool showSearchBar;
 
-  const MyScaffold({super.key, required this.body, this.showSidebar = true});
+  const MyScaffold({super.key, required this.body, this.showSidebar = true, this.showSearchBar = true});
 
   @override
   State<MyScaffold> createState() => _MyScaffoldState();
@@ -43,7 +44,8 @@ class _MyScaffoldState extends State<MyScaffold> {
               child: Elevation(
                 offset: 1,
                 child: WindowCaption(
-                  title: const Text('TALK [$version]'),
+                  showSearchBar: widget.showSearchBar,
+                  title: const Text('Mickle [$version]'),
                   brightness: colorScheme.brightness,
                 ),
               ),

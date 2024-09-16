@@ -64,7 +64,9 @@ class _SplashScreenState extends State<SplashScreen> {
             (connection) => _isConnectedOrAuthenticated(connection)
     );
 
-    if (connection != null) {
+    if(Preferences.isFirstTime()) {
+      GoRouter.of(context).goNamed('first-time');
+    } else if (connection != null) {
       Provider.of<SelectedServerProvider>(context, listen: false).selectServer(connection);
       GoRouter.of(context).goNamed('chat');
     } else {

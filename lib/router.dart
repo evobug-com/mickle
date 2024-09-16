@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:talk/core/providers/global/selected_server_provider.dart';
+import 'package:talk/screens/first_time_screen.dart';
 import 'package:talk/screens/splash_screen.dart';
 import 'package:talk/screens/update_screen.dart';
 import 'core/providers/global/update_provider.dart';
@@ -15,7 +16,7 @@ import 'screens/settings_screen.dart';
 final _logger = Logger('Router');
 
 FutureOr<String?> _redirect(BuildContext context, GoRouterState state) async {
-  if(state.uri.path == '/splash') {
+  if(state.uri.path == '/splash' || state.uri.path == '/first-time') {
     return null;
   }
 
@@ -44,31 +45,36 @@ final GoRouter router = GoRouter(
       GoRoute(
         name: 'splash',
         path: '/splash',
-        pageBuilder: (context, state) => NoTransitionPage(key: state.pageKey, child: const SplashScreen()),
+        pageBuilder: (context, state) => MaterialPage(key: state.pageKey, child: const SplashScreen()),
+      ),
+      GoRoute(
+        name: 'first-time',
+        path: '/first-time',
+        pageBuilder: (context, state) => MaterialPage(key: state.pageKey, child: const FirstTimeScreen()),
       ),
       GoRoute(
         name: 'update',
         path: '/update',
-        pageBuilder: (context, state) => NoTransitionPage(key: state.pageKey, child: const UpdateScreen()),
+        pageBuilder: (context, state) => MaterialPage(key: state.pageKey, child: const UpdateScreen()),
       ),
       GoRoute(
         name: 'chat',
         path: '/chat',
-        pageBuilder: (context, state) => NoTransitionPage(key: state.pageKey, child: const ChatScreen()),
+        pageBuilder: (context, state) => MaterialPage(key: state.pageKey, child: const ChatScreen()),
       ),
       GoRoute(
         name: 'login',
         path: '/login',
-        pageBuilder: (context, state) => NoTransitionPage(key: state.pageKey, child: const LoginScreen()),
+        pageBuilder: (context, state) => MaterialPage(key: state.pageKey, child: const LoginScreen()),
       ),
       GoRoute(
         name: 'settings',
         path: '/settings',
-        pageBuilder: (context, state) => NoTransitionPage(key: state.pageKey, child: SettingsScreen(
+        pageBuilder: (context, state) => MaterialPage(key: state.pageKey, child: SettingsScreen(
           tab: state.uri.queryParameters['tab'] ?? 'server',
           item: state.uri.queryParameters['item'],
         )),
-      )
+      ),
     ],
     initialLocation: '/splash',
     redirect: _redirect,

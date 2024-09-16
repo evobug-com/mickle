@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:talk/areas/utilities/elevation.dart';
 import 'package:talk/screens/settings_screen/settings_models.dart';
@@ -125,5 +126,43 @@ Widget buildSettingsSection(BuildContext context, String title, List<Widget> chi
       ),
     ),
   );
+}
+
+Widget buildSettingSwitchOption({required BuildContext context, required String title, required String description, required IconData icon, required bool value, required ValueChanged<bool> onChanged}) {
+  final colorScheme = Theme.of(context).colorScheme;
+  return Container(
+    width: 400,
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: colorScheme.surfaceVariant.withOpacity(0.1),
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: colorScheme.onSurface.withOpacity(0.1)),
+    ),
+    child: Row(
+      children: [
+        Icon(icon, color: colorScheme.onSurface, size: 32),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: colorScheme.onSurface),
+              ),
+              Text(
+                description,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.onSurface.withOpacity(0.7)),
+              ),
+            ],
+          ),
+        ),
+        Switch(
+          value: value,
+          onChanged: onChanged,
+        ),
+      ],
+    ),
+  ).animate().fadeIn(delay: 300.ms).scale();
 }
 

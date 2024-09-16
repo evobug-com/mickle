@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 
-import '../../core/notifiers/theme_controller.dart';
+import '../../core/theme/theme_controller.dart';
 import '../../core/storage/storage.dart';
 import 'settings_models.dart';
 
@@ -16,8 +16,8 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool get autostartup => Storage().readBoolean('autostartup', defaultValue: false);
-  set autostartup(bool value) {
+  bool get launchAtStartup => Storage().readBoolean('autostartup', defaultValue: false);
+  set launchAtStartup(bool value) {
     Storage().write('autostartup', value.toString());
     notifyListeners();
   }

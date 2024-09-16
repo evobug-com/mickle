@@ -19,7 +19,7 @@ import 'areas/security/security_provider.dart';
 import 'components/console/widgets/console_errors_tab.dart';
 import 'core/autoupdater/autoupdater.dart';
 import 'core/autoupdater/version.dart';
-import 'core/notifiers/theme_controller.dart';
+import 'core/theme/theme_controller.dart';
 import 'core/providers/global/update_provider.dart';
 import 'core/storage/storage.dart';
 import 'core/version.dart';

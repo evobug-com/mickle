@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/notifiers/theme_controller.dart';
+import '../../../core/theme/theme_controller.dart';
 import '../../chat_screen.dart';
 import '../settings_provider.dart';
 import '../settings_widgets.dart';

@@ -12,13 +12,14 @@ class WindowCaption extends StatefulWidget {
     this.title,
     this.backgroundColor,
     this.brightness,
-    this.disableExit = false,
+    this.disableExit = false, required this.showSearchBar,
   });
 
   final Widget? title;
   final Color? backgroundColor;
   final Brightness? brightness;
   final bool disableExit;
+  final bool showSearchBar;
 
   @override
   State<WindowCaption> createState() => _WindowCaptionState();
@@ -66,11 +67,12 @@ class _WindowCaptionState extends State<WindowCaption> with WindowListener {
                         child: widget.title ?? Container(),
                       ),
                     ),
-                    Expanded(
-                      child: Center(
-                          child: _buildSearchField()
-                      ),
-                    )
+                    if(widget.showSearchBar)
+                      Expanded(
+                        child: Center(
+                            child: _buildSearchField()
+                        ),
+                      )
                   ],
                 ),
               ),
@@ -123,19 +125,21 @@ class _WindowCaptionState extends State<WindowCaption> with WindowListener {
   TextField _buildSearchField() {
     return TextField(
       enabled: false,
+      textAlign: TextAlign.center,
       decoration: InputDecoration(
         isDense: true,
         constraints: BoxConstraints(
           maxWidth: 400,
+          maxHeight: 30,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(15),
           borderSide: BorderSide.none,
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 8),
         filled: true,
-        hintText: 'Search',
-        icon: Icon(Icons.search),
+        hintText: 'What are you looking for?',
+        prefixIcon: Icon(Icons.search),
       ),
       expands: false,
       minLines: 1,

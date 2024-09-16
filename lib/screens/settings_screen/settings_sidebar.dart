@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:talk/screens/settings_screen/settings_models.dart';
 
-import '../../core/notifiers/theme_controller.dart';
+import '../../core/theme/theme_controller.dart';
 import 'settings_provider.dart';
 
 class SettingsSidebar extends StatefulWidget {

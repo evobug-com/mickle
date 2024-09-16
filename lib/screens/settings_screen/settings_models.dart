@@ -109,12 +109,12 @@ final List<SettingMetadata> settingsCategories = [
         'behaviour-autostartup': SettingItem(
             tab: 'behaviour',
             key: 'behaviour-autostartup',
-            name: 'Autostartup'
+            name: 'Launch at startup'
         ),
         'behaviour-exit-to-tray': SettingItem(
             tab: 'behaviour',
             key: 'behaviour-exit-to-tray',
-            name: 'Exit to Tray'
+            name: 'Exit to tray'
         ),
         'behaviour-send-message-on-enter': SettingItem(
             tab: 'behaviour',

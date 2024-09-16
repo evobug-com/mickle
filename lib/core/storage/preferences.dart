@@ -48,4 +48,12 @@ class Preferences {
   static void setIsServerListExpanded(bool isExpanded) {
     Storage().writeBool("isServerListExpanded", isExpanded);
   }
+
+  static bool isFirstTime() {
+    return Storage().readBool("isFirstTime", defaultValue: true);
+  }
+
+  static void setFirstTime(bool isFirstTime) {
+    Storage().writeBool("isFirstTime", isFirstTime);
+  }
 }

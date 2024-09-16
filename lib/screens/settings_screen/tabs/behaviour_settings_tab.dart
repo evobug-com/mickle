@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:talk/areas/utilities/elevation.dart';
-import 'package:talk/core/notifiers/theme_controller.dart';
+import 'package:talk/core/theme/theme_controller.dart';
 import 'package:talk/ui/text_field_list_tile.dart';
 import 'package:talk/areas/utilities/debouncer.dart';
 import 'package:talk/screens/settings_screen/settings_models.dart';
@@ -92,18 +92,18 @@ class _BehaviourSettingsTabState extends State<BehaviourSettingsTab> {
             child: SwitchListTile(
               key: items['behaviour-autostartup']!.keyRef,
               title: Text(items['behaviour-autostartup']!.name),
-              subtitle: const Text('Automatically start the app when the system starts'),
+              subtitle: const Text('Automatically start Mickle when your system boots up'),
               value: snapshot.data!,
               onChanged: (value) {
                 if (value) {
                   launchAtStartup.enable().then((_) {
-                    SettingsProvider().autostartup = true;
+                    SettingsProvider().launchAtStartup = true;
                   }).catchError((error) {
                     _showErrorNotification(context, 'Error enabling autostartup', error.toString());
                   });
                 } else {
                   launchAtStartup.disable().then((_) {
-                    SettingsProvider().autostartup = false;
+                    SettingsProvider().launchAtStartup = false;
                   }).catchError((error) {
                     _showErrorNotification(context, 'Error disabling autostartup', error.toString());
                   });
@@ -150,7 +150,7 @@ class _BehaviourSettingsTabState extends State<BehaviourSettingsTab> {
       child: SwitchListTile(
         key: items['behaviour-exit-to-tray']!.keyRef,
         title: Text(items['behaviour-exit-to-tray']!.name),
-        subtitle: const Text('Minimize to tray when closing the app'),
+        subtitle: const Text('Keep Mickle running in the background when you close the window'),
         value: SettingsProvider().exitToTray,
         onChanged: (value) {
           // Save exit to tray to settings
