@@ -180,11 +180,13 @@ class S {
     );
   }
 
-  /// `This is an unpublished testing version of Talk. Your credentials are in email or private message.'`
-  String get loginScreenThisIsAnUnpublishedTestingVersionOfTalkYourCredentials {
+  /// `This is an unpublished testing version of Mickle. Your credentials are in email or private message.`
+  String
+      get loginScreenThisIsAnUnpublishedTestingVersionOfMickleYourCredentials {
     return Intl.message(
-      'This is an unpublished testing version of Talk. Your credentials are in email or private message.\'',
-      name: 'loginScreenThisIsAnUnpublishedTestingVersionOfTalkYourCredentials',
+      'This is an unpublished testing version of Mickle. Your credentials are in email or private message.',
+      name:
+          'loginScreenThisIsAnUnpublishedTestingVersionOfMickleYourCredentials',
       desc: '',
       args: [],
     );
@@ -250,11 +252,11 @@ class S {
     );
   }
 
-  /// `Registration is not available in this version of Talk.`
-  String get loginScreenRegistrationIsNotAvailableInThisVersionOfTalk {
+  /// `Registration is not available in this version of Mickle.`
+  String get loginScreenRegistrationIsNotAvailableInThisVersionOfMickle {
     return Intl.message(
-      'Registration is not available in this version of Talk.',
-      name: 'loginScreenRegistrationIsNotAvailableInThisVersionOfTalk',
+      'Registration is not available in this version of Mickle.',
+      name: 'loginScreenRegistrationIsNotAvailableInThisVersionOfMickle',
       desc: '',
       args: [],
     );

@@ -36,14 +36,14 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Oops! Something went wrong."),
         "loginScreenPassword": MessageLookupByLibrary.simpleMessage("Password"),
         "loginScreenRegister": MessageLookupByLibrary.simpleMessage("Register"),
-        "loginScreenRegistrationIsNotAvailableInThisVersionOfTalk":
+        "loginScreenRegistrationIsNotAvailableInThisVersionOfMickle":
             MessageLookupByLibrary.simpleMessage(
-                "Registration is not available in this version of Talk."),
+                "Registration is not available in this version of Mickle."),
         "loginScreenServerHost":
             MessageLookupByLibrary.simpleMessage("Server Host"),
-        "loginScreenThisIsAnUnpublishedTestingVersionOfTalkYourCredentials":
+        "loginScreenThisIsAnUnpublishedTestingVersionOfMickleYourCredentials":
             MessageLookupByLibrary.simpleMessage(
-                "This is an unpublished testing version of Talk. Your credentials are in email or private message.\'"),
+                "This is an unpublished testing version of Mickle. Your credentials are in email or private message."),
         "loginScreenUsername": MessageLookupByLibrary.simpleMessage("Username"),
         "loginScreenValidatorsPasswordCannotContainWhitespace":
             MessageLookupByLibrary.simpleMessage(

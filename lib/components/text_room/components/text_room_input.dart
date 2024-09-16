@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -104,9 +106,13 @@ class TextRoomInput extends StatefulWidget {
   State<StatefulWidget> createState() => TextRoomInputState();
 }
 
-class TextRoomInputState extends State<TextRoomInput> {
+class TextRoomInputState extends State<TextRoomInput> with SingleTickerProviderStateMixin {
   final TextEditingController _chatTextController = TextEditingController();
+  final _emojiScrollController = ScrollController();
   late final FocusNode _chatTextFocus;
+  bool _emojiShowing = false;
+  late AnimationController _animationController;
+  late Animation<double> _animation;
 
   @override
   void initState() {
@@ -129,72 +135,150 @@ class TextRoomInputState extends State<TextRoomInput> {
         return KeyEventResult.ignored;
       },
     );
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _animation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
   void dispose() {
     _chatTextController.dispose();
     _chatTextFocus.dispose();
+    _emojiScrollController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
+
+  void _toggleEmojiPicker(value) {
+    setState(() {
+      _emojiShowing = value;
+      if (_emojiShowing) {
+        _animationController.forward();
+      } else {
+        _animationController.reverse();
+      }
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Elevation(
-      borderRadius: BorderRadius.circular(50),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        child: Row(
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return Column(
           children: [
-            IconButton(
-              icon: Icon(Icons.add_circle_outline_rounded),
-              iconSize: 20,
-              // TODO: Implement add attachment functionality
-              onPressed: (){
-
-              }
-            ),
-            Expanded(
-              child: TextField(
-                focusNode: _chatTextFocus,
-                controller: _chatTextController,
-                decoration: InputDecoration(
-                  hintText: 'Message #${widget.channel.name}',
-                  hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                  ),
-                  isDense: true,
+            Elevation(
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(30),
+                bottom: Radius.circular(_emojiShowing ? 0 : 30),
+              ),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                child: Row(
+                  children: [
+                    IconButton(
+                        icon: Icon(Icons.add_circle_outline_rounded),
+                        iconSize: 20,
+                        onPressed: () {
+                          // TODO: Implement add attachment functionality
+                        }
+                    ),
+                    Expanded(
+                      child: TextField(
+                          focusNode: _chatTextFocus,
+                          controller: _chatTextController,
+                          decoration: InputDecoration(
+                            hintText: 'Message #${widget.channel.name}',
+                            hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide.none,
+                            ),
+                            isDense: true,
+                          ),
+                          maxLines: null,
+                          keyboardType: TextInputType.multiline,
+                          textInputAction: TextInputAction.newline,
+                          onChanged: (value) {
+                            if(SettingsProvider().replaceTextEmoji) {
+                              // Replace emojis
+                              final replacedValue = replaceEmojis(value);
+                              if (value != replacedValue) {
+                                _chatTextController.value = TextEditingValue(
+                                  text: replacedValue,
+                                  selection: _chatTextController.selection,
+                                );
+                              }
+                            }
+                          },
+                          onSubmitted: _sendMessage
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.sentiment_satisfied_alt, color: colorScheme.onSurfaceVariant, size: 20),
+                      onPressed: () {
+                        _toggleEmojiPicker(!_emojiShowing);
+                      },
+                    ),
+                  ],
                 ),
-                maxLines: null,
-                keyboardType: TextInputType.multiline,
-                textInputAction: TextInputAction.newline,
-                onChanged: (value) {
-                  if(SettingsProvider().replaceTextEmoji) {
-                    // Replace emojis
-                    final replacedValue = replaceEmojis(value);
-                    if (value != replacedValue) {
-                      _chatTextController.value = TextEditingValue(
-                        text: replacedValue,
-                        selection: _chatTextController.selection,
-                      );
-                    }
-                  }
-                },
-                onSubmitted: _sendMessage
               ),
             ),
-            IconButton(
-              icon: Icon(Icons.sentiment_satisfied_alt, color: colorScheme.onSurfaceVariant, size: 20),
-              // TODO: Implement emoji picker functionality
-              onPressed: null,
+            SizeTransition(
+              sizeFactor: _animation,
+              child: Container(
+                height: 256,
+                child: _buildEmojiPicker(colorScheme),
+              ),
             ),
           ],
-        ),
-      ),
+        );
+      },
     );
+  }
+
+  EmojiPicker _buildEmojiPicker(ColorScheme colorScheme) {
+    return EmojiPicker(
+          textEditingController: _chatTextController,
+          scrollController: _emojiScrollController,
+          config: Config(
+            height: 256,
+            checkPlatformCompatibility: true,
+            emojiViewConfig: EmojiViewConfig(
+              backgroundColor: colorScheme.surfaceContainerHigh,
+              // Issue: https://github.com/flutter/flutter/issues/28894
+              emojiSizeMax: 28 *
+                  (defaultTargetPlatform ==
+                      TargetPlatform.iOS
+                      ? 1.2
+                      : 1.0),
+            ),
+            swapCategoryAndBottomBar: false,
+            skinToneConfig: const SkinToneConfig(),
+            categoryViewConfig: CategoryViewConfig(
+              backgroundColor: colorScheme.surfaceContainerHigh,
+              indicatorColor: colorScheme.primary,
+              iconColorSelected: colorScheme.primary,
+            ),
+            bottomActionBarConfig: BottomActionBarConfig(
+              enabled: false,
+              backgroundColor: colorScheme.surfaceContainerHigh,
+              buttonColor: colorScheme.primary,
+              buttonIconColor: colorScheme.onPrimary,
+            ),
+            searchViewConfig: SearchViewConfig(
+              backgroundColor: colorScheme.surfaceContainerHigh,
+            ),
+          ),
+        );
   }
 
   void _sendMessage(String value) {
@@ -212,5 +296,7 @@ class TextRoomInputState extends State<TextRoomInput> {
 
     // Keep the chat input focused after sending message
     _chatTextFocus.requestFocus();
+
+    _toggleEmojiPicker(false);
   }
 }

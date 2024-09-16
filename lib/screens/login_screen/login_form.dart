@@ -33,7 +33,6 @@ class LoginFormState extends State<LoginForm> {
     return SizedBox(
       width: 300,
       child: Elevation(
-        border: true,
         borderRadius: BorderRadius.circular(8),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -88,13 +87,13 @@ class LoginFormState extends State<LoginForm> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        ElevatedButton(
+        FilledButton(
           onPressed: _handleLogin,
           child: Text(S.of(context).loginScreenLogin),
         ),
         Tooltip(
-          message: S.of(context).loginScreenRegistrationIsNotAvailableInThisVersionOfTalk,
-          child: TextButton(
+          message: S.of(context).loginScreenRegistrationIsNotAvailableInThisVersionOfMickle,
+          child: FilledButton(
             onPressed: null,
             child: Text(S.of(context).loginScreenRegister),
           ),

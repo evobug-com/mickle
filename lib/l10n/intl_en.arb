@@ -12,12 +12,12 @@
   "loginScreenValidatorsPasswordMustBeAtLeast3CharactersLong": "Password must be at least 3 characters long",
   "loginScreenValidatorsPasswordCannotContainWhitespace": "Password cannot contain whitespace",
   "loginScreenWelcomeTester": "Welcome tester!",
-  "loginScreenThisIsAnUnpublishedTestingVersionOfTalkYourCredentials": "This is an unpublished testing version of Talk. Your credentials are in email or private message.'",
+  "loginScreenThisIsAnUnpublishedTestingVersionOfMickleYourCredentials": "This is an unpublished testing version of Mickle. Your credentials are in email or private message.",
   "loginScreenWelcome": "Welcome",
   "loginScreenServerHost": "Server Host",
   "loginScreenUsername": "Username",
   "loginScreenPassword": "Password",
   "loginScreenLogin": "Login",
   "loginScreenRegister": "Register",
-  "loginScreenRegistrationIsNotAvailableInThisVersionOfTalk": "Registration is not available in this version of Talk."
+  "loginScreenRegistrationIsNotAvailableInThisVersionOfMickle": "Registration is not available in this version of Mickle."
 }

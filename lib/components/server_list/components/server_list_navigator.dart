@@ -192,7 +192,7 @@ class _ServerListNavigatorState extends State<ServerListNavigator> with TickerPr
   String _getTooltipMessage(Connection connection, String serverName) {
     String message = '$serverName\nStatus: ${connection.status.value}';
 
-    if (connection.isReconnectEnabled) {
+    if (connection.status.value != ConnectionStatus.authenticated && connection.isReconnectEnabled) {
       message += '\nReconnecting... Attempt: ${connection.reconnectAttempts + 1}';
     }
 

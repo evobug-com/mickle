@@ -147,7 +147,18 @@ class _BehaviourSettingsTabState extends State<BehaviourSettingsTab> {
   Widget _buildExitToTray(Map<String, SettingItem> items) {
     return Highlightable(
       highlight: widget.settingsTabController.item == items['behaviour-exit-to-tray']!.key,
-      child: SwitchListTile(
+      child:
+      // buildSettingSwitchOption(
+      //   context: context,
+      //   title: items['behaviour-exit-to-tray']!.name,
+      //   description: 'Keep Mickle running in the background when you close the window',
+      //   icon: Icons.minimize,
+      //   value: SettingsProvider().exitToTray,
+      //   onChanged: (value) {
+      //     SettingsProvider().exitToTray = value;
+      //   }
+      // )
+      SwitchListTile(
         key: items['behaviour-exit-to-tray']!.keyRef,
         title: Text(items['behaviour-exit-to-tray']!.name),
         subtitle: const Text('Keep Mickle running in the background when you close the window'),
