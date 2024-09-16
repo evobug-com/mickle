@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../../core/notifiers/theme_controller.dart';
 import '../../chat_screen.dart';
-import '../settings_models.dart';
 import '../settings_provider.dart';
 import '../settings_widgets.dart';
 
 class AppearanceSettingsTab extends StatefulWidget {
-  final String? item;
-  final List<SettingMetadata> settingsCategories;
-  const AppearanceSettingsTab({super.key, this.item, required this.settingsCategories});
+  final SettingsTabController settingsTabController;
+  
+  const AppearanceSettingsTab({super.key, required this.settingsTabController});
 
   @override
   State<AppearanceSettingsTab> createState() => _AppearanceSettingsTabState();
@@ -20,14 +19,12 @@ class _AppearanceSettingsTabState extends State<AppearanceSettingsTab> {
 
   @override
   Widget build(BuildContext context) {
+    final category = widget.settingsTabController.categories.firstWhere((element) => element.tab == 'appearance');
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Appearance',
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-        const SizedBox(height: 24),
+        SettingTitle(category: category),
 
         Expanded(
           child: Row(
@@ -43,7 +40,7 @@ class _AppearanceSettingsTabState extends State<AppearanceSettingsTab> {
                     const SizedBox(height: 10),
                     Expanded(
                       child: Highlightable(
-                        highlight: widget.item == 'appearance-theme',
+                        highlight: widget.settingsTabController.item == category.items['appearance-theme']!.key,
                         child: GridView.builder(
                           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 3,

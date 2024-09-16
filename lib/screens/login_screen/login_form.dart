@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:talk/areas/utilities/elevation.dart';
 import 'package:talk/generated/l10n.dart';
-
-import '../../core/notifiers/theme_controller.dart';
 import 'login_validators.dart';
 
 class LoginForm extends StatefulWidget {

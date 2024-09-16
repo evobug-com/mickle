@@ -6,9 +6,9 @@ import '../settings_provider.dart';
 import '../settings_widgets.dart';
 
 class NotificationsSettingsTab extends StatefulWidget {
-  final String? item;
-  final List<SettingMetadata> settingsCategories;
-  const NotificationsSettingsTab({super.key, this.item, required this.settingsCategories});
+  final SettingsTabController settingsTabController;
+  
+  const NotificationsSettingsTab({super.key, required this.settingsTabController});
 
   @override
   State<NotificationsSettingsTab> createState() => _NotificationsSettingsTabState();
@@ -18,41 +18,42 @@ class _NotificationsSettingsTabState extends State<NotificationsSettingsTab> {
 
   @override
   Widget build(BuildContext context) {
-    final items = widget.settingsCategories.firstWhere((element) => element.tab == 'notifications').items;
+    final category = widget.settingsTabController.categories.firstWhere((element) => element.tab == 'notifications');
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Notifications',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 24),
-          buildSettingsSection(
-              context,
-              "Sound Notifications",
-              [
-                _buildSoundAnyMessage(items),
-                _buildSoundMention(items),
-                _buildSoundError(items),
-              ]
-          ),
-          buildSettingsSection(
-            context,
-            'Visual Notifications',
-            [
-              _buildDesktopNotifications(items),
-            ],
-          ),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SettingTitle(category: category),
+        Expanded(
+            child: ListView(
+              children: [
+                buildSettingsSection(
+                    context,
+                    "Sound Notifications",
+                    [
+                      _buildSoundAnyMessage(category.items),
+                      _buildSoundMention(category.items),
+                      _buildSoundError(category.items),
+                    ]
+                ),
+                buildSettingsSection(
+                  context,
+                  'Visual Notifications',
+                  [
+                    _buildDesktopNotifications(category.items),
+                  ],
+                ),
+              ],
+            )
+        )
+
+      ],
     );
   }
 
   Widget _buildSoundAnyMessage(Map<String, SettingItem> items) {
     return Highlightable(
-      highlight: widget.item == items['notifications-sound-any-message']!.key,
+      highlight: widget.settingsTabController.item == items['notifications-sound-any-message']!.key,
       child: SwitchListTile(
         title: Text(items['notifications-sound-any-message']!.name),
         subtitle: const Text('Play sound when any message is received'),
@@ -68,7 +69,7 @@ class _NotificationsSettingsTabState extends State<NotificationsSettingsTab> {
 
   Widget _buildSoundMention(Map<String, SettingItem> items) {
     return Highlightable(
-      highlight: widget.item == items['notifications-sound-mention']!.key,
+      highlight: widget.settingsTabController.item == items['notifications-sound-mention']!.key,
       child: SwitchListTile(
         title: Text(items['notifications-sound-mention']!.name),
         subtitle: const Text('Play sound on mentioning my username'),
@@ -84,7 +85,7 @@ class _NotificationsSettingsTabState extends State<NotificationsSettingsTab> {
 
   Widget _buildSoundError(Map<String, SettingItem> items) {
     return Highlightable(
-      highlight: widget.item == items['notifications-sound-error']!.key,
+      highlight: widget.settingsTabController.item == items['notifications-sound-error']!.key,
       child: SwitchListTile(
         title: Text(items['notifications-sound-error']!.name),
         subtitle: const Text('Play sound on application error'),
@@ -100,7 +101,7 @@ class _NotificationsSettingsTabState extends State<NotificationsSettingsTab> {
 
   Widget _buildDesktopNotifications(Map<String, SettingItem> items) {
     return Highlightable(
-      highlight: widget.item == items['notifications-desktop']!.key,
+      highlight: widget.settingsTabController.item == items['notifications-desktop']!.key,
       child: SwitchListTile(
         key: items['notifications-desktop']!.keyRef,
         title: Text(items['notifications-desktop']!.name),

@@ -1,14 +1,43 @@
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:talk/areas/utilities/elevation.dart';
+import 'package:talk/screens/settings_screen/settings_models.dart';
 
 class SettingTitle extends StatelessWidget {
-  final String? title;
-  const SettingTitle({super.key, this.title});
+  final SettingMetadata category;
+  final String? subtitle;
+  const SettingTitle({super.key, required this.category, this.subtitle});
 
   @override
   Widget build(BuildContext context) {
-    return Text(title!, style: Theme.of(context).textTheme.displaySmall);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              this.category.title,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            BackButton(
+             onPressed: () {
+               context.pop();
+             },
+            )
+          ],
+        ),
+        if (subtitle != null) ...[
+          const SizedBox(height: 8),
+          Text(
+            subtitle!,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+        ],
+        const SizedBox(height: 16),
+      ],
+    );
   }
 }
 

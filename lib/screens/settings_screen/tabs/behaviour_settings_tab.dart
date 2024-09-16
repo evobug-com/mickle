@@ -12,10 +12,10 @@ import 'package:talk/screens/settings_screen/settings_provider.dart';
 import '../settings_widgets.dart';
 
 class BehaviourSettingsTab extends StatefulWidget {
-  final String? item;
-  final List<SettingMetadata> settingsCategories;
+  final SettingsTabController settingsTabController;
+  
 
-  const BehaviourSettingsTab({Key? key, this.item, required this.settingsCategories}) : super(key: key);
+  const BehaviourSettingsTab({super.key, required this.settingsTabController});
 
   @override
   _BehaviourSettingsTabState createState() => _BehaviourSettingsTabState();
@@ -47,99 +47,106 @@ class _BehaviourSettingsTabState extends State<BehaviourSettingsTab> {
 
   @override
   Widget build(BuildContext context) {
-    final items = widget.settingsCategories.firstWhere((element) => element.tab == 'behaviour').items;
+    final category = widget.settingsTabController.categories.firstWhere((element) => element.tab == 'behaviour');
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Behaviour',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 24),
-          buildSettingsSection(
-              context,
-              "Application Behaviour",
-            [
-              _buildAutostartup(items),
-              _buildExitToTray(items),
-            ]
-          ),
-          buildSettingsSection(
-            context,
-            'Chat Behaviour',
-            [
-              _buildSendMessageOnEnterTile(items),
-              _buildMessageDateFormatTile(items),
-              const SizedBox(height: 24),
-              const DateFormatGuide(),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SettingTitle(category: category),
+        Expanded(
+          child: ListView(
+            children: [
+              buildSettingsSection(
+                  context,
+                  "Application Behaviour",
+                  [
+                    _buildAutostartup(category.items),
+                    _buildExitToTray(category.items),
+                  ]
+              ),
+              buildSettingsSection(
+                context,
+                'Chat Behaviour',
+                [
+                  _buildSendMessageOnEnterTile(category.items),
+                  _buildMessageDateFormatTile(category.items),
+                  const SizedBox(height: 24),
+                  const DateFormatGuide(),
+                ],
+              ),
             ],
           ),
-        ],
-      ),
+        )
+      ],
     );
   }
 
   Widget _buildAutostartup(Map<String, SettingItem> items) {
-    return FutureBuilder(
-        future: launchAtStartup.isEnabled(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const CircularProgressIndicator();
-          }
-          if(snapshot.hasError) {
-            return FormField<String>(builder: (FormFieldState<String> state) {
-              return Text('Error: ${snapshot.error}');
-            }, key: const Key('behaviour-autostartup-error'));
-          }
-
+    return FutureBuilder<bool>(
+      future: launchAtStartup.isEnabled(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          // Data is loaded, show the actual SwitchListTile
           return Highlightable(
-            highlight: widget.item == items['behaviour-autostartup']!.key,
+            highlight: widget.settingsTabController.item == items['behaviour-autostartup']!.key,
             child: SwitchListTile(
               key: items['behaviour-autostartup']!.keyRef,
               title: Text(items['behaviour-autostartup']!.name),
               subtitle: const Text('Automatically start the app when the system starts'),
-              value: snapshot.data as bool,
+              value: snapshot.data!,
               onChanged: (value) {
-                final scheme = ThemeController.scheme(context, listen: false);
-                // Save autostartup to settings
-                if(value) {
-                  // Enable autostartup and show a toast message when enabled or with an error
-                  launchAtStartup.enable().then((value) {
+                if (value) {
+                  launchAtStartup.enable().then((_) {
                     SettingsProvider().autostartup = true;
                   }).catchError((error) {
-                    // Show a toast message
-                    BotToast.showNotification(
-                      title: (_) => Text('Error enabling autostartup', style: TextStyle(color: scheme.onErrorContainer)),
-                      subtitle: (_) => Text(error.toString(), style: TextStyle(color: scheme.onErrorContainer)),
-                      duration: const Duration(seconds: 6),
-                      backgroundColor: scheme.errorContainer,
-                    );
+                    _showErrorNotification(context, 'Error enabling autostartup', error.toString());
                   });
                 } else {
-                  launchAtStartup.disable().then((value) {
+                  launchAtStartup.disable().then((_) {
                     SettingsProvider().autostartup = false;
                   }).catchError((error) {
-                    // Show a toast message
-                    BotToast.showNotification(
-                      title: (_) => Text('Error disabling autostartup', style: TextStyle(color: scheme.onErrorContainer)),
-                      subtitle: (_) => Text(error.toString(), style: TextStyle(color: scheme.onErrorContainer)),
-                      duration: const Duration(seconds: 6),
-                      backgroundColor: scheme.errorContainer,
-                    );
+                    _showErrorNotification(context, 'Error disabling autostartup', error.toString());
                   });
                 }
               },
             ),
           );
+        } else if (snapshot.hasError) {
+          // Handle error state
+          return ListTile(
+            title: Text('Error loading autostartup setting'),
+            subtitle: Text('${snapshot.error}'),
+          );
+        } else {
+          // While loading, show a disabled SwitchListTile
+          return Highlightable(
+            highlight: widget.settingsTabController.item == items['behaviour-autostartup']!.key,
+            child: SwitchListTile(
+              key: items['behaviour-autostartup']!.keyRef,
+              title: Text(items['behaviour-autostartup']!.name),
+              subtitle: const Text('Loading...'),
+              value: false,
+              onChanged: null, // Disable the switch
+            ),
+          );
         }
+      },
+    );
+  }
+
+  void _showErrorNotification(BuildContext context, String title, String message) {
+    final scheme = ThemeController.scheme(context, listen: false);
+    BotToast.showNotification(
+      title: (_) => Text(title, style: TextStyle(color: scheme.onErrorContainer)),
+      subtitle: (_) => Text(message, style: TextStyle(color: scheme.onErrorContainer)),
+      duration: const Duration(seconds: 6),
+      backgroundColor: scheme.errorContainer,
     );
   }
 
   Widget _buildExitToTray(Map<String, SettingItem> items) {
     return Highlightable(
-      highlight: widget.item == items['behaviour-exit-to-tray']!.key,
+      highlight: widget.settingsTabController.item == items['behaviour-exit-to-tray']!.key,
       child: SwitchListTile(
         key: items['behaviour-exit-to-tray']!.keyRef,
         title: Text(items['behaviour-exit-to-tray']!.name),
@@ -155,7 +162,7 @@ class _BehaviourSettingsTabState extends State<BehaviourSettingsTab> {
 
   Widget _buildSendMessageOnEnterTile(Map<String, SettingItem> items) {
     return Highlightable(
-      highlight: widget.item == items['behaviour-send-message-on-enter']!.key,
+      highlight: widget.settingsTabController.item == items['behaviour-send-message-on-enter']!.key,
       child: SwitchListTile(
         title: Text(items['behaviour-send-message-on-enter']!.name),
         subtitle: Text('When enabled, pressing Enter will send the message. When disabled, use Shift+Enter to send.'),
@@ -171,7 +178,7 @@ class _BehaviourSettingsTabState extends State<BehaviourSettingsTab> {
 
   Widget _buildMessageDateFormatTile(Map<String, SettingItem> items) {
     return Highlightable(
-      highlight: widget.item == items['behaviour-message-date-format']!.key,
+      highlight: widget.settingsTabController.item == items['behaviour-message-date-format']!.key,
       child: TextFieldListTile(
         title: items['behaviour-message-date-format']!.name,
         subtitle: 'Enter a custom date format for messages',

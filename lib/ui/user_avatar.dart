@@ -15,7 +15,6 @@ Color _getColor(UserPresence status) {
     case UserPresence.offline:
       return Colors.grey;
   }
-  return Colors.grey;
 }
 
 

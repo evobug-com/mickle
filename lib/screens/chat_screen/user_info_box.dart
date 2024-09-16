@@ -93,9 +93,8 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
                   ),
                   IconButton(
                     onPressed: () {
-                      context.goNamed(
+                      context.pushNamed(
                         "settings",
-                        queryParameters: {"tab": "general"},
                       );
                     },
                     icon: const Icon(Icons.settings_outlined),

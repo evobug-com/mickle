@@ -205,7 +205,7 @@ class MaterialTheme {
       onErrorContainer: Color(0xffffdad6),
       background: Color(0xff1a1111), // DEPRECATED
       onBackground: Color(0xfff0dede), // DEPRECATED
-      surface: Color(0xff1a1111),
+      surface: Color(0xff100b0b),
       onSurface: Color(0xfff0dede),
       surfaceVariant: Color(0xff524343),
       onSurfaceVariant: Color(0xffd7c1c1),
@@ -239,8 +239,8 @@ class MaterialTheme {
       surfaceDim: Color(0xff1a1112),
       surfaceBright: Color(0xff423736),
       surfaceContainerLowest: Color(0xff181212),
-      surfaceContainerLow: Color(0xff221919),
-      surfaceContainer: Color(0xff201a1a),
+      surfaceContainerLow: Color(0xff181212),
+      surfaceContainer: Color(0xff221919),
       surfaceContainerHigh: Color(0xff2f2928),
       surfaceContainerHighest: Color(0xff3d3232),
     );

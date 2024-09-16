@@ -10,7 +10,7 @@ class TextFieldListTile extends StatelessWidget {
   final bool? enabled;
 
   const TextFieldListTile({
-    Key? key,
+    super.key,
     required this.title,
     this.subtitle,
     required this.controller,
@@ -18,7 +18,7 @@ class TextFieldListTile extends StatelessWidget {
     this.onChanged,
     this.validator,
     this.enabled,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

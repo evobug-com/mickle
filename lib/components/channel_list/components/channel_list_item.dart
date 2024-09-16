@@ -28,7 +28,6 @@ class ChannelListItem extends StatelessWidget {
     final permissions = user.getPermissionsForChannel(channel.id,
         database: connection.database);
     final channelListSelectedRoom = ChannelListSelectedChannel.of(context);
-    final scheme = Theme.of(context).colorScheme;
     final unreadMessages = user.getUnreadMessagesForChannel(channel,
         database: connection.database);
     bool isUnread = (unreadMessages?.unreadCount ?? 0) > 0;

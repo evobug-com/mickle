@@ -35,9 +35,9 @@ class Connection {
   late final MessageStreamHandler _messageStreamHandler;
 
   // Reconnection
-  int _reconnectAttempts = 0;
+  int reconnectAttempts = 0;
   bool _reconnectEnabled = true;
-  Timer? _reconnectTimer;
+  Timer? reconnectTimer;
 
   // Connection
   SecureSocket? _socket;
@@ -52,19 +52,14 @@ class Connection {
       return processResponse(this, data);
     });
   }
-
-  Timer? get reconnectTimer => _reconnectTimer;
-  set reconnectTimer(Timer? value) => _reconnectTimer = value;
   bool get isReconnectEnabled => _reconnectEnabled;
   set isReconnectEnabled(bool value) {
     _reconnectEnabled = value;
     if(!value) {
-      _reconnectAttempts = 0;
+      reconnectAttempts = 0;
       reconnectTimer?.cancel();
     }
   }
-  int get reconnectAttempts => _reconnectAttempts;
-  set reconnectAttempts(int value) => _reconnectAttempts = value;
   ValueListenable<ConnectionStatus> get status => _status;
 
 

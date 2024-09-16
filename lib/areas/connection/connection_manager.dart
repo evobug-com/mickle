@@ -14,7 +14,6 @@
 
 import 'dart:async';
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -119,7 +118,7 @@ class ConnectionManager extends ChangeNotifier {
     await SecureStorage().write("${connection.connectionUrl}.token", connection.token!);
     await SecureStorage().write("${connection.connectionUrl}.serverId", connection.mainServerId!);
     await SecureStorage().write("${connection.connectionUrl}.connectionUrl", connection.connectionUrl);
-    final endpoints = await SecureStorage().readJSONArray("endpoints") ?? [];
+    final endpoints = await SecureStorage().readJSONArray("endpoints");
     if (!endpoints.contains(connection.connectionUrl)) {
       endpoints.add(connection.connectionUrl);
       await SecureStorage().writeJSONArray("endpoints", endpoints);

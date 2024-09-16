@@ -50,12 +50,10 @@ class ThemeController extends ChangeNotifier {
 
   static ColorScheme scheme(BuildContext context, {bool listen = true}) {
     return of(context, listen: listen).currentTheme.colorScheme;
-    return Theme.of(context).colorScheme;
   }
 
   static ThemeData theme(BuildContext context, {bool listen = true}) {
     return of(context, listen: listen).currentTheme;
-    return Theme.of(context);
   }
 
   static ThemeController of(BuildContext context, {bool listen = true}) {

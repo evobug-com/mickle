@@ -4,7 +4,7 @@ import 'package:window_manager/window_manager.dart';
 import 'package:provider/provider.dart';
 import '../core/providers/global/update_provider.dart';
 
-const double kWindowCaptionHeight = 32;
+const double kWindowCaptionHeight = 40;
 
 class WindowCaption extends StatefulWidget {
   const WindowCaption({
@@ -66,6 +66,11 @@ class _WindowCaptionState extends State<WindowCaption> with WindowListener {
                         child: widget.title ?? Container(),
                       ),
                     ),
+                    Expanded(
+                      child: Center(
+                          child: _buildSearchField()
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -112,6 +117,30 @@ class _WindowCaptionState extends State<WindowCaption> with WindowListener {
           ),
         ],
       ),
+    );
+  }
+
+  TextField _buildSearchField() {
+    return TextField(
+      enabled: false,
+      decoration: InputDecoration(
+        isDense: true,
+        constraints: BoxConstraints(
+          maxWidth: 400,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(4),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+        filled: true,
+        hintText: 'Search',
+        icon: Icon(Icons.search),
+      ),
+      expands: false,
+      minLines: 1,
+      maxLines: 1,
+      keyboardType: TextInputType.text,
     );
   }
 

@@ -17,7 +17,6 @@ class TextRoomHeaderState extends State<TextRoomHeader> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
     // First line: Title with badge of how many pinned messages is there
     // Second line: Description of the current room
     // On hover, it will show Row with pinned messages

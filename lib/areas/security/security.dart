@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../connection/connection_tofu.dart';
 import 'security_provider.dart';
 
 class SecurityWidget extends StatelessWidget {

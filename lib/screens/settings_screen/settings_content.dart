@@ -1,8 +1,7 @@
-
 import 'package:flutter/material.dart';
+import 'package:talk/screens/settings_screen/settings_provider.dart';
 import 'package:talk/screens/settings_screen/tabs/server_settings_tab.dart';
 
-import 'settings_models.dart';
 import 'tabs/about_settings_tab.dart';
 import 'tabs/appearance_settings_tab.dart';
 import 'tabs/audio_settings_tab.dart';
@@ -11,33 +10,45 @@ import 'tabs/experimental_settings_tab.dart';
 import 'tabs/general_settings_tab.dart';
 import 'tabs/notifications_settings_tab.dart';
 
-class SettingsContent extends StatelessWidget {
-  final String? tab;
-  final String? item;
+class SettingsContent extends StatefulWidget {
+  final SettingsTabController settingsTabController;
+  const SettingsContent({Key? key, required this.settingsTabController}) : super(key: key);
 
-  const SettingsContent({super.key, this.tab, this.item});
+  @override
+  State<SettingsContent> createState() => _SettingsContentState();
+}
+
+class _SettingsContentState extends State<SettingsContent> with SingleTickerProviderStateMixin {
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    switch (tab) {
-      case 'server':
-        return ServerSettingsTab(item: item, settingsCategories: settingsCategories);
-      case 'general':
-        return GeneralSettingsTab(item: item, settingsCategories: settingsCategories,);
-      case 'behaviour':
-        return BehaviourSettingsTab(item: item, settingsCategories: settingsCategories,);
-      case 'audio':
-        return AudioSettingsTab(item: item, settingsCategories: settingsCategories);
-      case 'notifications':
-        return NotificationsSettingsTab(item: item, settingsCategories: settingsCategories);
-      case 'appearance':
-        return AppearanceSettingsTab(item: item, settingsCategories: settingsCategories);
-      case 'experimental':
-        return ExperimentalSettingsTab(item: item, settingsCategories: settingsCategories);
-      case 'about':
-        return AboutSettingsTab(item: item, settingsCategories: settingsCategories);
-      default:
-        return GeneralSettingsTab(item: item, settingsCategories: settingsCategories);
-    }
+
+    final children = [
+      ServerSettingsTab(settingsTabController: widget.settingsTabController, key: const ValueKey('server'),),
+      GeneralSettingsTab(settingsTabController: widget.settingsTabController, key: const ValueKey('general')),
+      BehaviourSettingsTab(settingsTabController: widget.settingsTabController, key: const ValueKey('behaviour')),
+      AudioSettingsTab(settingsTabController: widget.settingsTabController, key: const ValueKey('audio')),
+      NotificationsSettingsTab(settingsTabController: widget.settingsTabController, key: const ValueKey('notifications')),
+      AppearanceSettingsTab(settingsTabController: widget.settingsTabController, key: const ValueKey('appearance')),
+      ExperimentalSettingsTab(settingsTabController: widget.settingsTabController, key: const ValueKey('experimental')),
+      AboutSettingsTab(settingsTabController: widget.settingsTabController, key: const ValueKey('about')),
+    ];
+
+    // Sort by index in settingsCategories
+    children.sort((a, b) {
+      ValueKey aKey = a.key as ValueKey;
+      ValueKey bKey = b.key as ValueKey;
+      return widget.settingsTabController.categories.indexWhere((element) => element.tab == aKey.value) - widget.settingsTabController.categories.indexWhere((element) => element.tab == bKey.value);
+    });
+
+    return TabBarView(
+      controller: widget.settingsTabController,
+      children: children,
+    );
   }
 }

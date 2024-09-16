@@ -8,9 +8,9 @@ import '../settings_provider.dart';
 import '../settings_widgets.dart';
 
 class AudioSettingsTab extends StatefulWidget {
-  final String? item;
-  final List<SettingMetadata> settingsCategories;
-  const AudioSettingsTab({super.key, this.item, required this.settingsCategories});
+  final SettingsTabController settingsTabController;
+  
+  const AudioSettingsTab({super.key, required this.settingsTabController});
 
   @override
   State<AudioSettingsTab> createState() => _AudioSettingsTabState();
@@ -20,33 +20,33 @@ class _AudioSettingsTabState extends State<AudioSettingsTab> {
 
   @override
   Widget build(BuildContext context) {
-    final items = widget.settingsCategories.firstWhere((element) => element.tab == 'audio').items;
+    final category = widget.settingsTabController.categories.firstWhere((element) => element.tab == 'audio');
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Audio',
-            style: Theme.of(context).textTheme.headlineMedium,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SettingTitle(category: category),
+        Expanded(
+          child: ListView(
+            children: [
+              buildSettingsSection(
+                  context,
+                  "Input and Output",
+                  [
+                    _buildMicrophone(category.items),
+                    _buildSpeaker(category.items),
+                  ]
+              ),
+            ],
           ),
-          const SizedBox(height: 24),
-          buildSettingsSection(
-              context,
-              "Input and Output",
-              [
-                _buildMicrophone(items),
-                _buildSpeaker(items),
-              ]
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   Widget _buildMicrophone(Map<String, SettingItem> items) {
     return Highlightable(
-      highlight: widget.item == items['audio-microphone']!.key,
+      highlight: widget.settingsTabController.item == items['audio-microphone']!.key,
       child: FutureBuilder(
           future: AudioManager.getInputDevices(),
           builder: (context, snapshot) {
@@ -88,7 +88,7 @@ class _AudioSettingsTabState extends State<AudioSettingsTab> {
 
   Widget _buildSpeaker(Map<String, SettingItem> items) {
     return Highlightable(
-      highlight: widget.item == items['audio-speaker']!.key,
+      highlight: widget.settingsTabController.item == items['audio-speaker']!.key,
       child: FutureBuilder(
           future: AudioManager.getOutputDevices(),
           builder: (context, snapshot) {

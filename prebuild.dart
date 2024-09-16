@@ -239,7 +239,7 @@ class $className extends Relation {
       final camelCaseName = ReCase(field.name).camelCase;
       return 'required this.$camelCaseName,';
     }).join('\n    ');
-    final superParams = 'required String input, required String output, required String id';
+    const superParams = 'required String input, required String output, required String id';
     return '$className({$params $superParams}) : super(input: input, output: output, id: id);';
   }
 

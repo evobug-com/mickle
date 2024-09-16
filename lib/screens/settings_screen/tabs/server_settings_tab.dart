@@ -4,11 +4,12 @@ import 'package:talk/core/providers/scoped/connection_provider.dart';
 import 'package:talk/screens/settings_screen/settings_widgets.dart';
 import 'package:talk/ui/text_field_list_tile.dart';
 import '../settings_models.dart';
+import '../settings_provider.dart';
 
 class ServerSettingsTab extends StatefulWidget {
-  final String? item;
-  final List<SettingMetadata> settingsCategories;
-  const ServerSettingsTab({super.key, this.item, required this.settingsCategories});
+  final SettingsTabController settingsTabController;
+  
+  const ServerSettingsTab({super.key, required this.settingsTabController});
 
   @override
   State<ServerSettingsTab> createState() => _ServerSettingsTabState();
@@ -42,35 +43,34 @@ class _ServerSettingsTabState extends State<ServerSettingsTab> {
 
   @override
   Widget build(BuildContext context) {
-    final items = widget.settingsCategories.firstWhere((element) => element.tab == 'server').items;
+    final category = widget.settingsTabController.categories.firstWhere((element) => element.tab == 'server');
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Server',
-            style: Theme.of(context).textTheme.headlineMedium,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SettingTitle(category: category),
+        Expanded(
+          child: ListView(
+            children: [
+              buildSettingsSection(
+                  context,
+                  "${_displayNameController.text}'s Account",
+                  [
+                    _buildUsername(category.items),
+                    _buildChangePassword(category.items),
+                    _buildMultiFactorAuthentication(category.items),
+                    _buildEmail(category.items),
+
+                    _buildFirstName(category.items),
+                    _buildLastName(category.items),
+                    _buildDeleteAccount(category.items),
+                    _buildSubmitButton(context),
+                  ]
+              ),
+            ],
           ),
-          const SizedBox(height: 24),
-
-          buildSettingsSection(
-              context,
-              "${_displayNameController.text}'s Account",
-              [
-                _buildUsername(items),
-                _buildChangePassword(items),
-                _buildMultiFactorAuthentication(items),
-                _buildEmail(items),
-
-                _buildFirstName(items),
-                _buildLastName(items),
-                _buildDeleteAccount(items),
-                _buildSubmitButton(context),
-              ]
-          ),
-        ],
-      ),
+        )
+      ],
     );
   }
 
@@ -88,7 +88,7 @@ class _ServerSettingsTabState extends State<ServerSettingsTab> {
 
   Widget _buildChangePassword(Map<String, SettingItem> items) {
     return Highlightable(
-      highlight: widget.item == items['server-change-password']!.key,
+      highlight: widget.settingsTabController.item == items['server-change-password']!.key,
       child: ListTile(
         title: Text(items['server-change-password']!.name),
         onTap: () {
@@ -100,7 +100,7 @@ class _ServerSettingsTabState extends State<ServerSettingsTab> {
 
   Widget _buildMultiFactorAuthentication(Map<String, SettingItem> items) {
     return Highlightable(
-      highlight: widget.item == items['server-multi-factor-authentication']!.key,
+      highlight: widget.settingsTabController.item == items['server-multi-factor-authentication']!.key,
       child: ListTile(
         title: Text(items['server-multi-factor-authentication']!.name),
         onTap: () {
@@ -112,7 +112,7 @@ class _ServerSettingsTabState extends State<ServerSettingsTab> {
 
   Widget _buildEmail(Map<String, SettingItem> items) {
     return Highlightable(
-      highlight: widget.item == items['server-email']!.key,
+      highlight: widget.settingsTabController.item == items['server-email']!.key,
       child: TextFieldListTile(
         title: items['server-email']!.name,
         subtitle: 'This email is used for account recovery and notifications',
@@ -123,7 +123,7 @@ class _ServerSettingsTabState extends State<ServerSettingsTab> {
 
   Widget _buildFirstName(Map<String, SettingItem> items) {
     return Highlightable(
-      highlight: widget.item == items['server-first-name']!.key,
+      highlight: widget.settingsTabController.item == items['server-first-name']!.key,
       child: TextFieldListTile(
         title: items['server-first-name']!.name,
         controller: _firstNameController,
@@ -133,7 +133,7 @@ class _ServerSettingsTabState extends State<ServerSettingsTab> {
 
   Widget _buildLastName(Map<String, SettingItem> items) {
     return Highlightable(
-      highlight: widget.item == items['server-last-name']!.key,
+      highlight: widget.settingsTabController.item == items['server-last-name']!.key,
       child: TextFieldListTile(
         title: items['server-last-name']!.name,
         controller: _lastNameController,
@@ -143,7 +143,7 @@ class _ServerSettingsTabState extends State<ServerSettingsTab> {
 
   Widget _buildUsername(Map<String, SettingItem> items) {
     return Highlightable(
-      highlight: widget.item == items['server-username']!.key,
+      highlight: widget.settingsTabController.item == items['server-username']!.key,
       child: TextFieldListTile(
         title: items['server-username']!.name,
         controller: _usernameController,
@@ -154,7 +154,7 @@ class _ServerSettingsTabState extends State<ServerSettingsTab> {
 
   Widget _buildDeleteAccount(Map<String, SettingItem> items) {
     return Highlightable(
-      highlight: widget.item == items['server-delete-account']!.key,
+      highlight: widget.settingsTabController.item == items['server-delete-account']!.key,
       child: ListTile(
         title: Text(items['server-delete-account']!.name),
         onTap: () {

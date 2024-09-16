@@ -65,7 +65,7 @@ final GoRouter router = GoRouter(
         name: 'settings',
         path: '/settings',
         pageBuilder: (context, state) => NoTransitionPage(key: state.pageKey, child: SettingsScreen(
-          tab: state.uri.queryParameters['tab'],
+          tab: state.uri.queryParameters['tab'] ?? 'server',
           item: state.uri.queryParameters['item'],
         )),
       )

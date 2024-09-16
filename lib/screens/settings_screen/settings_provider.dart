@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/notifiers/theme_controller.dart';
 import '../../core/storage/storage.dart';
+import 'settings_models.dart';
 
 class SettingsProvider extends ChangeNotifier {
   static final SettingsProvider _singleton = SettingsProvider._internal();
@@ -80,6 +81,33 @@ class SettingsProvider extends ChangeNotifier {
   String get messageDateFormat => Storage().readString('messageDateFormat', defaultValue: 'HH:mm');
   set messageDateFormat(String value) {
     Storage().write('messageDateFormat', value);
+    notifyListeners();
+  }
+}
+
+class SettingsTabController extends TabController {
+  String _tab;
+  String? _item;
+  final List<SettingMetadata> categories;
+
+  SettingsTabController({String tab = 'server', String? item, required this.categories, required super.vsync}) : _tab = tab, _item = item, super(length: categories.length) {
+    print('SettingsTabController: tab=$_tab, item=$_item');
+  }
+
+  String get tab => _tab;
+  String? get item => _item;
+
+  void setCurrent({required String tab, String? item}) {
+    _tab = tab;
+    _item = item;
+    index = categories.indexWhere((element) => element.tab == tab);
+    print('SettingsTabController: setCurrent tab=$tab, item=$item, index=$index');
+    notifyListeners();
+  }
+
+  void reset() {
+    _tab = "servers";
+    _item = null;
     notifyListeners();
   }
 }

@@ -30,7 +30,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _connectToAllServers() async {
-    final servers = await SecureStorage().readJSONArray("endpoints") ?? [];
+    final servers = await SecureStorage().readJSONArray("endpoints");
     _logger.info('Connecting to ${servers.length} endpoints');
 
     final connectionManager = ConnectionManager();

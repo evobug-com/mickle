@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 
 import '../../../core/version.dart';
 import '../settings_models.dart';
+import '../settings_provider.dart';
 import '../settings_widgets.dart';
 
 class AboutSettingsTab extends StatefulWidget {
-  final String? item;
-  final List<SettingMetadata> settingsCategories;
-  const AboutSettingsTab({super.key, this.item, required this.settingsCategories});
+  final SettingsTabController settingsTabController;
+  
+  const AboutSettingsTab({super.key, required this.settingsTabController});
 
   @override
   State<AboutSettingsTab> createState() => _AboutSettingsTabState();
@@ -18,30 +19,34 @@ class _AboutSettingsTabState extends State<AboutSettingsTab> {
 
   @override
   Widget build(BuildContext context) {
+    final category = widget.settingsTabController.categories.firstWhere((element) => element.tab == 'about');
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'About',
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-        const SizedBox(height: 24),
+       SettingTitle(category: category),
 
-        buildSettingsSection(
-          context,
-          'App Information',
-          [
-            _buildVersion(),
-            _buildDeveloper(),
-          ],
+        Expanded(
+          child: ListView(
+            children: [
+              buildSettingsSection(
+                context,
+                'App Information',
+                [
+                  _buildVersion(category.items),
+                  _buildDeveloper(category.items),
+                ],
+              ),
+            ],
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildVersion() {
+  Widget _buildVersion(Map<String, SettingItem> items) {
     return Highlightable(
-      highlight: widget.item == 'about-version',
+      highlight: widget.settingsTabController.item == items['about-version']!.key,
       child: const ListTile(
         title: Text('Version'),
         subtitle: SelectableText(version),
@@ -49,9 +54,9 @@ class _AboutSettingsTabState extends State<AboutSettingsTab> {
     );
   }
 
-  Widget _buildDeveloper() {
+  Widget _buildDeveloper(Map<String, SettingItem> items) {
     return Highlightable(
-      highlight: widget.item == 'about-developer',
+      highlight: widget.settingsTabController.item == items['about-developer']!.key,
       child: const ListTile(
         title: Text('Developer'),
         subtitle: SelectableText('evobug.com'),

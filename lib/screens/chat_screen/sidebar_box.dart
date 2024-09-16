@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:talk/areas/utilities/elevation.dart';
 
-import '../../core/surfaces.dart';
-
 class SidebarBox extends StatelessWidget {
   final Widget child;
 

@@ -65,6 +65,7 @@ dependencies:
   elliptic: ^0.3.11
   pem: ^2.0.5
   file_picker: ^8.1.2
+  material_color_utilities: ^0.12.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -83,6 +84,7 @@ dev_dependencies:
 
 dependency_overrides:
   collection: ^1.19.0
+  material_color_utilities: ^0.12.0
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
