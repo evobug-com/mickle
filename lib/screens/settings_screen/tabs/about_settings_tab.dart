@@ -15,22 +15,47 @@ class AboutSettingsTab extends StatefulWidget {
 }
 
 class _AboutSettingsTabState extends State<AboutSettingsTab> {
+
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SettingTitle(title: widget.settingsCategories.firstWhere((element) => element.tab == 'about').title),
-        const SizedBox(height: 20),
+        Text(
+          'About',
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
+        const SizedBox(height: 24),
 
-        Highlightable(
-          highlight: widget.item == 'about-version',
-          child: const ListTile(
-            title: Text('Version'),
-            subtitle: Text(version),
-          ),
-        )
+        buildSettingsSection(
+          context,
+          'App Information',
+          [
+            _buildVersion(),
+            _buildDeveloper(),
+          ],
+        ),
       ],
+    );
+  }
+
+  Widget _buildVersion() {
+    return Highlightable(
+      highlight: widget.item == 'about-version',
+      child: const ListTile(
+        title: Text('Version'),
+        subtitle: SelectableText(version),
+      ),
+    );
+  }
+
+  Widget _buildDeveloper() {
+    return Highlightable(
+      highlight: widget.item == 'about-developer',
+      child: const ListTile(
+        title: Text('Developer'),
+        subtitle: SelectableText('evobug.com'),
+      ),
     );
   }
 }

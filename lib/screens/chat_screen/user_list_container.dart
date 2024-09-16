@@ -10,6 +10,7 @@ import 'sidebar_box.dart';
 
 class UserListContainer extends StatelessWidget {
   final ConnectionProvider connection;
+
   const UserListContainer({super.key, required this.connection});
 
   @override
@@ -21,8 +22,7 @@ class UserListContainer extends StatelessWidget {
           Expanded(
             child: StreamBuilder(
                 stream: connection.database.users.stream,
-                initialData:
-                connection.database.users.items,
+                initialData: connection.database.users.items,
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
                     return const Center(
@@ -31,9 +31,12 @@ class UserListContainer extends StatelessWidget {
                   }
 
                   final Channel? selectedChannel =
-                      ChannelListSelectedChannel.of(context).getChannel(connection.server);
+                      ChannelListSelectedChannel.of(context)
+                          .getChannel(connection.server);
 
-                  List<User> users = selectedChannel == null ? connection.database.users.items : selectedChannel.getUsers(database: connection.database);
+                  List<User> users = selectedChannel == null
+                      ? connection.database.users.items
+                      : selectedChannel.getUsers(database: connection.database);
 
                   return ListView.builder(
                     itemCount: users.length,
@@ -41,38 +44,7 @@ class UserListContainer extends StatelessWidget {
                       return ListenableBuilder(
                           listenable: users[index],
                           builder: (context, widget) {
-                            return ListTile(
-                              // Avatar leading
-                              leading: UserAvatar(
-                                presence: UserPresence
-                                    .fromString(
-                                    users[index]
-                                        .presence),
-                                imageUrl:
-                                users[index].avatar,
-                              ),
-                              // User with status
-                              title: Text(users[index]
-                                  .displayName ??
-                                  "<No name>"),
-                              subtitle:
-                              users[index].status !=
-                                  null
-                                  ? Text(users[index]
-                                  .status!)
-                                  : null,
-                              // trailing message icon
-                              trailing: const IconButton(
-                                icon: Icon(Icons.message),
-                                onPressed: null,
-                              ),
-                              onTap: () {
-                                // Cycle all enum status
-                                // final UserPresence newStatus = UserPresence.values[(users[index].presence.index + 1) % UserPresence.values.length];
-                                // users[index].presence = newStatus;
-                                // Database().store.box<User>().put(users[index]);
-                              },
-                            );
+                            return _buildUserItem(users, index, context);
                           });
                     },
                   );
@@ -80,6 +52,75 @@ class UserListContainer extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  bool _shouldShowRoleSeparator(User user, User? previousUser) {
+    if (previousUser == null) {
+      return true;
+    }
+
+    final roles = user.getRoles(database: connection.database);
+    final previousRoles = previousUser.getRoles(database: connection.database);
+
+    // Find role with highest priority
+    roles.sort((a, b) => a.rank.compareTo(b.rank));
+    previousRoles.sort((a, b) => a.rank.compareTo(b.rank));
+
+    final highestRole = roles.last;
+    final previousHighestRole = previousRoles.last;
+
+    return highestRole.rank != previousHighestRole.rank;
+  }
+
+  Widget _buildUserItem(List<User> users, int index, BuildContext context) {
+    final user = users[index];
+    final previousUser = index > 0 ? users[index - 1] : null;
+    final theme = Theme.of(context);
+    print('Building user item for ${user.displayName}');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if(_shouldShowRoleSeparator(user, previousUser))
+          Padding(
+            padding: EdgeInsets.fromLTRB(12, previousUser != null ? 12 : 0, 12, 12),
+            child: Text(
+              user.getRoles(database: connection.database).last.name,
+              style: theme.textTheme.titleSmall,
+            ),
+          ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          child: ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            // Avatar leading
+            leading: UserAvatar(
+              presence: UserPresence.fromString(users[index].presence),
+              imageUrl: user.avatar,
+            ),
+            // User with status
+            title: Text(user.displayName ?? "<No name>"),
+            subtitle: user.status != null
+                ? Text(user.status!, overflow: TextOverflow.ellipsis)
+                : null,
+            // trailing message icon
+            // trailing:  IconButton(
+            //   icon: Icon(Icons.chat_bubble_outline),
+            //   onPressed: null,
+            // ),
+            onTap: () {
+              // Cycle all enum status
+              // final UserPresence newStatus = UserPresence.values[(users[index].presence.index + 1) % UserPresence.values.length];
+              // users[index].presence = newStatus;
+              // Database().store.box<User>().put(users[index]);
+            },
+          ),
+        ),
+      ],
     );
   }
 }

@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:talk/ui/dropdown_llist_tile.dart';
 
 import '../../../core/managers/audio_manager.dart';
 import '../settings_models.dart';
@@ -16,118 +17,114 @@ class AudioSettingsTab extends StatefulWidget {
 }
 
 class _AudioSettingsTabState extends State<AudioSettingsTab> {
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SettingTitle(title: widget.settingsCategories.firstWhere((element) => element.tab == 'audio').title),
-        const SizedBox(height: 20),
+    final items = widget.settingsCategories.firstWhere((element) => element.tab == 'audio').items;
 
-        Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Input settings
-                  const Text('Input', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  // Microphone device
-                  Highlightable(highlight: widget.item == 'audio-microphone', child:
-                  FutureBuilder(
-                      future: AudioManager.getInputDevices(),
-                      builder: (context, snapshot) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Audio',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          const SizedBox(height: 24),
+          buildSettingsSection(
+              context,
+              "Input and Output",
+              [
+                _buildMicrophone(items),
+                _buildSpeaker(items),
+              ]
+          ),
+        ],
+      ),
+    );
+  }
 
-                        if (!snapshot.hasData) {
-                          return const CircularProgressIndicator();
-                        }
+  Widget _buildMicrophone(Map<String, SettingItem> items) {
+    return Highlightable(
+      highlight: widget.item == items['audio-microphone']!.key,
+      child: FutureBuilder(
+          future: AudioManager.getInputDevices(),
+          builder: (context, snapshot) {
 
-                        if(snapshot.hasError) {
-                          return FormField<String>(builder: (FormFieldState<String> state) {
-                            return Text('Error: ${snapshot.error}');
-                          }, key: const Key('audio-microphone-error'));
-                        }
+            if (!snapshot.hasData) {
+              return const CircularProgressIndicator();
+            }
 
-                        if(snapshot.data!.isEmpty) {
-                          return const Text('No microphone devices found');
-                        }
+            if(snapshot.hasError) {
+              return FormField<String>(builder: (FormFieldState<String> state) {
+                return Text('Error: ${snapshot.error}');
+              }, key: const Key('audio-microphone-error'));
+            }
 
-                        final defaultMicrophone = snapshot.data!.firstWhere((element) => element.isDefault);
+            if(snapshot.data!.isEmpty) {
+              return const Text('No microphone devices found');
+            }
 
-                        return DropdownButtonFormField<String>(
-                          decoration: const InputDecoration(labelText: 'Microphone'),
-                          key: const Key('audio-microphone'),
-                          value: SettingsProvider().microphoneDevice ?? defaultMicrophone.id,
-                          items: snapshot.data!.map((device) {
-                            return DropdownMenuItem<String>(
-                              value: device.id,
-                              child: Text(device.name),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            // Save microphone device to settings
-                          },
-                        );
-                      }
-                  ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 20),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Output settings
-                  const Text('Output', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  // Speaker device
-                  Highlightable(
-                    highlight: widget.item == 'audio-speaker',
-                    child: FutureBuilder(
-                        future: AudioManager.getOutputDevices(),
-                        builder: (context, snapshot) {
+            final defaultMicrophone = snapshot.data!.firstWhere((element) => element.isDefault);
 
-                          if (!snapshot.hasData) {
-                            return const CircularProgressIndicator();
-                          }
+            return DropdownListTile(
+              title: 'Microphone',
+              key: const Key('audio-microphone'),
+              value: SettingsProvider().microphoneDevice ?? defaultMicrophone.id,
+              items: snapshot.data!.map((device) {
+                return DropdownMenuItem<String>(
+                  value: device.id,
+                  child: Text(device.name),
+                );
+              }).toList(),
+              onChanged: (value) {
+                // Save microphone device to settings
+              },
+            );
+          }
+      ),
+    );
+  }
 
-                          if(snapshot.hasError) {
-                            return FormField<String>(builder: (FormFieldState<String> state) {
-                              return Text('Error: ${snapshot.error}');
-                            }, key: const Key('audio-speaker-error'));
-                          }
+  Widget _buildSpeaker(Map<String, SettingItem> items) {
+    return Highlightable(
+      highlight: widget.item == items['audio-speaker']!.key,
+      child: FutureBuilder(
+          future: AudioManager.getOutputDevices(),
+          builder: (context, snapshot) {
 
-                          if(snapshot.data!.isEmpty) {
-                            return const Text('No speaker devices found');
-                          }
+            if (!snapshot.hasData) {
+              return const CircularProgressIndicator();
+            }
 
-                          final defaultSpeaker = snapshot.data!.firstWhere((element) => element.isDefault);
+            if(snapshot.hasError) {
+              return FormField<String>(builder: (FormFieldState<String> state) {
+                return Text('Error: ${snapshot.error}');
+              }, key: const Key('audio-speaker-error'));
+            }
 
-                          return DropdownButtonFormField<String>(
-                            decoration: const InputDecoration(labelText: 'Speaker'),
-                            key: const Key('audio-speaker'),
-                            value: defaultSpeaker.id,
-                            items: snapshot.data!.map((device) {
-                              return DropdownMenuItem<String>(
-                                value: device.id,
-                                child: Text(device.name),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              // Save speaker device to settings
-                            },
-                          );
-                        }
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ],
-        ),
+            if(snapshot.data!.isEmpty) {
+              return const Text('No speaker devices found');
+            }
 
-      ],
+            final defaultSpeaker = snapshot.data!.firstWhere((element) => element.isDefault);
+
+            return DropdownListTile(
+              title: 'Speaker',
+              key: const Key('audio-speaker'),
+              value: defaultSpeaker.id,
+              items: snapshot.data!.map((device) {
+                return DropdownMenuItem<String>(
+                  value: device.id,
+                  child: Text(device.name),
+                );
+              }).toList(),
+              onChanged: (value) {
+                // Save speaker device to settings
+              },
+            );
+          }
+      ),
     );
   }
 }

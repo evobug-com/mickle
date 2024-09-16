@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:talk/areas/utilities/elevation.dart';
 
 class SettingTitle extends StatelessWidget {
   final String? title;
@@ -73,3 +74,27 @@ class Highlightable extends StatelessWidget {
     return child;
   }
 }
+
+Widget buildSettingsSection(BuildContext context, String title, List<Widget> children) {
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 16),
+    child: Elevation(
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 16),
+            ...children,
+          ],
+        ),
+      ),
+    ),
+  );
+}
+

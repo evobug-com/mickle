@@ -5,6 +5,7 @@ import 'package:talk/areas/security/security.dart';
 import 'package:talk/core/providers/global/selected_server_provider.dart';
 import 'package:talk/core/providers/scoped/connection_provider.dart';
 
+import '../areas/utilities/elevation.dart';
 import '../components/console/widgets/console_widget.dart';
 import '../components/server_list/widgets/server_list_widget.dart';
 import '../core/version.dart';
@@ -39,12 +40,15 @@ class _MyScaffoldState extends State<MyScaffold> {
           child: Scaffold(
             appBar: PreferredSize(
               preferredSize: const Size.fromHeight(kWindowCaptionHeight),
-              child: WindowCaption(
-                title: const Text('TALK [$version]'),
-                brightness: colorScheme.brightness,
+              child: Elevation(
+                offset: 1,
+                child: WindowCaption(
+                  title: const Text('TALK [$version]'),
+                  brightness: colorScheme.brightness,
+                ),
               ),
             ),
-            backgroundColor: colorScheme.surfaceContainerLow,
+            backgroundColor: colorScheme.surface,
             body: Row(
               children: [
                 if(widget.showSidebar) ServerListWidget(showAddServerButton: !isLoginScreen, showMainServersOnly: isLoginScreen),

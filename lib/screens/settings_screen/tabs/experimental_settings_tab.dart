@@ -16,29 +16,45 @@ class ExperimentalSettingsTab extends StatefulWidget {
 }
 
 class _ExperimentalSettingsTabState extends State<ExperimentalSettingsTab> {
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SettingTitle(title: widget.settingsCategories.firstWhere((element) => element.tab == 'experimental').title),
-        const Text('Settings that are experimental and may not work as expected. They may not be available in the final version.', style: TextStyle(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 20),
+    final items = widget.settingsCategories.firstWhere((element) => element.tab == 'experimental').items;
 
-        // Replace text-emoji with emoji such as :D to 😃 and :P to 😛, etc.
-        Highlightable(
-          highlight: widget.item == 'experimental-text-emoji',
-          child: SwitchListTile(
-            title: const Text('Text Emoji'),
-            subtitle: const Text('Replace text-emoji with emoji, such as \':D\' or \':grinning_face:\' to 😃 and \':P\' to 😛, etc.'),
-            value: SettingsProvider().replaceTextEmoji,
-            onChanged: (value) {
-              // Save text-emoji to settings
-              SettingsProvider().replaceTextEmoji = value;
-            },
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Experimental',
+            style: Theme.of(context).textTheme.headlineMedium,
           ),
-        ),
-      ],
+          const Text('Settings that are experimental and may not work as expected. They may not be available in the final version.', style: TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 24),
+          buildSettingsSection(
+              context,
+              "Chat Settings",
+              [
+                _buildReplaceTextEmoji(items),
+              ]
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReplaceTextEmoji(Map<String, SettingItem> items) {
+    return Highlightable(
+      highlight: widget.item == items['experimental-text-emoji']!.key,
+      child: SwitchListTile(
+        title: Text(items['experimental-text-emoji']!.name),
+        subtitle: const Text('Replace text-emoji with emoji, such as \':D\' or \':grinning_face:\' to 😃 and \':P\' to 😛, etc.'),
+        value: SettingsProvider().replaceTextEmoji,
+        onChanged: (value) {
+          // Save text-emoji to settings
+          SettingsProvider().replaceTextEmoji = value;
+        },
+      ),
     );
   }
 }

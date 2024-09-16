@@ -186,6 +186,7 @@ ReqSetUserAvatarPacket _$ReqSetUserAvatarPacketFromJson(
     ReqSetUserAvatarPacket(
       requestId: (json['request_id'] as num).toInt(),
       avatar: json['avatar'] as String?,
+      avatarBlob: json['avatar_blob'] as String?,
     );
 
 Map<String, dynamic> _$ReqSetUserAvatarPacketToJson(
@@ -201,6 +202,7 @@ Map<String, dynamic> _$ReqSetUserAvatarPacketToJson(
   }
 
   writeNotNull('avatar', instance.avatar);
+  writeNotNull('avatar_blob', instance.avatarBlob);
   return val;
 }
 
@@ -252,6 +254,7 @@ ReqDeleteChannelPacket _$ReqDeleteChannelPacketFromJson(
     ReqDeleteChannelPacket(
       requestId: (json['request_id'] as num).toInt(),
       channelId: json['channel_id'] as String,
+      serverId: json['server_id'] as String,
     );
 
 Map<String, dynamic> _$ReqDeleteChannelPacketToJson(
@@ -259,6 +262,7 @@ Map<String, dynamic> _$ReqDeleteChannelPacketToJson(
     <String, dynamic>{
       'request_id': instance.requestId,
       'channel_id': instance.channelId,
+      'server_id': instance.serverId,
     };
 
 ReqModifyChannelPacket _$ReqModifyChannelPacketFromJson(
@@ -310,6 +314,7 @@ ReqDeleteUserFromChannelPacket _$ReqDeleteUserFromChannelPacketFromJson(
       requestId: (json['request_id'] as num).toInt(),
       channelId: json['channel_id'] as String,
       userId: json['user_id'] as String,
+      serverId: json['server_id'] as String,
     );
 
 Map<String, dynamic> _$ReqDeleteUserFromChannelPacketToJson(
@@ -318,6 +323,7 @@ Map<String, dynamic> _$ReqDeleteUserFromChannelPacketToJson(
       'request_id': instance.requestId,
       'channel_id': instance.channelId,
       'user_id': instance.userId,
+      'server_id': instance.serverId,
     };
 
 ReqJoinVoiceChannelPacket _$ReqJoinVoiceChannelPacketFromJson(

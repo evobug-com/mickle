@@ -27,16 +27,78 @@ class SettingMetadata {
 // Create settings list with keys and names
 final List<SettingMetadata> settingsCategories = [
   SettingMetadata(
+      tab: 'server',
+      icon: Icons.settings_remote,
+      title: 'Server',
+      items: {
+        // Change Password
+        'server-change-password': SettingItem(
+            tab: 'server',
+            key: 'server-change-password',
+            name: 'Change Password'
+        ),
+
+        // Delete Account
+        'server-delete-account': SettingItem(
+            tab: 'server',
+            key: 'server-delete-account',
+            name: 'Delete Account'
+        ),
+
+        // Multi Factor Authentication
+        'server-multi-factor-authentication': SettingItem(
+            tab: 'server',
+            key: 'server-multi-factor-authentication',
+            name: 'Multi Factor Authentication'
+        ),
+
+        // Email
+        'server-email': SettingItem(
+            tab: 'server',
+            key: 'server-email',
+            name: 'Email'
+        ),
+
+        // First Name
+        'server-first-name': SettingItem(
+            tab: 'server',
+            key: 'server-first-name',
+            name: 'First Name'
+        ),
+
+        // Last Name
+        'server-last-name': SettingItem(
+            tab: 'server',
+            key: 'server-last-name',
+            name: 'Last Name'
+        ),
+
+        // Display Name
+        'server-display-name': SettingItem(
+            tab: 'server',
+            key: 'server-display-name',
+            name: 'Display Name'
+        ),
+
+        // Username
+        'server-username': SettingItem(
+            tab: 'server',
+            key: 'server-username',
+            name: 'Username'
+        ),
+      }
+  ),
+  SettingMetadata(
       tab: 'general',
       icon: Icons.home,
       title: 'Home',
       items: {
-        'home-autostartup': SettingItem(tab: 'general', key: 'home-autostartup', name: 'Autostartup'),
-        'home-exit-to-tray': SettingItem(tab: 'general', key: 'home-exit-to-tray', name: 'Exit to Tray'),
-        'display-name': SettingItem(tab: 'general', key: 'display-name', name: 'Display Name'),
-        // 'account-email': SettingItem(tab: 'general', key: 'account-email', name: 'Account Email'),
-        'account-password': SettingItem(tab: 'general', key: 'account-password', name: 'Account Password'),
-        'account-logout': SettingItem(tab: 'general', key: 'account-logout', name: 'Account Logout'),
+        // Language
+        'general-language': SettingItem(
+            tab: 'general',
+            key: 'general-language',
+            name: 'Language'
+        ),
       }
   ),
   SettingMetadata(
@@ -44,10 +106,25 @@ final List<SettingMetadata> settingsCategories = [
       icon: Icons.rule,
       title: 'Behaviour',
       items: {
+        'behaviour-autostartup': SettingItem(
+            tab: 'behaviour',
+            key: 'behaviour-autostartup',
+            name: 'Autostartup'
+        ),
+        'behaviour-exit-to-tray': SettingItem(
+            tab: 'behaviour',
+            key: 'behaviour-exit-to-tray',
+            name: 'Exit to Tray'
+        ),
         'behaviour-send-message-on-enter': SettingItem(
             tab: 'behaviour',
             key: 'behaviour-send-message-on-enter',
             name: 'Send message on Enter'
+        ),
+        'behaviour-message-date-format': SettingItem(
+            tab: 'behaviour',
+            key: 'behaviour-message-date-format',
+            name: 'Message Date Format'
         ),
       }
   ),
@@ -69,7 +146,16 @@ final List<SettingMetadata> settingsCategories = [
     'experimental-text-emoji': SettingItem(tab: 'experimental', key: 'experimental-text-emoji', name: 'Text Emoji'),
   }),
   SettingMetadata(tab: 'about', icon: Icons.info, title: 'About', items: {
-    'about-version': SettingItem(tab: 'about', key: 'about-version', name: 'Version'),
+    'about-version': SettingItem(
+        tab: 'about',
+        key: 'about-version',
+        name: 'Version'
+    ),
+    'about-developer': SettingItem(
+        tab: 'about',
+        key: 'about-developer',
+        name: 'Developer'
+    ),
   }),
 ];
 

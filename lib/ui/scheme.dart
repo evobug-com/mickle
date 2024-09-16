@@ -203,14 +203,15 @@ class MaterialTheme {
       onError: Color(0xff690005),
       errorContainer: Color(0xff93000a),
       onErrorContainer: Color(0xffffdad6),
-      background: Color(0xff1a1111),
-      onBackground: Color(0xfff0dede),
+      background: Color(0xff1a1111), // DEPRECATED
+      onBackground: Color(0xfff0dede), // DEPRECATED
       surface: Color(0xff1a1111),
       onSurface: Color(0xfff0dede),
       surfaceVariant: Color(0xff524343),
       onSurfaceVariant: Color(0xffd7c1c1),
       outline: Color(0xffa08c8c),
-      outlineVariant: Color(0xff524343),
+      // outlineVariant: Color(0xff524343),
+      outlineVariant: Color(0xff4f4445),
       shadow: Color(0xff000000),
       scrim: Color(0xff000000),
       inverseSurface: Color(0xfff0dede),
@@ -228,12 +229,19 @@ class MaterialTheme {
       onTertiaryFixed: Color(0xff3a071d),
       tertiaryFixedDim: Color(0xffffb1c7),
       onTertiaryFixedVariant: Color(0xff703348),
-      surfaceDim: Color(0xff1a1111),
+      // surfaceDim: Color(0xff1a1111),
+      // surfaceBright: Color(0xff423736),
+      // surfaceContainerLowest: Color(0xff140c0c),
+      // surfaceContainerLow: Color(0xff221919),
+      // surfaceContainer: Color(0xff271d1d),
+      // surfaceContainerHigh: Color(0xff322827),
+      // surfaceContainerHighest: Color(0xff3d3232),
+      surfaceDim: Color(0xff1a1112),
       surfaceBright: Color(0xff423736),
-      surfaceContainerLowest: Color(0xff140c0c),
+      surfaceContainerLowest: Color(0xff181212),
       surfaceContainerLow: Color(0xff221919),
-      surfaceContainer: Color(0xff271d1d),
-      surfaceContainerHigh: Color(0xff322827),
+      surfaceContainer: Color(0xff201a1a),
+      surfaceContainerHigh: Color(0xff2f2928),
       surfaceContainerHighest: Color(0xff3d3232),
     );
   }
@@ -596,7 +604,6 @@ class MaterialTheme {
     return theme(darkBlueScheme().toColorScheme());
   }
 
-
   ThemeData theme(ColorScheme colorScheme) =>
       ThemeData(
         useMaterial3: true,
@@ -606,14 +613,10 @@ class MaterialTheme {
           bodyColor: colorScheme.onSurface,
           displayColor: colorScheme.onSurface,
         ),
+        typography: Typography.material2021(),
         scaffoldBackgroundColor: colorScheme.surface,
         canvasColor: colorScheme.surface,
       );
-
-
-  List<ExtendedColor> get extendedColors =>
-      [
-      ];
 }
 
 class MaterialScheme {
@@ -720,39 +723,4 @@ class MaterialScheme {
   final Color surfaceContainer;
   final Color surfaceContainerHigh;
   final Color surfaceContainerHighest;
-}
-
-class ExtendedColor {
-  final Color seed, value;
-  final ColorFamily light;
-  final ColorFamily lightHighContrast;
-  final ColorFamily lightMediumContrast;
-  final ColorFamily dark;
-  final ColorFamily darkHighContrast;
-  final ColorFamily darkMediumContrast;
-
-  const ExtendedColor({
-    required this.seed,
-    required this.value,
-    required this.light,
-    required this.lightHighContrast,
-    required this.lightMediumContrast,
-    required this.dark,
-    required this.darkHighContrast,
-    required this.darkMediumContrast,
-  });
-}
-
-class ColorFamily {
-  const ColorFamily({
-    required this.color,
-    required this.onColor,
-    required this.colorContainer,
-    required this.onColorContainer,
-  });
-
-  final Color color;
-  final Color onColor;
-  final Color colorContainer;
-  final Color onColorContainer;
 }

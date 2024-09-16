@@ -1,5 +1,6 @@
 
 import 'package:collection/collection.dart';
+import 'package:intl/intl.dart';
 import 'package:talk/components/console/components/console_list_roles_item.dart';
 
 import '../database.dart';
@@ -76,6 +77,11 @@ extension ChannelExtension on Channel {
     // Get all users for channelUsersRelations by id
     final channelUsers = channelUsersRelations.map((relation) => database.users.get(relation.output)!).toList();
     return channelUsers;
+  }
+
+  String getServerId({required Database database}) {
+    final serverChannelsRelations = database.serverChannels.inputs(id);
+    return serverChannelsRelations.firstWhere((relation) => relation.output == id).input;
   }
 
   containsMessage(Message message, {required Database database}) {

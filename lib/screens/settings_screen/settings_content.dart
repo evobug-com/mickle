@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:talk/screens/settings_screen/tabs/server_settings_tab.dart';
 
 import 'settings_models.dart';
 import 'tabs/about_settings_tab.dart';
@@ -19,6 +20,8 @@ class SettingsContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     switch (tab) {
+      case 'server':
+        return ServerSettingsTab(item: item, settingsCategories: settingsCategories);
       case 'general':
         return GeneralSettingsTab(item: item, settingsCategories: settingsCategories,);
       case 'behaviour':

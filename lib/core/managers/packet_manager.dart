@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:talk/areas/connection/connection.dart';
 import 'package:talk/core/network/utils.dart';
@@ -74,7 +75,12 @@ class PacketManager {
     reqPacketJson['data'].remove('type');
 
     String json = jsonEncode(reqPacketJson);
-    _connection.send(utf8.encode(json));
+    final data = utf8.encode(json);
+
+    // Prepend the packet length to the data (4 bytes)
+    final packetSize = Uint8List(4)..buffer.asByteData().setUint32(0, data.length, Endian.big);
+    _connection.send(packetSize);
+    _connection.send(data);
 
     return completer.future;
   }
@@ -111,11 +117,12 @@ class PacketManager {
   }
 
   Future<ApiResponse<ResSetUserAvatarPacket>> sendSetUserAvatar({
-    required String? avatar
+     String? avatar, String? avatarBlob
   }) {
     return sendRequest((requestId) => ReqSetUserAvatarPacket(
       requestId: requestId,
       avatar: avatar,
+      avatarBlob: avatarBlob
     ));
   }
 
@@ -181,10 +188,12 @@ class PacketManager {
 
   Future<ApiResponse<ResDeleteChannelPacket>> sendDeleteChannel({
     required String channelId,
+    required String serverId,
   }) {
     return sendRequest((requestId) => ReqDeleteChannelPacket(
       requestId: requestId,
       channelId: channelId,
+      serverId: serverId,
     ));
   }
 
@@ -215,11 +224,13 @@ class PacketManager {
   Future<ApiResponse<ResDeleteUserFromChannelPacket>> sendDeleteUserFromChannel({
     required String channelId,
     required String userId,
+    required String serverId,
   }) {
     return sendRequest((requestId) => ReqDeleteUserFromChannelPacket(
         requestId: requestId,
         channelId: channelId,
-        userId: userId
+        userId: userId,
+        serverId: serverId,
     ));
   }
 

@@ -1,6 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:talk/areas/utilities/elevation.dart';
 import 'package:talk/screens/settings_screen/settings_models.dart';
 
 import '../../core/notifiers/theme_controller.dart';
@@ -32,8 +32,16 @@ class MatchResult {
 
 MatchResult _matchesSearchQuery(String item, String query) {
   // Normalize the query and item strings by replacing -_ with space and removing extra spaces
-  final normalizedQuery = query.toLowerCase().replaceAll(RegExp(r'[-_]'), ' ').replaceAll(RegExp(r'\s+'), ' ').trim();
-  final normalizedItem = item.toLowerCase().replaceAll(RegExp(r'[-_]'), ' ').replaceAll(RegExp(r'\s+'), ' ').trim();
+  final normalizedQuery = query
+      .toLowerCase()
+      .replaceAll(RegExp(r'[-_]'), ' ')
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .trim();
+  final normalizedItem = item
+      .toLowerCase()
+      .replaceAll(RegExp(r'[-_]'), ' ')
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .trim();
 
   // Split query into words
   final queryWords = normalizedQuery.split(' ');
@@ -66,7 +74,8 @@ MatchResult _matchesSearchQuery(String item, String query) {
         break;
       } else {
         // If the whole query word did not match, reset and continue searching
-        matchIndices.removeRange(matchIndices.length - queryWordIndex, matchIndices.length);
+        matchIndices.removeRange(
+            matchIndices.length - queryWordIndex, matchIndices.length);
         itemIndex = startMatchIndex + 1;
       }
     }
@@ -98,20 +107,25 @@ class _SettingsSidebarState extends State<SettingsSidebar> {
     return widget.settingsCategories.expand((setting) {
       return setting.items.values
           .map((item) {
-        final matchResult = _matchesSearchQuery(item.name, searchQuery);
-        if (matchResult.isMatch) {
-          return {'tab': setting.tab, 'item': item, 'matches': matchResult.matchIndices};
-        } else {
-          return null;
-        }
-      })
+            final matchResult = _matchesSearchQuery(item.name, searchQuery);
+            if (matchResult.isMatch) {
+              return {
+                'tab': setting.tab,
+                'item': item,
+                'matches': matchResult.matchIndices
+              };
+            } else {
+              return null;
+            }
+          })
           .where((result) => result != null)
           .toList()
           .cast<Map<String, dynamic>>();
     }).toList();
   }
 
-  Widget _buildHighlightedText(String text, List<int> matchIndices, BuildContext context) {
+  Widget _buildHighlightedText(
+      String text, List<int> matchIndices, BuildContext context) {
     final scheme = ThemeController.scheme(context, listen: false);
     final defaultText = scheme.onSurface;
 
@@ -121,15 +135,22 @@ class _SettingsSidebarState extends State<SettingsSidebar> {
     for (int i = 0; i < text.length; i++) {
       if (matchIndices.contains(i)) {
         if (i != lastMatchIndex + 1) {
-          textSpans.add(TextSpan(text: text.substring(lastMatchIndex + 1, i), style: TextStyle(color: defaultText)));
+          textSpans.add(TextSpan(
+              text: text.substring(lastMatchIndex + 1, i),
+              style: TextStyle(color: defaultText)));
         }
-        textSpans.add(TextSpan(text: text[i], style: TextStyle(color: scheme.primary, fontWeight: FontWeight.bold)));
+        textSpans.add(TextSpan(
+            text: text[i],
+            style:
+                TextStyle(color: scheme.primary, fontWeight: FontWeight.bold)));
         lastMatchIndex = i;
       }
     }
 
     if (lastMatchIndex != text.length - 1) {
-      textSpans.add(TextSpan(text: text.substring(lastMatchIndex + 1), style: TextStyle(color: defaultText)));
+      textSpans.add(TextSpan(
+          text: text.substring(lastMatchIndex + 1),
+          style: TextStyle(color: defaultText)));
     }
 
     return RichText(text: TextSpan(children: textSpans));
@@ -140,55 +161,72 @@ class _SettingsSidebarState extends State<SettingsSidebar> {
     final scheme = ThemeController.scheme(context);
     final filteredSettings = getFilteredSettings();
 
-    return Container(
+    return SizedBox(
       width: 250,
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(12),
-      ),
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              height: 48,
-              decoration: BoxDecoration(
-                color: scheme.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: TextField(
-                controller: _searchController,
-                autofocus: widget.isSearching,
-                decoration: InputDecoration(
-                  hintText: 'Search settings',
-                  prefixIcon: Icon(Icons.search, color: scheme.onSurfaceVariant),
-                  suffixIcon: widget.isSearching
-                      ? IconButton(
-                    icon: Icon(Icons.close, color: scheme.onSurfaceVariant),
-                    onPressed: () {
-                      _searchController.clear();
-                      widget.onSearch(false);
-                    },
-                  )
-                      : null,
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                ),
-                onTap: () => widget.onSearch(true),
-                onChanged: (query) => setState(() => searchQuery = query),
+          Expanded(
+            child: Elevation(
+              border: true,
+              borderRadius: BorderRadius.circular(12),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(6.0),
+                    child: TextField(
+                      controller: _searchController,
+                      autofocus: widget.isSearching,
+                      decoration: InputDecoration(
+                        hintText: 'Search settings',
+                        prefixIcon:
+                            Icon(Icons.search, color: scheme.onSurfaceVariant),
+                        suffixIcon: widget.isSearching
+                            ? IconButton(
+                                icon: Icon(Icons.close,
+                                    color: scheme.onSurfaceVariant),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  widget.onSearch(false);
+                                },
+                              )
+                            : null,
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 14),
+                      ),
+                      onTap: () => widget.onSearch(true),
+                      onChanged: (query) => setState(() => searchQuery = query),
+                    ),
+                  ),
+                  Expanded(
+                    child: widget.isSearching
+                        ? _buildSearchResults(filteredSettings)
+                        : _buildCategoryList(),
+                  ),
+                ],
               ),
             ),
           ),
-          Expanded(
-            child: widget.isSearching
-                ? _buildSearchResults(filteredSettings)
-                : _buildCategoryList(),
-          ),
+          const SizedBox(height: 8),
+          ElevatedButton(
+              // minWidth: double.infinity,
+              // padding: const EdgeInsets.all(16),
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size(double.infinity, 48),
+              ),
+              onPressed: () {
+                if (context.canPop()) {
+                  context.pop();
+                } else {
+                  context.go('/chat');
+                }
+              },
+              child: Text('Back')),
         ],
       ),
     );
   }
+
   Widget _buildSearchResults(List<Map<String, dynamic>> filteredSettings) {
     return ListView.builder(
       itemCount: filteredSettings.length,
@@ -196,12 +234,16 @@ class _SettingsSidebarState extends State<SettingsSidebar> {
         final result = filteredSettings[index];
         final item = result['item'] as SettingItem;
         final matches = result['matches'] as List<int>;
-        final category = widget.settingsCategories.firstWhere((element) => element.tab == result['tab']);
+        final category = widget.settingsCategories
+            .firstWhere((element) => element.tab == result['tab']);
 
         return ListTile(
-          leading: Icon(category.icon, color: ThemeController.scheme(context).primary),
+          leading: Icon(category.icon,
+              color: ThemeController.scheme(context).primary),
           title: _buildHighlightedText(item.name, matches, context),
-          subtitle: Text(category.title, style: TextStyle(color: ThemeController.scheme(context).onSurfaceVariant)),
+          subtitle: Text(category.title,
+              style: TextStyle(
+                  color: ThemeController.scheme(context).onSurfaceVariant)),
           onTap: () {
             context.pushReplacementNamed(
               'settings',
@@ -226,7 +268,8 @@ class _SettingsSidebarState extends State<SettingsSidebar> {
           duration: const Duration(milliseconds: 200),
           margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
           decoration: BoxDecoration(
-            color: isSelected ? scheme.surfaceContainerHigh : Colors.transparent,
+            color:
+                isSelected ? scheme.surfaceContainerHigh : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
           ),
           child: ListTile(
@@ -242,9 +285,11 @@ class _SettingsSidebarState extends State<SettingsSidebar> {
               ),
             ),
             onTap: () {
-              context.pushReplacementNamed('settings', queryParameters: {'tab': setting.tab});
+              context.pushReplacementNamed('settings',
+                  queryParameters: {'tab': setting.tab});
             },
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
         );
       },

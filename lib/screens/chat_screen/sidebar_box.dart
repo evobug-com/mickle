@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:talk/areas/utilities/elevation.dart';
 
 import '../../core/surfaces.dart';
 
@@ -9,12 +10,9 @@ class SidebarBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Surface.surfaceContainer(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: scheme.surfaceContainerHighest),
-        ),
+    return Elevation(
+        borderRadius: BorderRadius.circular(12),
+        border: false,
         child: child);
   }
 }

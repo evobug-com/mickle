@@ -41,7 +41,7 @@ dependencies:
   go_router: ^14.2.7
 
 
-  audioplayers: ^6.0.0
+  audioplayers: ^6.1.0
   flutter_secure_storage: ^9.2.2
   get_storage: ^2.1.1
   path_provider: ^2.1.4
@@ -64,6 +64,7 @@ dependencies:
   ecdsa: ^0.1.2
   elliptic: ^0.3.11
   pem: ^2.0.5
+  file_picker: ^8.1.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -82,7 +83,6 @@ dev_dependencies:
 
 dependency_overrides:
   collection: ^1.19.0
-
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

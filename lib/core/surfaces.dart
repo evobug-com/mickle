@@ -58,9 +58,15 @@ class Surface extends StatelessWidget {
     );
   }
 
+  // Surface Container Lowest is a new role
+  // Surface at elevation +1 becomes Surface Container Low
+  // Surface at elevation +2 becomes Surface Container
+  // Surface at elevation +3 becomes Surface Container High
+
   const Surface.surfaceContainerLowest({super.key, required this.child, this.decoration}) : surfaceType = SurfaceType.lowest;
   const Surface.surfaceContainerLow({super.key, required this.child, this.decoration}) : surfaceType = SurfaceType.low;
   const Surface.surfaceContainer({super.key, required this.child, this.decoration}) : surfaceType = SurfaceType.normal;
   const Surface.surfaceContainerHigh({super.key, required this.child, this.decoration}) : surfaceType = SurfaceType.high;
+  // @deprecated
   const Surface.surfaceContainerHighest({super.key, required this.child, this.decoration}) : surfaceType = SurfaceType.highest;
 }

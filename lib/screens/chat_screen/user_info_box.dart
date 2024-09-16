@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:talk/core/database.dart';
@@ -26,6 +30,8 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
   AvatarUploadMethod _avatarUploadMethod = AvatarUploadMethod.url;
   late AnimationController _animationController;
   late Animation<double> _animation;
+  final ValueNotifier<File?> _selectedFile = ValueNotifier(null);
+  String? _selectedFileName;
 
   @override
   void initState() {
@@ -55,9 +61,10 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return SidebarBox(
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(12.0),
         child: ListenableBuilder(
           listenable: widget.connection.user,
           builder: (context, child) {
@@ -69,17 +76,17 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
                     presence: UserPresence.fromString(widget.connection.user.presence),
                     imageUrl: widget.connection.user.avatar,
                   ),
-                  const SizedBox(width: 8.0),
+                  const SizedBox(width: 16.0),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(
                           widget.connection.user.displayName ?? "<No name>",
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          style: theme.textTheme.titleMedium,
                         ),
                         if (widget.connection.user.status != null) ...[
-                          Text(widget.connection.user.status!),
+                          Text(widget.connection.user.status!, style: theme.textTheme.bodyMedium),
                         ],
                       ],
                     ),
@@ -91,7 +98,7 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
                         queryParameters: {"tab": "general"},
                       );
                     },
-                    icon: const Icon(Icons.settings),
+                    icon: const Icon(Icons.settings_outlined),
                   )
                 ],
               ),
@@ -179,10 +186,15 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
     return Center(
       child: Column(
         children: [
-          UserAvatar(
-            presence: null,
-            imageUrl: _avatarUrlController.text,
-            size: 50,
+          ValueListenableBuilder(
+            valueListenable: _selectedFile,
+            builder: (BuildContext context, File? value, Widget? child) {
+              return UserAvatar(
+                presence: null,
+                imageUrl: _getAvatarImageUrl(),
+                size: 50,
+              );
+            },
           ),
           const SizedBox(height: 16),
           Row(
@@ -208,10 +220,45 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
               hint: 'Enter avatar URL',
               colorScheme: colorScheme,
             ),
+          ] else ...[
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: _pickFile,
+              child: Text(_selectedFileName ?? 'Select File'),
+            ),
           ],
         ],
       ),
     );
+  }
+
+  String _getAvatarImageUrl() {
+    if (_avatarUploadMethod == AvatarUploadMethod.url) {
+      print("Avatar URL: ${_avatarUrlController.text}");
+      return _avatarUrlController.text;
+    } else if (_selectedFile.value != null) {
+      print("Avatar File: ${_selectedFile.value!.path}");
+      return _selectedFile.value!.path;
+    } else {
+      print("Avatar Image: ${widget.connection.user.avatar}");
+      return widget.connection.user.avatar ?? '';
+    }
+  }
+
+  Future<void> _pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+      allowMultiple: false,
+    );
+
+    if (result != null) {
+      setState(() {
+        print(result.files.single.path);
+        _selectedFile.value = File(result.files.single.path!);
+        _selectedFileName = result.files.single.name;
+      });
+    }
   }
 
   Widget _buildInfoField(String title, Widget content) {
@@ -411,19 +458,35 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
           ..presence = _newPresence!;
         user.notify();
       }
-      final avatar = _avatarUrlController.text.isEmpty ? null : _avatarUrlController.text;
-      if (_avatarUploadMethod == AvatarUploadMethod.url &&
-          avatar != widget.connection.user.avatar) {
-        final result = await packetManager.sendSetUserAvatar(avatar: avatar);
+
+      if (_avatarUploadMethod == AvatarUploadMethod.url) {
+        final avatar = _avatarUrlController.text.isEmpty ? null : _avatarUrlController.text;
+        if (avatar != widget.connection.user.avatar) {
+          final result = await packetManager.sendSetUserAvatar(avatar: avatar);
+          if (result.error != null) {
+            _errorMessage = result.error?.message;
+            return;
+          }
+
+          // Update the avatar in the local database
+          final db = connection.database;
+          final user = db.users.firstWhere((user) => user.id == connection.user.id)
+            ..avatar = avatar;
+          user.notify();
+        }
+      } else if (_selectedFile.value != null) {
+        final avatarBlob = base64Encode(await _selectedFile.value!.readAsBytes());
+        final result = await packetManager.sendSetUserAvatar(avatarBlob: avatarBlob);
         if (result.error != null) {
           _errorMessage = result.error?.message;
           return;
         }
 
         // Update the avatar in the local database
+        // Note: You might want to update this once you receive the processed avatar URL from the server
         final db = connection.database;
         final user = db.users.firstWhere((user) => user.id == connection.user.id)
-          ..avatar = avatar;
+          ..avatar = null; // Temporary, until you receive the new avatar URL
         user.notify();
       }
 

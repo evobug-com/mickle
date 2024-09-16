@@ -137,15 +137,18 @@ Map<String, dynamic> _$ChannelToJson(Channel instance) {
 
 User _$UserFromJson(Map<String, dynamic> json) => User(
       id: json['id'] as String,
+      username: json['username'] as String?,
       displayName: json['display_name'] as String?,
       firstName: json['first_name'] as String?,
       lastName: json['last_name'] as String?,
+      email: json['email'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
       lastSeen: json['last_seen'] == null
           ? null
           : DateTime.parse(json['last_seen'] as String),
       status: json['status'] as String?,
       avatar: json['avatar'] as String?,
+      avatarUrl: json['avatar_url'] as String?,
       presence: json['presence'] as String,
     );
 
@@ -160,13 +163,16 @@ Map<String, dynamic> _$UserToJson(User instance) {
     }
   }
 
+  writeNotNull('username', instance.username);
   writeNotNull('display_name', instance.displayName);
   writeNotNull('first_name', instance.firstName);
   writeNotNull('last_name', instance.lastName);
+  writeNotNull('email', instance.email);
   val['created_at'] = instance.createdAt.toIso8601String();
   writeNotNull('last_seen', instance.lastSeen?.toIso8601String());
   writeNotNull('status', instance.status);
   writeNotNull('avatar', instance.avatar);
+  writeNotNull('avatar_url', instance.avatarUrl);
   val['presence'] = instance.presence;
   return val;
 }

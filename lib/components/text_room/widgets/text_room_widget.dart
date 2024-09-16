@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:talk/areas/utilities/elevation.dart';
 import 'package:talk/components/text_room/components/text_room_header.dart';
 import 'package:talk/components/text_room/core/models/text_room_scroll_controller.dart';
 import 'package:talk/core/models/models.dart';
@@ -32,15 +33,10 @@ class TextRoomWidgetState extends State<TextRoomWidget> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: <Widget>[
-            Surface.surfaceContainer(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4),
+            SidebarBox(
+              child: TextRoomHeader(
+                channel: widget.channel,
               ),
-              child: SidebarBox(
-                child: TextRoomHeader(
-                  channel: widget.channel,
-                ),
-              )
             ),
             Expanded(
               child: TextRoomMessages(
@@ -48,7 +44,7 @@ class TextRoomWidgetState extends State<TextRoomWidget> {
                 connection: widget.connection,
               ),
             ),
-            const Divider(height: 1),
+            const SizedBox(height: 2),
             TextRoomInput(
               connection: widget.connection,
               channel: widget.channel,

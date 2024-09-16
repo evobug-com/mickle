@@ -23,8 +23,11 @@ class _AppearanceSettingsTabState extends State<AppearanceSettingsTab> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SettingTitle(title: widget.settingsCategories.firstWhere((element) => element.tab == 'appearance').title),
-        const SizedBox(height: 20),
+        Text(
+          'Appearance',
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
+        const SizedBox(height: 24),
 
         Expanded(
           child: Row(

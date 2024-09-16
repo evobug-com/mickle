@@ -16,7 +16,8 @@ class TextRoomHeaderState extends State<TextRoomHeader> {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     // First line: Title with badge of how many pinned messages is there
     // Second line: Description of the current room
     // On hover, it will show Row with pinned messages
@@ -44,11 +45,7 @@ class TextRoomHeaderState extends State<TextRoomHeader> {
                 children: [
                   Text(
                     widget.channel.name ?? "<No name>",
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.bold,
-                      color: scheme.onSurface
-                    ),
+                    style: theme.textTheme.titleMedium
                   ),
                   // Consumer<VoiceRoomCurrent>(
                   //   builder: (BuildContext context, VoiceRoomCurrent value, Widget? child) {
@@ -77,6 +74,7 @@ class TextRoomHeaderState extends State<TextRoomHeader> {
               ),
               if(widget.channel.description?.isNotEmpty ?? false) Text(
                 widget.channel.description ?? "<No description>",
+                style: theme.textTheme.bodyMedium,
               )
 
               // const Divider(height: 1),

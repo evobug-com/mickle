@@ -76,4 +76,10 @@ class SettingsProvider extends ChangeNotifier {
     Storage().write('sendMessageOnEnter', value.toString());
     notifyListeners();
   }
+
+  String get messageDateFormat => Storage().readString('messageDateFormat', defaultValue: 'HH:mm');
+  set messageDateFormat(String value) {
+    Storage().write('messageDateFormat', value);
+    notifyListeners();
+  }
 }

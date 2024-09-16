@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:talk/screens/settings_screen/settings_provider.dart';
 
 extension BuildContextExtensions on BuildContext {
   Rect? getWidgetBounds() {
@@ -24,5 +26,17 @@ final Tween<double> reverseTween = Tween<double>(
 extension ReverseAnimation on Animation<double> {
   Animation<double> toReversed() {
     return reverseTween.animate(this);
+  }
+}
+
+
+extension DateTimeExtension on DateTime {
+
+  DateTime toLocal() {
+    return DateTime.fromMillisecondsSinceEpoch(millisecondsSinceEpoch, isUtc: true).toLocal();
+  }
+
+  get formatted {
+    return DateFormat(SettingsProvider().messageDateFormat).format(this);
   }
 }

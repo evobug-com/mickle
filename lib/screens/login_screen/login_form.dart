@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:talk/areas/utilities/elevation.dart';
 import 'package:talk/generated/l10n.dart';
 
 import '../../core/notifiers/theme_controller.dart';
@@ -31,28 +32,29 @@ class LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: 300,
-      decoration: BoxDecoration(
-        border: Border.all(),
+      child: Elevation(
+        border: true,
         borderRadius: BorderRadius.circular(8),
-        color: ThemeController.scheme(context).surfaceContainerHigh,
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(S.of(context).loginScreenWelcome, style: const TextStyle(fontSize: 24)),
-            const SizedBox(height: 16),
-            if (kDebugMode) _buildServerHostField(),
-            _buildUsernameField(),
-            const SizedBox(height: 16),
-            _buildPasswordField(),
-            const SizedBox(height: 16),
-            _buildFormActions(),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(S.of(context).loginScreenWelcome, style: const TextStyle(fontSize: 24)),
+                const SizedBox(height: 16),
+                if (kDebugMode) _buildServerHostField(),
+                _buildUsernameField(),
+                const SizedBox(height: 16),
+                _buildPasswordField(),
+                const SizedBox(height: 16),
+                _buildFormActions(),
+              ],
+            ),
+          ),
         ),
       ),
     );

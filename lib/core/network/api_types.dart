@@ -385,9 +385,12 @@ class ReqSetUserAvatarPacket extends RequestPacket {
   final int requestId;
   @JsonKey(name: "avatar", includeIfNull: false)
   final String? avatar;
+  @JsonKey(name: "avatar_blob", includeIfNull: false)
+  final String? avatarBlob;
 
   ReqSetUserAvatarPacket({required this.requestId,
-    required this.avatar,}) : super(packetType: "ReqSetUserAvatarPacket");
+    required this.avatar,
+    required this.avatarBlob,}) : super(packetType: "ReqSetUserAvatarPacket");
 
   factory ReqSetUserAvatarPacket.fromJson(Map<String, dynamic> json) => _$ReqSetUserAvatarPacketFromJson(json);
     @override
@@ -399,7 +402,7 @@ class ReqSetUserAvatarPacket extends RequestPacket {
 
   @override
   String toString() {
-    return 'ReqSetUserAvatarPacket{requestId: $requestId, avatar: $avatar}';
+    return 'ReqSetUserAvatarPacket{requestId: $requestId, avatar: $avatar, avatarBlob: $avatarBlob}';
   }
 }
 
@@ -469,9 +472,12 @@ class ReqDeleteChannelPacket extends RequestPacket {
   final int requestId;
   @JsonKey(name: "channel_id")
   final String channelId;
+  @JsonKey(name: "server_id")
+  final String serverId;
 
   ReqDeleteChannelPacket({required this.requestId,
-    required this.channelId,}) : super(packetType: "ReqDeleteChannelPacket");
+    required this.channelId,
+    required this.serverId,}) : super(packetType: "ReqDeleteChannelPacket");
 
   factory ReqDeleteChannelPacket.fromJson(Map<String, dynamic> json) => _$ReqDeleteChannelPacketFromJson(json);
     @override
@@ -483,7 +489,7 @@ class ReqDeleteChannelPacket extends RequestPacket {
 
   @override
   String toString() {
-    return 'ReqDeleteChannelPacket{requestId: $requestId, channelId: $channelId}';
+    return 'ReqDeleteChannelPacket{requestId: $requestId, channelId: $channelId, serverId: $serverId}';
   }
 }
 
@@ -555,10 +561,13 @@ class ReqDeleteUserFromChannelPacket extends RequestPacket {
   final String channelId;
   @JsonKey(name: "user_id")
   final String userId;
+  @JsonKey(name: "server_id")
+  final String serverId;
 
   ReqDeleteUserFromChannelPacket({required this.requestId,
     required this.channelId,
-    required this.userId,}) : super(packetType: "ReqDeleteUserFromChannelPacket");
+    required this.userId,
+    required this.serverId,}) : super(packetType: "ReqDeleteUserFromChannelPacket");
 
   factory ReqDeleteUserFromChannelPacket.fromJson(Map<String, dynamic> json) => _$ReqDeleteUserFromChannelPacketFromJson(json);
     @override
@@ -570,7 +579,7 @@ class ReqDeleteUserFromChannelPacket extends RequestPacket {
 
   @override
   String toString() {
-    return 'ReqDeleteUserFromChannelPacket{requestId: $requestId, channelId: $channelId, userId: $userId}';
+    return 'ReqDeleteUserFromChannelPacket{requestId: $requestId, channelId: $channelId, userId: $userId, serverId: $serverId}';
   }
 }
 

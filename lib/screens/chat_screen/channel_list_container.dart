@@ -49,9 +49,7 @@ class _ChannelListContainerState extends State<ChannelListContainer> {
                       contextMenuHandler: (channel, action) {
                         switch (action) {
                           case 'archive':
-                            widget.connection.packetManager
-                                .sendDeleteChannel(
-                                channelId: channel.id);
+                            widget.connection.packetManager.sendDeleteChannel(channelId: channel.id, serverId: channel.getServerId(database: widget.connection.database));
                             break;
                           case 'edit':
                             showDialog(
@@ -84,6 +82,7 @@ class _ChannelListContainerState extends State<ChannelListContainer> {
                                 .sendDeleteUserFromChannel(
                               channelId: channel.id,
                               userId: widget.connection.user.id,
+                              serverId: channel.getServerId(database: widget.connection.database),
                             )
                                 .then((value) {
                               if (value.error != null) {

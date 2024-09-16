@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:talk/components/context_menu/core/utils/extensions.dart';
 import 'package:talk/core/models/models.dart' as models;
 import 'package:talk/core/providers/scoped/connection_provider.dart';
 import 'package:talk/ui/user_avatar.dart';
@@ -12,6 +12,9 @@ class TextRoomMessage extends StatefulWidget {
   final models.User? user;
   final void Function()? onEdit;
   final void Function()? onDelete;
+  final bool isFirstMessage;
+  final bool isMiddleMessage;
+  final bool isLastMessage;
 
   const TextRoomMessage({
     super.key,
@@ -19,6 +22,9 @@ class TextRoomMessage extends StatefulWidget {
     required this.user,
     required this.onEdit,
     required this.onDelete,
+    required this.isFirstMessage,
+    required this.isMiddleMessage,
+    required this.isLastMessage,
   });
 
   @override
@@ -26,93 +32,92 @@ class TextRoomMessage extends StatefulWidget {
 }
 
 class TextRoomMessageState extends State<TextRoomMessage> {
-  bool _isHovered = false;
 
-  getBackgroundColor() {
-    final colorScheme = Theme.of(context).colorScheme;
-    final connectionProvider = ConnectionProvider.of(context);
-    // if is current user
-    if (widget.user?.id == connectionProvider.user.id) {
-      if (_isHovered) {
-        return colorScheme
-            .surfaceContainerHigh;
-      } else {
-        return colorScheme.surfaceContainer;
-      }
-    }
-
-    if(_isHovered) {
-      return colorScheme.surfaceContainerHigh;
-    } else {
-      return Colors.transparent;
-    }
-  }
+  bool isHovered = false;
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+
     return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        margin: const EdgeInsets.fromLTRB(0, 1, 0, 1),
-        decoration: BoxDecoration(
-          color: getBackgroundColor(),
-          borderRadius: BorderRadius.circular(5),
+      onEnter: (_) => setState(() => isHovered = true),
+      onExit: (_) => setState(() => isHovered = false),
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 50),
+        padding: EdgeInsets.only(
+          left: 8,
+          right: 8,
+          top: widget.isFirstMessage ? 8 : 0,
+          bottom: widget.isFirstMessage || widget.isLastMessage ? 8 : 0,
         ),
-        child: Theme(
-          data: Theme.of(context).copyWith(
-            textTheme: Theme.of(context).textTheme.apply(
-              bodyColor: colorScheme.onSurface,
-              displayColor: colorScheme.onSurface,
-            ),
+        decoration: BoxDecoration(
+          color: getMessageBgColor(),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(widget.isFirstMessage ? 8 : 0),
+            topRight: Radius.circular(widget.isFirstMessage ? 8 : 0),
+            bottomLeft: Radius.circular(widget.isLastMessage ? 8 : 0),
+            bottomRight: Radius.circular(widget.isLastMessage ? 8 : 0),
           ),
-          child: Stack(
-            children: [
-              Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                UserAvatar(imageUrl: widget.user?.avatar),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          SelectableText(widget.user?.displayName ?? '<user not found>', style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold),),
-                          const SizedBox(width: 8),
-                          Text(DateFormat('HH:mm:ss').format(widget.message.createdAt), style: TextStyle(color: colorScheme.onSurfaceVariant, fontStyle: FontStyle.italic)),
-                        ],
-                      ),
-                      SelectableText(widget.message.content ?? '<No message>', style: TextStyle(color: colorScheme.onSurface)),
-                    ],
-                  ),
-                ),
-              ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            _buildInfo(theme),
+            SizedBox(width: 12),
+            Expanded(
+              child: _buildContent(theme),
             ),
-            if (_isHovered)
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit),
-                        onPressed: widget.onEdit,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete),
-                        onPressed: widget.onDelete,
-                      ),
-                    ],
-                  ),
-                ),
-            ]
-          ),
+          ],
         ),
       ),
     );
+  }
+
+  Color getMessageBgColor() {
+    final isCurrentUser = widget.user?.id == ConnectionProvider.of(context).user.id;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    if(isHovered) {
+      return colorScheme.surfaceContainerHighest;
+    }
+
+    return isCurrentUser
+    ? colorScheme.surfaceContainerLow
+    : Colors.transparent;
+  }
+
+  Column _buildContent(ThemeData theme) {
+    return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  if (widget.isFirstMessage)
+                    Text(
+                        widget.user?.displayName ?? '<user not found>',
+                        style: theme.textTheme.titleMedium),
+                  Expanded(child: SizedBox()),
+                  if (widget.isFirstMessage)
+                    Text(widget.message.createdAt.toLocal().formatted,
+                        style: theme.textTheme.bodySmall),
+                ],
+              ),
+              Text(widget.message.content ?? '<No message>',
+                  style: theme.textTheme.bodyMedium),
+            ],
+          );
+  }
+
+  SizedBox _buildInfo(ThemeData theme) {
+    return SizedBox(
+          width: 40,
+          child: AnimatedSwitcher(duration: Duration(milliseconds: 50),
+            child: widget.isFirstMessage ?
+            UserAvatar(imageUrl: widget.user?.avatar) :
+            isHovered ? Text(widget.message.createdAt.toLocal().formatted, style: theme.textTheme.bodySmall) : null
+          ),
+        );
   }
 }

@@ -205,12 +205,16 @@ class Channel with ChangeNotifier {
 class User with ChangeNotifier {
   @JsonKey(name: "id")
   String id;
+  @JsonKey(name: "username", includeIfNull: false)
+  String? username;
   @JsonKey(name: "display_name", includeIfNull: false)
   String? displayName;
   @JsonKey(name: "first_name", includeIfNull: false)
   String? firstName;
   @JsonKey(name: "last_name", includeIfNull: false)
   String? lastName;
+  @JsonKey(name: "email", includeIfNull: false)
+  String? email;
   @JsonKey(name: "created_at")
   DateTime createdAt;
   @JsonKey(name: "last_seen", includeIfNull: false)
@@ -219,17 +223,22 @@ class User with ChangeNotifier {
   String? status;
   @JsonKey(name: "avatar", includeIfNull: false)
   String? avatar;
+  @JsonKey(name: "avatar_url", includeIfNull: false)
+  String? avatarUrl;
   @JsonKey(name: "presence")
   String presence;
 
   User({required this.id,
+    this.username,
     this.displayName,
     this.firstName,
     this.lastName,
+    this.email,
     required this.createdAt,
     this.lastSeen,
     this.status,
     this.avatar,
+    this.avatarUrl,
     required this.presence,});
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
@@ -239,7 +248,7 @@ class User with ChangeNotifier {
 
   @override
   String toString() {
-    return 'User{id: $id, displayName: $displayName, firstName: $firstName, lastName: $lastName, createdAt: $createdAt, lastSeen: $lastSeen, status: $status, avatar: $avatar, presence: $presence}';
+    return 'User{id: $id, username: $username, displayName: $displayName, firstName: $firstName, lastName: $lastName, email: $email, createdAt: $createdAt, lastSeen: $lastSeen, status: $status, avatar: $avatar, avatarUrl: $avatarUrl, presence: $presence}';
   }
 }
 

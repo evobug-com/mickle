@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:talk/areas/utilities/elevation.dart';
 import 'package:talk/screens/settings_screen/settings_content.dart';
 import 'package:talk/screens/settings_screen/settings_models.dart';
 import 'package:talk/screens/settings_screen/settings_provider.dart';
@@ -25,8 +26,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.initState();
     print('SettingsScreen: tab=${widget.tab}, item=${widget.item}');
 
-    final currentCategory = settingsCategories.firstWhere((element) => element.tab == widget.tab);
-    if(widget.item != null && currentCategory.items.containsKey(widget.item)) {
+    final currentCategory =
+        settingsCategories.firstWhere((element) => element.tab == widget.tab);
+    if (widget.item != null && currentCategory.items.containsKey(widget.item)) {
       final currentItem = currentCategory.items[widget.item!];
       Scrollable.ensureVisible(
         context,
@@ -40,7 +42,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return MyScaffold(
       body: AnimatedContainer(
-        padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+        padding: const EdgeInsets.all(8),
         duration: const Duration(milliseconds: 300),
         child: Shortcuts(
           shortcuts: {
@@ -50,7 +52,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             actions: {
               ActivateIntent: CallbackAction<ActivateIntent>(
                 onInvoke: (intent) {
-                  if(isSearching) {
+                  if (isSearching) {
                     setState(() {
                       isSearching = false;
                     });
@@ -77,24 +79,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         });
                       },
                     ),
+                    const SizedBox(width: 8),
                     if (!isSearching) ...[
-                      const SizedBox(width: 30),
-                      Expanded(child: ListenableBuilder(
-                        listenable: SettingsProvider(),
-                        builder: (context, child) {
-                          return SettingsContent(tab: widget.tab, item: widget.item);
-                        }
-                      )),
+                      Expanded(
+                          child: ListenableBuilder(
+                              listenable: SettingsProvider(),
+                              builder: (context, child) {
+                                return Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: SettingsContent(
+                                      tab: widget.tab,
+                                      item: widget.item),
+                                );
+                              })),
                     ]
                   ],
                 ),
-                IconButton(onPressed: () {
-                  if(context.canPop()) {
-                    context.pop();
-                  } else {
-                    context.go('/chat');
-                  }
-                }, icon: const Icon(Icons.close)),
               ],
             ),
           ),
@@ -103,6 +103,3 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 }
-
-
-

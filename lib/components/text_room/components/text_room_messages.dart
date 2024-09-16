@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:talk/core/models/utils.dart';
 import 'package:talk/core/network/api_types.dart';
 import 'package:talk/core/providers/scoped/connection_provider.dart';
+import 'package:talk/screens/settings_screen/settings_provider.dart';
 
 import '../../../core/models/models.dart';
 import '../../ui/date_separator.dart';
@@ -163,10 +164,17 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
       }
     });
 
-    return ListView.builder(
-      controller: _getScrollController(),
-      itemCount: messages.length,
-      itemBuilder: (context, index) => _buildMessageItem(messages, index),
+    return ListenableBuilder(
+      listenable: SettingsProvider(),
+      builder: (context, _) {
+        return SelectionArea(
+          child: ListView.builder(
+            controller: _getScrollController(),
+            itemCount: messages.length,
+            itemBuilder: (context, index) => _buildMessageItem(messages, index),
+          ),
+        );
+      }
     );
   }
 
@@ -174,16 +182,25 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
   Widget _buildMessageItem(List<Message> messages, int index) {
     final message = messages[index];
     final user = widget.connection.database.users.get(message.user);
-    final currentMessageDate =message.createdAt;
-    final previousMessageDate = index > 0 ? messages[index - 1].createdAt : null;
+    final localDate = message.createdAt.toLocal();
+    final prev = index > 0 ? messages[index - 1] : null;
+    final prevLocalDate = index > 0 ? prev!.createdAt.toLocal() : null;
+    final next = index < messages.length - 1 ? messages[index + 1] : null;
+    final nextLocalDate = index < messages.length - 1 ? next!.createdAt.toLocal() : null;
+
+    final isPrevSameCtx = prev != null && prev.user == message.user && !_shouldShowDateSeparator(localDate, prevLocalDate);
+    final isNextSameCtx = next != null && next.user == message.user && !_shouldShowDateSeparator(nextLocalDate!, localDate);
 
     return Column(
       children: [
-        if (_shouldShowDateSeparator(currentMessageDate, previousMessageDate))
-          DateSeparator(date: currentMessageDate),
+        if (_shouldShowDateSeparator(localDate, prevLocalDate))
+          DateSeparator(date: localDate),
         TextRoomMessage(
           message: message,
           user: user,
+          isFirstMessage: !isPrevSameCtx,
+          isMiddleMessage: isPrevSameCtx && isNextSameCtx,
+          isLastMessage: !isNextSameCtx,
           onEdit: null,
           onDelete: null,
         ),

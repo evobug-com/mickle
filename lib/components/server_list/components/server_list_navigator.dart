@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:talk/areas/connection/connection.dart';
 import 'package:talk/areas/connection/connection_manager.dart';
+import 'package:talk/areas/utilities/elevation.dart';
 import 'package:talk/components/context_menu/core/utils/extensions.dart';
 import 'package:talk/components/server_list/components/server_list_client_context_menu.dart';
 import 'package:talk/core/models/models.dart';
@@ -58,8 +59,7 @@ class _ServerListNavigatorState extends State<ServerListNavigator> with TickerPr
           if (_isDisposed) return Container();
           return SizedBox(
             width: 72,
-            child: Material(
-              color: Theme.of(context).colorScheme.surface,
+            child: Elevation(
               child: Column(
                 children: [
                   Expanded(child: ListView.builder(

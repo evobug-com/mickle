@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:talk/areas/utilities/elevation.dart';
 import 'package:talk/core/providers/scoped/connection_provider.dart';
 import 'package:talk/screens/settings_screen/settings_provider.dart';
 
@@ -141,51 +142,57 @@ class TextRoomInputState extends State<TextRoomInput> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      child: Row(
-        children: [
-          IconButton(
-            icon: Icon(Icons.add, color: colorScheme.onSurfaceVariant, size: 20),
-            // TODO: Implement add attachment functionality
-            onPressed: null,
-          ),
-          Expanded(
-            child: TextField(
-              focusNode: _chatTextFocus,
-              controller: _chatTextController,
-              decoration: InputDecoration(
-                hintText: 'Message #${widget.channel.name}',
-                hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide.none,
-                ),
-                isDense: true,
-              ),
-              maxLines: null,
-              keyboardType: TextInputType.multiline,
-              textInputAction: TextInputAction.newline,
-              onChanged: (value) {
-                if(SettingsProvider().replaceTextEmoji) {
-                  // Replace emojis
-                  final replacedValue = replaceEmojis(value);
-                  if (value != replacedValue) {
-                    _chatTextController.value = TextEditingValue(
-                      text: replacedValue,
-                      selection: _chatTextController.selection,
-                    );
-                  }
-                }
-              },
-              onSubmitted: _sendMessage
+    return Elevation(
+      borderRadius: BorderRadius.circular(50),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        child: Row(
+          children: [
+            IconButton(
+              icon: Icon(Icons.add_circle_outline_rounded),
+              iconSize: 20,
+              // TODO: Implement add attachment functionality
+              onPressed: (){
+
+              }
             ),
-          ),
-          IconButton(
-            icon: Icon(Icons.sentiment_satisfied_alt, color: colorScheme.onSurfaceVariant, size: 20),
-            // TODO: Implement emoji picker functionality
-            onPressed: null,
-          ),
-        ],
+            Expanded(
+              child: TextField(
+                focusNode: _chatTextFocus,
+                controller: _chatTextController,
+                decoration: InputDecoration(
+                  hintText: 'Message #${widget.channel.name}',
+                  hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                  ),
+                  isDense: true,
+                ),
+                maxLines: null,
+                keyboardType: TextInputType.multiline,
+                textInputAction: TextInputAction.newline,
+                onChanged: (value) {
+                  if(SettingsProvider().replaceTextEmoji) {
+                    // Replace emojis
+                    final replacedValue = replaceEmojis(value);
+                    if (value != replacedValue) {
+                      _chatTextController.value = TextEditingValue(
+                        text: replacedValue,
+                        selection: _chatTextController.selection,
+                      );
+                    }
+                  }
+                },
+                onSubmitted: _sendMessage
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.sentiment_satisfied_alt, color: colorScheme.onSurfaceVariant, size: 20),
+              // TODO: Implement emoji picker functionality
+              onPressed: null,
+            ),
+          ],
+        ),
       ),
     );
   }
