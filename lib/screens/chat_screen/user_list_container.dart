@@ -100,7 +100,7 @@ class UserListContainer extends StatelessWidget {
             // Avatar leading
             leading: UserAvatar(
               presence: UserPresence.fromString(users[index].presence),
-              imageUrl: user.avatar,
+              imageUrl: user.avatarUrl,
             ),
             // User with status
             title: Text(user.displayName ?? "<No name>"),

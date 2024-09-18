@@ -472,7 +472,7 @@ ResSetUserAvatarPacket _$ResSetUserAvatarPacketFromJson(
         Map<String, dynamic> json) =>
     ResSetUserAvatarPacket(
       userId: json['user_id'] as String,
-      avatar: json['avatar'] as String?,
+      avatarUrl: json['avatar_url'] as String?,
     );
 
 Map<String, dynamic> _$ResSetUserAvatarPacketToJson(
@@ -487,7 +487,7 @@ Map<String, dynamic> _$ResSetUserAvatarPacketToJson(
     }
   }
 
-  writeNotNull('avatar', instance.avatar);
+  writeNotNull('avatar_url', instance.avatarUrl);
   return val;
 }
 

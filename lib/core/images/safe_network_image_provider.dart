@@ -61,22 +61,26 @@ class SafeNetworkImageProvider extends ImageProvider<SafeNetworkImageProvider> {
       );
 
       if (response.statusCode != 200) {
+        print('Failed to load image: incorrect status code ${response.statusCode} ${response.reasonPhrase}');
         return _loadDefaultImage(decode);
       }
 
       final String? contentType = response.headers['content-type'];
       if (contentType == null || !contentType.startsWith('image/')) {
+        print('Failed to load image: wrong content-type ${contentType} ${response.reasonPhrase}');
         return _loadDefaultImage(decode);
       }
 
       final Uint8List bytes = response.bodyBytes;
       if (bytes.lengthInBytes == 0) {
+        print('Failed to load image: empty image ${response.reasonPhrase}');
         return _loadDefaultImage(decode);
       }
 
       final ui.ImmutableBuffer buffer = await ui.ImmutableBuffer.fromUint8List(bytes);
       return decode(buffer);
     } catch (e) {
+      print('Failed to load image: $e');
       // If any error occurs, load the default image
       return _loadDefaultImage(decode);
     } finally {

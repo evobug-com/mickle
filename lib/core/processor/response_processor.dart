@@ -223,7 +223,7 @@ Future<void> handleResSetUserAvatarPacket(ApiResponse<ResSetUserAvatarPacket> pa
     if (user != null) {
       user.avatarUrl = packet.data!.avatarUrl;
       user.notify();
-      _logger.info("User ${user.displayName} has changed avatar to '${user.avatar}'");
+      _logger.info("User ${user.displayName} has changed avatar to '${user.avatarUrl}'");
     }
   }
 }

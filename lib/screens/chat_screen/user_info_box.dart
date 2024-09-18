@@ -38,7 +38,7 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
     super.initState();
     _displayNameController = TextEditingController(text: widget.connection.user.displayName);
     _statusController = TextEditingController(text: widget.connection.user.status);
-    _avatarUrlController = TextEditingController(text: widget.connection.user.avatar);
+    _avatarUrlController = TextEditingController(text: widget.connection.user.avatarUrl);
     _newPresence = widget.connection.user.presence;
     _animationController = AnimationController(
       vsync: this,
@@ -74,7 +74,7 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
                 children: <Widget>[
                   UserAvatar(
                     presence: UserPresence.fromString(widget.connection.user.presence),
-                    imageUrl: widget.connection.user.avatar,
+                    imageUrl: widget.connection.user.avatarUrl,
                   ),
                   const SizedBox(width: 16.0),
                   Expanded(
@@ -239,8 +239,8 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
       print("Avatar File: ${_selectedFile.value!.path}");
       return _selectedFile.value!.path;
     } else {
-      print("Avatar Image: ${widget.connection.user.avatar}");
-      return widget.connection.user.avatar ?? '';
+      print("Avatar Image: ${widget.connection.user.avatarUrl}");
+      return widget.connection.user.avatarUrl ?? '';
     }
   }
 
@@ -460,7 +460,7 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
 
       if (_avatarUploadMethod == AvatarUploadMethod.url) {
         final avatar = _avatarUrlController.text.isEmpty ? null : _avatarUrlController.text;
-        if (avatar != widget.connection.user.avatar) {
+        if (avatar != widget.connection.user.avatarUrl) {
           final result = await packetManager.sendSetUserAvatar(avatar: avatar);
           if (result.error != null) {
             _errorMessage = result.error?.message;

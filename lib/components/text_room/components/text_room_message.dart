@@ -115,7 +115,7 @@ class TextRoomMessageState extends State<TextRoomMessage> {
           width: 40,
           child: AnimatedSwitcher(duration: Duration(milliseconds: 50),
             child: widget.isFirstMessage ?
-            UserAvatar(imageUrl: widget.user?.avatar) :
+            UserAvatar(imageUrl: widget.user?.avatarUrl) :
             isHovered ? Text(widget.message.createdAt.toLocal().formatted, style: theme.textTheme.bodySmall) : null
           ),
         );
