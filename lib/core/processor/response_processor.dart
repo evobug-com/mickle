@@ -95,20 +95,26 @@ Future<void> _handlePacket(ApiResponse packet, Connection connection) async {
 Future<void> handleErrorPacket(ApiResponse packet, Connection connection) async {
   _logger.severe("ErrorPacket: ${packet.error}");
   if(packet.requestId != null) {
-    connection.packetManager.runResolveError(packet.requestId!, packet);
+    connection.packetManager.runResolve(packet.requestId!, packet);
   }
 }
 
 Future<void> handleResFetchPublicKeyPacket(ApiResponse<ResFetchPublicKeyPacket> packet, Connection connection) async {
-  connection.packetManager.runResolve(packet.requestId!, packet);
+  if(packet.requestId != null) {
+    connection.packetManager.runResolve(packet.requestId!, packet);
+  }
 }
 
 Future<void> handleResLoginPacket(ApiResponse<ResLoginPacket> packet, Connection connection) async {
-  connection.packetManager.runResolve(packet.requestId!, packet);
+  if(packet.requestId != null) {
+    connection.packetManager.runResolve(packet.requestId!, packet);
+  }
 }
 
 Future<void> handleResPingPacket(ApiResponse<ResPingPacket> packet, Connection connection) async {
-  connection.packetManager.runResolve(packet.requestId!, packet);
+  if(packet.requestId != null) {
+    connection.packetManager.runResolve(packet.requestId!, packet);
+  }
 }
 
 Future<void> handleEvtWelcomePacket(ApiResponse<EvtWelcomePacket> packet, Connection connection) async {
@@ -137,7 +143,9 @@ Future<void> handleEvtUpdatePresencePacket(ApiResponse<EvtUpdatePresencePacket> 
 }
 
 Future<void> handleResCreateChannelMessagePacket(ApiResponse<ResCreateChannelMessagePacket> packet, Connection connection) async {
-  connection.packetManager.runResolve(packet.requestId!, packet);
+  if(packet.requestId != null) {
+    connection.packetManager.runResolve(packet.requestId!, packet);
+  }
 
   if (packet.error != null) {
     _logger.severe("Message error: ${packet.error}");
@@ -173,7 +181,9 @@ Future<void> handleResCreateChannelMessagePacket(ApiResponse<ResCreateChannelMes
 }
 
 Future<void> handleResSetUserStatusPacket(ApiResponse<ResSetUserStatusPacket> packet, Connection connection) async {
-  connection.packetManager.runResolve(packet.requestId!, packet);
+  if(packet.requestId != null) {
+    connection.packetManager.runResolve(packet.requestId!, packet);
+  }
 
   if (packet.error == null) {
     final db = connection.database;
@@ -187,7 +197,9 @@ Future<void> handleResSetUserStatusPacket(ApiResponse<ResSetUserStatusPacket> pa
 }
 
 Future<void> handleResSetUserPresencePacket(ApiResponse<ResSetUserPresencePacket> packet, Connection connection) async {
-  connection.packetManager.runResolve(packet.requestId!, packet);
+  if(packet.requestId != null) {
+    connection.packetManager.runResolve(packet.requestId!, packet);
+  }
 
   if (packet.error == null) {
     final db = connection.database;
@@ -201,7 +213,9 @@ Future<void> handleResSetUserPresencePacket(ApiResponse<ResSetUserPresencePacket
 }
 
 Future<void> handleResSetUserAvatarPacket(ApiResponse<ResSetUserAvatarPacket> packet, Connection connection) async {
-  connection.packetManager.runResolve(packet.requestId!, packet);
+  if(packet.requestId != null) {
+    connection.packetManager.runResolve(packet.requestId!, packet);
+  }
 
   if (packet.error == null) {
     final db = connection.database;
@@ -215,7 +229,9 @@ Future<void> handleResSetUserAvatarPacket(ApiResponse<ResSetUserAvatarPacket> pa
 }
 
 Future<void> handleResSetUserDisplayNamePacket(ApiResponse<ResSetUserDisplayNamePacket> packet, Connection connection) async {
-  connection.packetManager.runResolve(packet.requestId!, packet);
+  if(packet.requestId != null) {
+    connection.packetManager.runResolve(packet.requestId!, packet);
+  }
 
   if (packet.error == null) {
     final db = connection.database;
@@ -230,7 +246,9 @@ Future<void> handleResSetUserDisplayNamePacket(ApiResponse<ResSetUserDisplayName
 }
 
 Future<void> handleResSetUserPasswordPacket(ApiResponse<ResSetUserPasswordPacket> packet, Connection connection) async {
-  connection.packetManager.runResolve(packet.requestId!, packet);
+  if(packet.requestId != null) {
+    connection.packetManager.runResolve(packet.requestId!, packet);
+  }
 
   if (packet.error == null) {
     _logger.info("UserChangePassword success");
@@ -240,7 +258,9 @@ Future<void> handleResSetUserPasswordPacket(ApiResponse<ResSetUserPasswordPacket
 }
 
 Future<void> handleResFetchChannelMessagesPacket(ApiResponse<ResFetchChannelMessagesPacket> packet, Connection connection) async {
-  connection.packetManager.runResolve(packet.requestId!, packet);
+  if(packet.requestId != null) {
+    connection.packetManager.runResolve(packet.requestId!, packet);
+  }
 
   if (packet.error == null) {
     final db = connection.database;
@@ -253,7 +273,9 @@ Future<void> handleResFetchChannelMessagesPacket(ApiResponse<ResFetchChannelMess
 }
 
 Future<void> handleResCreateChannelPacket(ApiResponse<ResCreateChannelPacket> packet, Connection connection) async {
-  connection.packetManager.runResolve(packet.requestId!, packet);
+  if(packet.requestId != null) {
+    connection.packetManager.runResolve(packet.requestId!, packet);
+  }
 
   if (packet.error == null) {
     final db = connection.database;
@@ -267,7 +289,9 @@ Future<void> handleResCreateChannelPacket(ApiResponse<ResCreateChannelPacket> pa
 }
 
 Future<void> handleResDeleteChannelPacket(ApiResponse<ResDeleteChannelPacket> packet, Connection connection) async {
-  connection.packetManager.runResolve(packet.requestId!, packet);
+  if(packet.requestId != null) {
+    connection.packetManager.runResolve(packet.requestId!, packet);
+  }
 
   if (packet.error == null) {
     final db = connection.database;
@@ -284,7 +308,9 @@ Future<void> handleResDeleteChannelPacket(ApiResponse<ResDeleteChannelPacket> pa
 }
 
 Future<void> handleResModifyChannelPacket(ApiResponse<ResModifyChannelPacket> packet, Connection connection) async {
-  connection.packetManager.runResolve(packet.requestId!, packet);
+  if(packet.requestId != null) {
+    connection.packetManager.runResolve(packet.requestId!, packet);
+  }
 
   if (packet.error == null) {
     final db = connection.database;
@@ -305,7 +331,9 @@ Future<void> handleResModifyChannelPacket(ApiResponse<ResModifyChannelPacket> pa
 }
 
 Future<void> handleResAddUserToChannelPacket(ApiResponse<ResAddUserToChannelPacket> packet, Connection connection) async {
-  connection.packetManager.runResolve(packet.requestId!, packet);
+  if(packet.requestId != null) {
+    connection.packetManager.runResolve(packet.requestId!, packet);
+  }
 
   if (packet.error == null) {
     final db = connection.database;
@@ -317,7 +345,9 @@ Future<void> handleResAddUserToChannelPacket(ApiResponse<ResAddUserToChannelPack
 }
 
 Future<void> handleResDeleteUserFromChannelPacket(ApiResponse<ResDeleteUserFromChannelPacket> packet, Connection connection) async {
-  connection.packetManager.runResolve(packet.requestId!, packet);
+  if(packet.requestId != null) {
+    connection.packetManager.runResolve(packet.requestId!, packet);
+  }
 
   if (packet.error == null) {
     final db = connection.database;
@@ -340,7 +370,9 @@ Future<void> handleResDeleteUserFromChannelPacket(ApiResponse<ResDeleteUserFromC
 }
 
 Future<void> handleResJoinVoiceChannelPacket(ApiResponse<ResJoinVoiceChannelPacket> packet, Connection connection) async {
-  connection.packetManager.runResolve(packet.requestId!, packet);
+  if(packet.requestId != null) {
+    connection.packetManager.runResolve(packet.requestId!, packet);
+  }
 
   if (packet.error == null) {
     _logger.info("JoinVoiceChannel success");

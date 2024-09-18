@@ -107,6 +107,12 @@ class ConnectionManager extends ChangeNotifier {
     connection.isReconnectEnabled = false;
     await connection.disconnect();
     _connections.remove(connection.connectionUrl);
+    await SecureStorage().delete("${connection.connectionUrl}.token");
+    await SecureStorage().delete("${connection.connectionUrl}.serverId");
+    await SecureStorage().delete("${connection.connectionUrl}.connectionUrl");
+    final endpoints = await SecureStorage().readJSONArray("endpoints");
+    endpoints.remove(connection.connectionUrl);
+    await SecureStorage().writeJSONArray("endpoints", endpoints);
     notifyListeners();
   }
 
