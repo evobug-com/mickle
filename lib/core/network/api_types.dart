@@ -814,11 +814,11 @@ class ResSetUserStatusPacket extends ResponseData {
 class ResSetUserAvatarPacket extends ResponseData {
   @JsonKey(name: "user_id")
   final String userId;
-  @JsonKey(name: "avatar", includeIfNull: false)
-  final String? avatar;
+  @JsonKey(name: "avatar_url", includeIfNull: false)
+  final String? avatarUrl;
 
   const ResSetUserAvatarPacket({required this.userId,
-    required this.avatar,}) : super();
+    required this.avatarUrl,}) : super();
 
   factory ResSetUserAvatarPacket.fromJson(Map<String, dynamic> json) => _$ResSetUserAvatarPacketFromJson(json);
     @override
@@ -830,7 +830,7 @@ class ResSetUserAvatarPacket extends ResponseData {
 
   @override
   String toString() {
-    return 'ResSetUserAvatarPacket{userId: $userId, avatar: $avatar}';
+    return 'ResSetUserAvatarPacket{userId: $userId, avatarUrl: $avatarUrl}';
   }
 }
 

@@ -187,7 +187,7 @@ Future<void> handleResSetUserStatusPacket(ApiResponse<ResSetUserStatusPacket> pa
 
   if (packet.error == null) {
     final db = connection.database;
-    final user = db.users.get("${packet.data!.userId}");
+    final user = db.users.get(packet.data!.userId);
     if (user != null) {
       user.status = packet.data!.status;
       user.notify();
@@ -203,7 +203,7 @@ Future<void> handleResSetUserPresencePacket(ApiResponse<ResSetUserPresencePacket
 
   if (packet.error == null) {
     final db = connection.database;
-    final user = db.users.get("${packet.data!.userId}");
+    final user = db.users.get(packet.data!.userId);
     if (user != null) {
       user.presence = packet.data!.presence;
       user.notify();
@@ -219,9 +219,9 @@ Future<void> handleResSetUserAvatarPacket(ApiResponse<ResSetUserAvatarPacket> pa
 
   if (packet.error == null) {
     final db = connection.database;
-    final user = db.users.get("${packet.data!.userId}");
+    final user = db.users.get(packet.data!.userId);
     if (user != null) {
-      user.avatar = packet.data!.avatar;
+      user.avatarUrl = packet.data!.avatarUrl;
       user.notify();
       _logger.info("User ${user.displayName} has changed avatar to '${user.avatar}'");
     }
@@ -235,7 +235,7 @@ Future<void> handleResSetUserDisplayNamePacket(ApiResponse<ResSetUserDisplayName
 
   if (packet.error == null) {
     final db = connection.database;
-    final user = db.users.get("${packet.data!.userId}");
+    final user = db.users.get(packet.data!.userId);
     if (user != null) {
       final displayName = user.displayName;
       user.displayName = packet.data!.displayName;
