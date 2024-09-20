@@ -77,7 +77,6 @@ class UserListContainer extends StatelessWidget {
     final user = users[index];
     final previousUser = index > 0 ? users[index - 1] : null;
     final theme = Theme.of(context);
-    print('Building user item for ${user.displayName}');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

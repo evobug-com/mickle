@@ -40,9 +40,11 @@ class ConnectionManager extends ChangeNotifier {
 
   // ignore: unused_field
   final Timer _pingTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+    print("Pinging connections... (${_instance._connections.length})");
     for (final connection in _instance._connections.values) {
       if(connection.status.value == ConnectionStatus.authenticated) {
         connection.packetManager.sendPing();
+        print("Sending ping to ${connection.connectionUrl}");
       }
     }
   });

@@ -28,7 +28,6 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
 
   @override
   void initState() {
-    print('[TextRoomMessages] Init State');
     super.initState();
     _initializeMessages();
     _restoreScrollPosition();
@@ -103,7 +102,6 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
     final chatScrollController = scrollController.controllers[widget.channel.id];
     if(chatScrollController != null && chatScrollController.hasClients) {
       chatScrollController.scrollToBottom();
-      print("[TextRoomMessages] Scrolling to bottom");
     }
   }
 
@@ -118,8 +116,6 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
   @override
   void didUpdateWidget(covariant TextRoomMessages oldWidget) {
     super.didUpdateWidget(oldWidget);
-    print('[TextRoomMessages] Did Update');
-
     if(oldWidget.channel != widget.channel) {
       _restoreScrollPosition();
 
@@ -139,9 +135,6 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
             ),
             initialData: widget.channel.getMessages(database: widget.connection.database),
             builder: (context, snapshot) {
-              print('[TextRoomMessages] Building messages');
-              print('[TextRoomMessages] snapshot.hasData: ${snapshot.hasData}');
-              print('[TextRoomMessages] messagesFetchSnapshot.hasData: ${messagesFetchSnapshot.hasData}');
               if (!snapshot.hasData || !messagesFetchSnapshot.hasData) {
                 return const Center(child: CircularProgressIndicator());
               }
