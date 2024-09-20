@@ -8,7 +8,7 @@ class ConnectionError {
   ConnectionError._internal(this.type, this.message, this.exception);
 
   factory ConnectionError.socketException(SocketException e) {
-    return ConnectionError._internal('SocketException', e.toString(), e);
+    return ConnectionError._internal('SocketException', e.message, e);
   }
 
   factory ConnectionError.handshakeException(HandshakeException e) {

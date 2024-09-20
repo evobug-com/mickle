@@ -65,7 +65,7 @@ final GoRouter router = GoRouter(
       GoRoute(
         name: 'login',
         path: '/login',
-        pageBuilder: (context, state) => MaterialPage(key: state.pageKey, child: const LoginScreen()),
+        pageBuilder: (context, state) => MaterialPage(key: state.pageKey, child: const LoginRegistrationScreen()),
       ),
       GoRoute(
         name: 'settings',

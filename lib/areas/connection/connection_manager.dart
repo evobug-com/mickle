@@ -47,14 +47,16 @@ class ConnectionManager extends ChangeNotifier {
     }
   });
 
-  Future<Connection> connect(String connectionUrl, {bool? disconnectOnError}) async {
-    final connection = _connections.putIfAbsent(connectionUrl, () => Connection(connectionUrl: connectionUrl));
+  Future<Connection> connect(String connectionUrl, {bool? disconnectOnError, bool? doNotStoreInConnections, bool? disableAutoReconnect}) async {
+    final connection = doNotStoreInConnections == true ? Connection(connectionUrl: connectionUrl) : _connections.putIfAbsent(connectionUrl, () => Connection(connectionUrl: connectionUrl));
+    if(disableAutoReconnect == true) {
+      connection.isReconnectEnabled = false;
+    }
 
     if(connection.status.value != ConnectionStatus.disconnected && connection.status.value != ConnectionStatus.error) {
       throw ConnectionError.fromException('Connection is not in disconnected state (${connection.status.value})');
     }
 
-    _connections[connectionUrl] = connection;
     await connection.connect();
 
     final completion = Completer<Connection>();

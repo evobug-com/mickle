@@ -192,13 +192,13 @@ class S {
     );
   }
 
-  /// `Welcome`
-  String get loginScreenWelcome {
+  /// `Welcome {serverHost}`
+  String loginScreenWelcome(Object serverHost) {
     return Intl.message(
-      'Welcome',
+      'Welcome $serverHost',
       name: 'loginScreenWelcome',
       desc: '',
-      args: [],
+      args: [serverHost],
     );
   }
 
@@ -242,6 +242,16 @@ class S {
     );
   }
 
+  /// `Continue`
+  String get loginScreenContinue {
+    return Intl.message(
+      'Continue',
+      name: 'loginScreenContinue',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Register`
   String get loginScreenRegister {
     return Intl.message(
@@ -252,11 +262,201 @@ class S {
     );
   }
 
+  /// `Server host is required`
+  String get loginScreenServerHostRequired {
+    return Intl.message(
+      'Server host is required',
+      name: 'loginScreenServerHostRequired',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Username is required`
+  String get loginScreenUsernameRequired {
+    return Intl.message(
+      'Username is required',
+      name: 'loginScreenUsernameRequired',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Password is required`
+  String get loginScreenPasswordRequired {
+    return Intl.message(
+      'Password is required',
+      name: 'loginScreenPasswordRequired',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Re-Password`
+  String get loginScreenRePassword {
+    return Intl.message(
+      'Re-Password',
+      name: 'loginScreenRePassword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Re-Password is required`
+  String get loginScreenRePasswordRequired {
+    return Intl.message(
+      'Re-Password is required',
+      name: 'loginScreenRePasswordRequired',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Passwords do not match`
+  String get loginScreenPasswordsDoNotMatch {
+    return Intl.message(
+      'Passwords do not match',
+      name: 'loginScreenPasswordsDoNotMatch',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Email`
+  String get loginScreenEmail {
+    return Intl.message(
+      'Email',
+      name: 'loginScreenEmail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Optional: Set an email for account recovery. Without it, you won't be able to recover your account if you lose access.`
+  String get loginScreenEmailHelperText {
+    return Intl.message(
+      'Optional: Set an email for account recovery. Without it, you won\'t be able to recover your account if you lose access.',
+      name: 'loginScreenEmailHelperText',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Invalid email`
+  String get loginScreenInvalidEmail {
+    return Intl.message(
+      'Invalid email',
+      name: 'loginScreenInvalidEmail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Connection error`
+  String get loginScreenConnectionError {
+    return Intl.message(
+      'Connection error',
+      name: 'loginScreenConnectionError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Authentication error: {error}`
+  String loginScreenAuthenticationError(Object error) {
+    return Intl.message(
+      'Authentication error: $error',
+      name: 'loginScreenAuthenticationError',
+      desc: '',
+      args: [error],
+    );
+  }
+
+  /// `Unexpected error`
+  String get loginScreenUnexpectedError {
+    return Intl.message(
+      'Unexpected error',
+      name: 'loginScreenUnexpectedError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Registration successful.`
+  String get loginScreenRegistrationSuccess {
+    return Intl.message(
+      'Registration successful.',
+      name: 'loginScreenRegistrationSuccess',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error`
+  String get loginScreenError {
+    return Intl.message(
+      'Error',
+      name: 'loginScreenError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ok`
+  String get loginScreenOk {
+    return Intl.message(
+      'Ok',
+      name: 'loginScreenOk',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Success`
+  String get loginScreenSuccess {
+    return Intl.message(
+      'Success',
+      name: 'loginScreenSuccess',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Server connection error`
+  String get loginScreenServerConnectionError {
+    return Intl.message(
+      'Server connection error',
+      name: 'loginScreenServerConnectionError',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Registration is not available in this version of Mickle.`
   String get loginScreenRegistrationIsNotAvailableInThisVersionOfMickle {
     return Intl.message(
       'Registration is not available in this version of Mickle.',
       name: 'loginScreenRegistrationIsNotAvailableInThisVersionOfMickle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unable to connect to the server. Please check the server address and your network connection.`
+  String get loginScreenServerConnectionErrorDetailed {
+    return Intl.message(
+      'Unable to connect to the server. Please check the server address and your network connection.',
+      name: 'loginScreenServerConnectionErrorDetailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `An unexpected error occurred. Please try again later or contact support if the issue persists.`
+  String get loginScreenUnexpectedErrorDetailed {
+    return Intl.message(
+      'An unexpected error occurred. Please try again later or contact support if the issue persists.',
+      name: 'loginScreenUnexpectedErrorDetailed',
       desc: '',
       args: [],
     );
