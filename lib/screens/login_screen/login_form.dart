@@ -43,7 +43,8 @@ class LoginFormState extends State<LoginForm> {
               children: [
                 Text(S.of(context).loginScreenWelcome, style: const TextStyle(fontSize: 24)),
                 const SizedBox(height: 16),
-                if (kDebugMode) _buildServerHostField(),
+                _buildServerHostField(),
+                const SizedBox(height: 16),
                 _buildUsernameField(),
                 const SizedBox(height: 16),
                 _buildPasswordField(),
