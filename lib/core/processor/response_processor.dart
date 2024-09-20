@@ -95,7 +95,7 @@ Future<void> _handlePacket(ApiResponse packet, Connection connection) async {
 Future<void> handleErrorPacket(ApiResponse packet, Connection connection) async {
   _logger.severe("ErrorPacket: ${packet.error}");
   if(packet.requestId != null) {
-    connection.packetManager.runResolve(packet.requestId!, packet);
+    connection.packetManager.runResolveError(packet.requestId!, packet);
   }
 }
 

@@ -110,7 +110,7 @@ class _LoginRegistrationScreenState extends State<LoginRegistrationScreen> with 
                           listenable: _tabController,
                           builder: (context, _) {
                             return SizedBox(
-                              height: _tabController.index == 0 ? 200 : 350,
+                              height: _tabController.index == 0 ? 250 : 350,
                               child: TabBarView(
                                 controller: _tabController,
                                 children: [
