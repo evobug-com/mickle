@@ -69,7 +69,7 @@ class ConnectionManager extends ChangeNotifier {
       if(serverPublicKey.error != null) {
         connection.error = ConnectionError.tofuError('Failed to fetch public key: ${serverPublicKey.error}');
       } else {
-        bool isVerified = await TOFUService.verifyServerIdentity(connectionUrl, serverPublicKey.data!.publicKey, serverPublicKey.data!.signature);
+        bool isVerified = await TOFUService.verifyServerIdentity(connectionUrl, serverPublicKey.data!.publicKey, serverPublicKey.data!.signedData);
         if(!isVerified) {
           connection.error = ConnectionError.tofuError('Server identity verification failed');
           SecurityWarningsProvider().addWarning(

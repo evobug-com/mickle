@@ -5,29 +5,66 @@ import 'package:elliptic/elliptic.dart';
 import 'package:ecdsa/ecdsa.dart' as ecdsa;
 import 'package:talk/core/storage/secure_storage.dart';
 
+class TofuData {
+  final String serverPublicKey;
+  final String certificateFingerprint;
+  final String serverAddress;
+  final int serverPort;
+  final int protocolVersion;
+
+  TofuData({
+    required this.serverPublicKey,
+    required this.certificateFingerprint,
+    required this.serverAddress,
+    required this.serverPort,
+    required this.protocolVersion,
+  });
+
+  factory TofuData.fromJson(Map<String, dynamic> json) => TofuData(
+    serverPublicKey: json['server_public_key'],
+    certificateFingerprint: json['certificate_fingerprint'],
+    serverAddress: json['server_address'],
+    serverPort: json['server_port'],
+    protocolVersion: json['protocol_version'],
+  );
+
+  Map<String, dynamic> toJson() => {
+    'server_public_key': serverPublicKey,
+    'certificate_fingerprint': certificateFingerprint,
+    'server_address': serverAddress,
+    'server_port': serverPort,
+    'protocol_version': protocolVersion,
+  };
+}
+
 class TOFUService {
   static final SecureStorage _secureStorage = SecureStorage();
   static final EllipticCurve _ec = getP256();
 
-  static Future<bool> verifyServerIdentity(String connectionUrl, String serverPublicKey, String serverSignature) async {
+  static Future<bool> verifyServerIdentity(String connectionUrl, String publicKey, String signedData) async {
     final storedData = await _secureStorage.read('$connectionUrl.server_data');
 
     if (storedData == null) {
       // First use: store the public key and signature
       await _secureStorage.write('$connectionUrl.server_data', jsonEncode({
-        'publicKey': serverPublicKey,
-        'signature': serverSignature,
+        'publicKey': publicKey,
+        'signedData': signedData,
       }));
       return true;
     } else {
       // Subsequent uses: verify the public key and signature
       final storedInfo = jsonDecode(storedData);
-      if (storedInfo['publicKey'] != serverPublicKey) {
+
+      if(storedInfo['publicKey'] == null || storedInfo['signedData'] == null) {
+        return true; // Public key and signed data are missing
+      }
+
+      if (storedInfo['publicKey'] != publicKey) {
         return false; // Public key has changed
       }
 
       // Verify the signature
-      return verifyServerSignature(connectionUrl, serverSignature, serverPublicKey);
+      return verifyServerSignature(storedInfo["signedData"], signedData, publicKey);
     }
   }
 

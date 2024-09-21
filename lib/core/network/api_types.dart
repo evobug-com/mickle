@@ -634,11 +634,11 @@ class ResPingPacket extends ResponseData {
 class ResFetchPublicKeyPacket extends ResponseData {
   @JsonKey(name: "public_key")
   final String publicKey;
-  @JsonKey(name: "signature")
-  final String signature;
+  @JsonKey(name: "signed_data")
+  final String signedData;
 
   const ResFetchPublicKeyPacket({required this.publicKey,
-    required this.signature,}) : super();
+    required this.signedData,}) : super();
 
   factory ResFetchPublicKeyPacket.fromJson(Map<String, dynamic> json) => _$ResFetchPublicKeyPacketFromJson(json);
     @override
@@ -650,7 +650,7 @@ class ResFetchPublicKeyPacket extends ResponseData {
 
   @override
   String toString() {
-    return 'ResFetchPublicKeyPacket{publicKey: $publicKey, signature: $signature}';
+    return 'ResFetchPublicKeyPacket{publicKey: $publicKey, signedData: $signedData}';
   }
 }
 
