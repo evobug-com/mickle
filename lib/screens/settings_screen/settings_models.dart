@@ -130,7 +130,8 @@ final List<SettingMetadata> settingsCategories = [
   ),
   SettingMetadata(tab: 'notifications', icon: Icons.notifications, title: 'Notifications',
       items: {
-        'notifications-sound-any-message': SettingItem(tab: 'notifications', key: 'notifications-sound-any-message', name: 'Sound on Any Message'),
+        'notifications-sound-incoming-message': SettingItem(tab: 'notifications', key: 'notifications-sound-incoming-message', name: 'Sound on Incoming Message'),
+        'notifications-sound-outgoing-message': SettingItem(tab: 'notifications', key: 'notifications-sound-outgoing-message', name: 'Sound on Outgoing Message'),
         'notifications-sound-mention': SettingItem(tab: 'notifications', key: 'notifications-sound-mention', name: 'Sound on Mention'),
         'notifications-sound-error': SettingItem(tab: 'notifications', key: 'notifications-sound-error', name: 'Sound on Error'),
         'notifications-desktop': SettingItem(tab: 'notifications', key: 'notifications-desktop', name: 'Desktop Notifications'),

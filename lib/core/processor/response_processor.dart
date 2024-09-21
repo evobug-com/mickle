@@ -169,8 +169,15 @@ Future<void> handleResCreateChannelMessagePacket(ApiResponse<ResCreateChannelMes
         notification.show();
       }
     } else {
-      if(SettingsProvider().playSoundOnAnyMessage) {
-        AudioManager.playSingleShot("Message", AssetSource("audio/new_message_received.wav"));
+      // If requestId is null, it means we didn't send the message, so it's incoming
+      if(packet.requestId == null) {
+        if(SettingsProvider().playSoundOnIncomingMessage) {
+          AudioManager.playSingleShot("Message", AssetSource("audio/new_message_received.wav"));
+        }
+      } else {
+        if(SettingsProvider().playSoundOnOutgoingMessage) {
+          AudioManager.playSingleShot("Message", AssetSource("audio/new_message_sent.wav"));
+        }
       }
     }
 

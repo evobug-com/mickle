@@ -31,7 +31,8 @@ class _NotificationsSettingsTabState extends State<NotificationsSettingsTab> {
                     context,
                     "Sound Notifications",
                     [
-                      _buildSoundAnyMessage(category.items),
+                      _buildSoundOnIncomingMessage(category.items),
+                      _buildSoundOnOutgoingMessage(category.items),
                       _buildSoundMention(category.items),
                       _buildSoundError(category.items),
                     ]
@@ -51,16 +52,32 @@ class _NotificationsSettingsTabState extends State<NotificationsSettingsTab> {
     );
   }
 
-  Widget _buildSoundAnyMessage(Map<String, SettingItem> items) {
+  Widget _buildSoundOnIncomingMessage(Map<String, SettingItem> items) {
     return Highlightable(
-      highlight: widget.settingsTabController.item == items['notifications-sound-any-message']!.key,
+      highlight: widget.settingsTabController.item == items['notifications-sound-incoming-message']!.key,
       child: SwitchListTile(
-        title: Text(items['notifications-sound-any-message']!.name),
-        subtitle: const Text('Play sound when any message is received'),
-        value: SettingsProvider().playSoundOnAnyMessage,
+        title: Text(items['notifications-sound-incoming-message']!.name),
+        subtitle: const Text('Play sound when a message is received'),
+        value: SettingsProvider().playSoundOnIncomingMessage,
         onChanged: (value) {
           setState(() {
-            SettingsProvider().playSoundOnAnyMessage = value;
+            SettingsProvider().playSoundOnIncomingMessage = value;
+          });
+        },
+      ),
+    );
+  }
+
+ Widget _buildSoundOnOutgoingMessage(Map<String, SettingItem> items) {
+    return Highlightable(
+      highlight: widget.settingsTabController.item == items['notifications-sound-outgoing-message']!.key,
+      child: SwitchListTile(
+        title: Text(items['notifications-sound-outgoing-message']!.name),
+        subtitle: const Text('Play sound when a message is sent'),
+        value: SettingsProvider().playSoundOnOutgoingMessage,
+        onChanged: (value) {
+          setState(() {
+            SettingsProvider().playSoundOnOutgoingMessage = value;
           });
         },
       ),

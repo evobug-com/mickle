@@ -47,9 +47,15 @@ class SettingsProvider extends ChangeNotifier {
   }
 
   // Notification settings
-  bool get playSoundOnAnyMessage => Storage().readBoolean('playSoundOnAnyMessage', defaultValue: true);
-  set playSoundOnAnyMessage(bool value) {
-    Storage().write('playSoundOnAnyMessage', value.toString());
+  bool get playSoundOnIncomingMessage => Storage().readBoolean('playSoundOnIncomingMessage', defaultValue: true);
+  set playSoundOnIncomingMessage(bool value) {
+    Storage().write('playSoundOnIncomingMessage', value.toString());
+    notifyListeners();
+  }
+
+  bool get playSoundOnOutgoingMessage => Storage().readBoolean('playSoundOnOutgoingMessage', defaultValue: true);
+  set playSoundOnOutgoingMessage(bool value) {
+    Storage().write('playSoundOnOutgoingMessage', value.toString());
     notifyListeners();
   }
 
