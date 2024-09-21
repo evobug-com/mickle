@@ -145,6 +145,11 @@ Future<void> handleEvtUpdatePresencePacket(ApiResponse<EvtUpdatePresencePacket> 
 Future<void> handleResCreateChannelMessagePacket(ApiResponse<ResCreateChannelMessagePacket> packet, Connection connection) async {
   if(packet.requestId != null) {
     connection.packetManager.runResolve(packet.requestId!, packet);
+
+    // If requestId is null, it means we didn't send the message, so it's incoming
+    if(SettingsProvider().playSoundOnOutgoingMessage) {
+      AudioManager.playSingleShot("Message", AssetSource("audio/new_message_sent.wav"));
+    }
   }
 
   if (packet.error != null) {
@@ -168,17 +173,8 @@ Future<void> handleResCreateChannelMessagePacket(ApiResponse<ResCreateChannelMes
         );
         notification.show();
       }
-    } else {
-      // If requestId is null, it means we didn't send the message, so it's incoming
-      if(packet.requestId == null) {
-        if(SettingsProvider().playSoundOnIncomingMessage) {
-          AudioManager.playSingleShot("Message", AssetSource("audio/new_message_received.wav"));
-        }
-      } else {
-        if(SettingsProvider().playSoundOnOutgoingMessage) {
-          AudioManager.playSingleShot("Message", AssetSource("audio/new_message_sent.wav"));
-        }
-      }
+    } else if(packet.requestId == null && SettingsProvider().playSoundOnOutgoingMessage) {
+      AudioManager.playSingleShot("Message", AssetSource("audio/new_message_received.wav"));
     }
 
     if (packet.data!.message.content.contains("porno")) {
