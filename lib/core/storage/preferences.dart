@@ -14,33 +14,6 @@ class Preferences {
     Storage().write("lastVisitedServerId", serverId);
   }
 
-  static Future<void> addServer({required String serverId, required String host, required String token, required String userId, required int port}) async {
-    final servers = (await SecureStorage().readJSONArray("servers"));
-    final server = servers.firstWhereOrNull((server) => server["serverId"] == serverId && server["host"] == host);
-    if (server != null) {
-      servers.remove(server);
-    }
-
-    servers.add({
-      "serverId": serverId,
-      "host": host,
-      "token": token,
-      "userId": userId,
-      "port": port
-    });
-    return SecureStorage().writeJSONArray("servers", servers);
-  }
-
-  static Future<void> removeServer(String serverId) async {
-    final servers = await SecureStorage().readJSONArray("servers");
-    servers.removeWhere((server) => server["serverId"] == serverId);
-    return SecureStorage().write("servers", jsonEncode(servers));
-  }
-
-  static getServerList() {
-    return SecureStorage().readJSONArray("servers");
-  }
-
   static bool getIsServerListExpanded() {
     return Storage().readBool("isServerListExpanded", defaultValue: false);
   }
