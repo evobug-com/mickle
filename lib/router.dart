@@ -16,15 +16,15 @@ import 'screens/settings_screen.dart';
 final _logger = Logger('Router');
 
 FutureOr<String?> _redirect(BuildContext context, GoRouterState state) async {
-  if(state.uri.path == '/splash' || state.uri.path == '/first-time') {
-    return null;
-  }
-
   final updateProvider = UpdateProvider.of(context, listen: false);
   // Check if update is available and not skipped
-  if (updateProvider.updateAvailable) {
+  if (updateProvider.updateAvailable || state.uri.path == '/update') {
     _logger.fine("Update available and not skipped, redirecting to update screen");
     return '/update';
+  }
+
+  if(state.uri.path == '/splash' || state.uri.path == '/first-time') {
+    return null;
   }
 
   final selectedServerProvider = SelectedServerProvider.of(context, listen: false);

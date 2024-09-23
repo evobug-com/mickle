@@ -350,14 +350,16 @@ ResFetchPublicKeyPacket _$ResFetchPublicKeyPacketFromJson(
         Map<String, dynamic> json) =>
     ResFetchPublicKeyPacket(
       publicKey: json['public_key'] as String,
-      signedData: json['signed_data'] as String,
+      data: json['data'] as String,
+      signature: json['signature'] as String,
     );
 
 Map<String, dynamic> _$ResFetchPublicKeyPacketToJson(
         ResFetchPublicKeyPacket instance) =>
     <String, dynamic>{
       'public_key': instance.publicKey,
-      'signed_data': instance.signedData,
+      'data': instance.data,
+      'signature': instance.signature,
     };
 
 ResLoginPacket _$ResLoginPacketFromJson(Map<String, dynamic> json) =>

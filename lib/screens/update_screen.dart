@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
+import 'package:talk/areas/utilities/elevation.dart';
 import 'package:talk/core/version.dart';
 import '../core/providers/global/update_provider.dart';
 import '../core/autoupdater/autoupdater.dart';
@@ -21,6 +23,7 @@ class _UpdateScreenState extends State<UpdateScreen> {
   int? _currentStep;
   ProgressInfo? _currentProgress;
   bool _isUpdateInProgress = false;
+  final _releaseNotesController = ScrollController();
 
   final List<UpdateStep> _steps = [
     UpdateStep(icon: Icons.refresh, title: 'Preparing', description: 'Initializing update process'),
@@ -31,201 +34,282 @@ class _UpdateScreenState extends State<UpdateScreen> {
   ];
 
   @override
+  void dispose() {
+    _releaseNotesController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final updateProvider = context.watch<UpdateProvider>();
     final updateInfo = updateProvider.updateInfo;
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return MyScaffold(
       showSidebar: false,
       body: Container(
         color: colorScheme.surface,
-        child: Center(
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.9,
-            height: MediaQuery.of(context).size.height * 0.8,
-            decoration: BoxDecoration(
-              color: colorScheme.surface,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: colorScheme.shadow.withOpacity(0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                // Left side: Update details and controls
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(24.0),
-                    decoration: BoxDecoration(
-                      color: colorScheme.surfaceContainer,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(16),
-                        bottomLeft: Radius.circular(16),
-                      ),
+        child: Column(
+          children: [
+            SizedBox(height: 50,
+                child: Row(
+                  children: [
+                    const Expanded(child: SizedBox()),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () {
+                        updateProvider.skipUpdate();
+                        if(context.canPop()) {
+                          context.pop();
+                        } else {
+                          context.go('/chat');
+                        }
+                      },
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Update Available',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.primary,
-                          ),
+                    const SizedBox(width: 16),
+                  ],
+                ),
+            ),
+            Center(
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.9,
+                height: MediaQuery.of(context).size.height * 0.8,
+                decoration: BoxDecoration(
+                  color: colorScheme.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: colorScheme.shadow.withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    // Left side: Update details and controls
+                    Expanded(
+                      child: Elevation(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(16),
+                          bottomLeft: Radius.circular(16),
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'A new version of Talk is ready!',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: colorScheme.onSurface.withOpacity(0.7),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        _buildVersionInfo(colorScheme, updateInfo),
-                        const SizedBox(height: 24),
-                        Text(
-                          'Release Notes',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.onSurface,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: colorScheme.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: SingleChildScrollView(
-                              child: Text(
-                                updateInfo.getReleaseNotes(),
-                                style: TextStyle(color: colorScheme.onSurfaceVariant),
-                              ),
-                            ),
-                          ),
-                        ),
-                        if (!_isUpdateInProgress) ...[
-                          const SizedBox(height: 16),
-                          Row(
+                        child: Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: ElevatedButton(
-                                  onPressed: _startUpdate,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: colorScheme.primary,
-                                    foregroundColor: colorScheme.onPrimary,
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    children: [
+                                      Text(
+                                        'Update Available',
+                                        style: theme.textTheme.titleLarge
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'A new version of Mickle is ready!',
+                                        style: theme.textTheme.bodyLarge,
+                                      ),
+                                    ],
                                   ),
-                                  child: const Text('Update Now'),
+                                  SizedBox(width: 300, child: _buildVersionInfo(colorScheme, updateInfo)),
+                                ],
+                              ),
+                              const SizedBox(height: 24),
+                              Text(
+                                'Release Notes',
+                                style: theme.textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: 8),
+                              Expanded(
+                                child: Elevation(
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: true,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: SelectionArea(
+                                      child: Markdown(
+                                        controller: _releaseNotesController,
+                                        data: updateInfo.getReleaseNotes(),
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
-                              const SizedBox(width: 16),
-                              OutlinedButton(
-                                onPressed: () {
-                                  updateProvider.skipUpdate();
-                                  context.go('/chat');
-                                },
-                                child: const Text('Update Later'),
-                              ),
+                              const SizedBox(height: 24),
+                              if (!_isUpdateInProgress) ...[
+                                const SizedBox(height: 16),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: _startUpdate,
+                                        style: ElevatedButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(vertical: 16),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          backgroundColor: colorScheme.primary,
+                                          foregroundColor: colorScheme.onPrimary,
+                                        ),
+                                        child: const Text(
+                                          'Update Now',
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: OutlinedButton(
+                                        onPressed: () {
+                                          updateProvider.skipUpdate();
+                                          if(context.canPop()) {
+                                            context.pop();
+                                          } else {
+                                            context.go('/chat');
+                                          }
+                                        },
+                                        style: OutlinedButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(vertical: 16),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          side: BorderSide(color: colorScheme.primary),
+                                        ),
+                                        child: const Text(
+                                          'Update Later',
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                              if(_isUpdateInProgress) ...[
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Please wait while the update is in progress...',
+                                  style: TextStyle(
+                                    color: colorScheme.onSurface.withOpacity(0.7),
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
-                        ],
-                        if(_isUpdateInProgress) ...[
-                          const SizedBox(height: 16),
-                          Text(
-                            'Please wait while the update is in progress...',
-                            style: TextStyle(
-                              color: colorScheme.onSurface.withOpacity(0.7),
-                            ),
-                          ),
-                        ],
-                      ],
+                        ),
+                      ),
                     ),
-                  ),
+                    // Right side: Update steps
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.3,
+                      decoration: BoxDecoration(
+                        color: colorScheme.surfaceContainerLow,
+                        borderRadius: const BorderRadius.only(
+                          topRight: Radius.circular(16),
+                          bottomRight: Radius.circular(16),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 24.0),
+                        child: UpdateProgressIndicator(
+                          currentStep: _currentStep,
+                          steps: _steps,
+                          currentProgress: _currentProgress,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                // Right side: Update steps
-                Container(
-                  width: MediaQuery.of(context).size.width * 0.3,
-                  decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerLow,
-                    borderRadius: const BorderRadius.only(
-                      topRight: Radius.circular(16),
-                      bottomRight: Radius.circular(16),
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 24.0),
-                    child: UpdateProgressIndicator(
-                      currentStep: _currentStep,
-                      steps: _steps,
-                      currentProgress: _currentProgress,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 
   Widget _buildVersionInfo(ColorScheme colorScheme, UpdateInfo updateInfo) {
+    final theme = Theme.of(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Text(
+          'Version Information',
+          style: theme.textTheme.titleMedium,
+        ),
+        const SizedBox(height: 12),
         Row(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _buildVersionCard(colorScheme, 'Current', version),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Icon(Icons.arrow_forward, color: colorScheme.primary, size: 24),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Icon(
+                  Icons.arrow_forward, color: colorScheme.primary, size: 24),
             ),
-            _buildVersionCard(colorScheme, 'New', updateInfo.latestVersion.toString()),
+            _buildVersionCard(
+                colorScheme, 'New', updateInfo.latestVersion.toString()),
           ],
         ),
         const SizedBox(height: 16),
-        Text(
-          'Update Size: ${_formatSize(updateInfo.updateSize)}',
-          style: TextStyle(
-            color: colorScheme.onSurface,
-            fontSize: 16,
-          ),
+        Row(
+          children: [
+            Icon(Icons.storage, color: colorScheme.onSurfaceVariant, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              'Update Size: ${_formatSize(updateInfo
+                  .getCurrentPlatformInfo()
+                  .size)}',
+              style: TextStyle(
+                color: colorScheme.onSurfaceVariant,
+                fontSize: 14,
+              ),
+            ),
+          ],
         ),
       ],
     );
   }
 
-  Widget _buildVersionCard(ColorScheme colorScheme, String label, String version) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: colorScheme.onSurface.withOpacity(0.7),
-            fontSize: 14,
+  Widget _buildVersionCard(ColorScheme colorScheme, String label,
+      String version) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        decoration: BoxDecoration(
+          color: colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: colorScheme.primary.withOpacity(0.3),
+            width: 1,
           ),
         ),
-        const SizedBox(height: 4),
-        Text(
-          version,
-          style: TextStyle(
-            color: colorScheme.onSurface,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+        child: Column(
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                color: colorScheme.onSurfaceVariant,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              version,
+              style: TextStyle(
+                color: colorScheme.onSurface,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 

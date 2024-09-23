@@ -154,7 +154,7 @@ class _WindowCaptionState extends State<WindowCaption> with WindowListener {
       child: InkWell(
         onTap: () {
           // Navigate to update screen
-          context.go('/update');
+          context.goNamed('update');
         },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8),

@@ -233,13 +233,10 @@ class _UserInfoBoxState extends State<UserInfoBox> with SingleTickerProviderStat
 
   String _getAvatarImageUrl() {
     if (_avatarUploadMethod == AvatarUploadMethod.url) {
-      print("Avatar URL: ${_avatarUrlController.text}");
       return _avatarUrlController.text;
     } else if (_selectedFile.value != null) {
-      print("Avatar File: ${_selectedFile.value!.path}");
       return _selectedFile.value!.path;
     } else {
-      print("Avatar Image: ${widget.connection.user.avatarUrl}");
       return widget.connection.user.avatarUrl ?? '';
     }
   }

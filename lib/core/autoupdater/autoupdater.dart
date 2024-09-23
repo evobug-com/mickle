@@ -1,32 +1,94 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
-import 'package:talk/core/autoupdater/github.dart';
-import 'package:talk/core/autoupdater/github.jsondata.dart';
 import 'package:talk/core/autoupdater/version.dart';
+import 'package:talk/core/storage/preferences.dart';
 import 'package:talk/core/version.dart';
 import 'package:archive/archive_io.dart';
 import 'package:path/path.dart' as path;
 import 'package:talk/core/autoupdater/scripts.dart';
 import 'package:logging/logging.dart';
 
+const baseUrl = 'http://vps.sionzee.cz:9001';
+
+String _getPlatform() {
+  if (Platform.isWindows) return 'windows';
+  if (Platform.isLinux) return 'linux';
+  if (Platform.isMacOS) return 'macos';
+  throw UnsupportedError('Unsupported platform');
+}
+
+class ReleaseInfo {
+  final String version;
+  final String notes;
+  final DateTime pubDate;
+  final Map<String, PlatformReleaseInfo> platforms;
+
+  ReleaseInfo({
+    required this.version,
+    required this.notes,
+    required this.pubDate,
+    required this.platforms,
+  });
+
+  factory ReleaseInfo.fromJson(Map<String, dynamic> json) {
+    final platformsJson = json['platforms'] as Map<String, dynamic>;
+    final platforms = platformsJson.map((key, value) => MapEntry(key, PlatformReleaseInfo.fromJson(value)));
+    return ReleaseInfo(
+      version: json['version'],
+      notes: json['notes'],
+      pubDate: DateTime.parse(json['pub_date']),
+      platforms: platforms,
+    );
+  }
+}
+
+class PlatformReleaseInfo {
+  final String url;
+  final String signature;
+  final int size;
+
+  PlatformReleaseInfo({required this.url, required this.signature, required this.size});
+
+  factory PlatformReleaseInfo.fromJson(Map<String, dynamic> json) {
+    return PlatformReleaseInfo(
+      url: json['url'],
+      signature: json['signature'],
+      size: json['size'],
+    );
+  }
+}
+
 class UpdateInfo {
   final bool updateAvailable;
-  final GithubRelease? latestRelease;
+  final ReleaseInfo? latestReleaseInfo;
   final SemVer? latestVersion;
-  final int? updateSize;
 
   UpdateInfo({
     required this.updateAvailable,
-    this.latestRelease,
+    this.latestReleaseInfo,
     this.latestVersion,
-    this.updateSize,
   });
 
   String getReleaseNotes() {
-    if (latestRelease == null) return '';
-    return latestRelease!.body ?? '';
+    if (latestReleaseInfo == null) return '';
+    return latestReleaseInfo!.notes;
+  }
+
+  PlatformReleaseInfo getCurrentPlatformInfo() {
+    if (latestReleaseInfo == null) {
+      throw Exception('No update available');
+    }
+
+    final platform = _getPlatform();
+    final platformInfo = latestReleaseInfo!.platforms[platform];
+    if (platformInfo == null) {
+      throw Exception('No update available for platform $platform');
+    }
+
+    return platformInfo;
   }
 }
 
@@ -50,8 +112,6 @@ class AutoUpdater {
   static final AutoUpdater _instance = AutoUpdater._internal();
   final Logger _logger = Logger('AutoUpdater');
   UpdateInfo? _updateInfo;
-  bool _dryRun = false;
-  SemVer? _fakeVersion;
   String? _downloadPath;
   String? _unzipPath;
   String? _platform;
@@ -66,31 +126,20 @@ class AutoUpdater {
 
   UpdateInfo? get updateInfo => _updateInfo;
 
-  void setDryRun(bool dryRun, {SemVer? fakeVersion}) {
-    _logger.info('Dry run mode: $dryRun');
-    _dryRun = dryRun;
-    _fakeVersion = fakeVersion;
-  }
-
   /// Checks for updates and returns update information.
   Future<UpdateInfo> checkForUpdates() async {
     try {
       final currentVersion = SemVer.fromString(version);
-      GithubRelease? latestRelease;
+      ReleaseInfo? latestReleaseInfo;
       SemVer? latestVersion;
 
-      if (_dryRun && _fakeVersion != null) {
-        latestVersion = _fakeVersion;
-        latestRelease = _createFakeRelease(latestVersion!);
-      } else {
-        latestRelease = await Github.fetchLatestRelease();
-        latestVersion = _parseVersion(latestRelease.tagName);
-      }
+      latestReleaseInfo = await _fetchLatestReleaseInfo(Preferences.updateChannel);
+      latestVersion = SemVer.fromString(latestReleaseInfo.version);
 
       if (latestVersion > currentVersion) {
         _updateInfo = UpdateInfo(
           updateAvailable: true,
-          latestRelease: latestRelease,
+          latestReleaseInfo: latestReleaseInfo,
           latestVersion: latestVersion,
         );
       } else {
@@ -104,47 +153,17 @@ class AutoUpdater {
     return _updateInfo!;
   }
 
-  GithubRelease _createFakeRelease(SemVer fakeVersion) {
-    final now = DateTime.now().toIso8601String();
-    final platform = _getPlatform();
-    return GithubRelease(
-      url: 'https://api.github.com/repos/yourusername/yourrepo/releases/1',
-      htmlUrl: 'https://github.com/yourusername/yourrepo/releases/tag/v${fakeVersion.toString()}',
-      assetsUrl: 'https://api.github.com/repos/yourusername/yourrepo/releases/1/assets',
-      uploadUrl: 'https://uploads.github.com/repos/yourusername/yourrepo/releases/1/assets{?name,label}',
-      tarballUrl: 'https://api.github.com/repos/yourusername/yourrepo/tarball/v${fakeVersion.toString()}',
-      zipballUrl: 'https://api.github.com/repos/yourusername/yourrepo/zipball/v${fakeVersion.toString()}',
-      id: 1,
-      nodeId: 'MDc6UmVsZWFzZTE=',
-      tagName: 'v${fakeVersion.toString()}',
-      targetCommitish: 'main',
-      name: 'Release v${fakeVersion.toString()}',
-      body: 'This is a simulated release for dry run testing.\n\n- Feature 1\n- Bug fix 2\n- Improvement 3',
-      draft: false,
-      prerelease: false,
-      createdAt: now,
-      publishedAt: now,
-      assets: [
-        GithubReleaseAsset(
-          url: 'https://api.github.com/repos/yourusername/yourrepo/releases/assets/1',
-          browserDownloadUrl: 'https://github.com/yourusername/yourrepo/releases/download/v${fakeVersion.toString()}/$platform-release.zip',
-          id: 1,
-          nodeId: 'MDEyOlJlbGVhc2VBc3NldDE=',
-          name: '$platform-release.zip',
-          label: '$platform Release',
-          state: 'uploaded',
-          contentType: 'application/zip',
-          size: 1024 * 1024, // 1 MB
-          downloadCount: 0,
-          createdAt: now,
-          updatedAt: now,
-        ),
-      ],
-      bodyHtml: '<p>This is a simulated release for dry run testing.</p><ul><li>Feature 1</li><li>Bug fix 2</li><li>Improvement 3</li></ul>',
-      bodyText: 'This is a simulated release for dry run testing.\n\n- Feature 1\n- Bug fix 2\n- Improvement 3',
-      mentionsCount: 0,
-      discussionUrl: null,
-    );
+  Future<ReleaseInfo> _fetchLatestReleaseInfo(String channel) async {
+    final url = Uri.parse('$baseUrl/updates/$channel/latest');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      final releaseInfo = ReleaseInfo.fromJson(json);
+      return releaseInfo;
+    } else {
+      throw HttpException('Failed to fetch latest release info: ${response.statusCode}');
+    }
   }
 
   /// Performs the update process.
@@ -192,114 +211,51 @@ class AutoUpdater {
   Future<void> _prepareStep(void Function(ProgressInfo) updateProgress) async {
     _logger.info('Preparing for update');
     await prepareUpdate();
-    if (_dryRun) {
-      await Future.delayed(const Duration(seconds: 1));
-    }
     updateProgress(ProgressInfo(progress: 1.0, message: 'Preparation complete'));
   }
 
   Future<void> _downloadStep(void Function(ProgressInfo) updateProgress) async {
     _logger.info('Downloading update');
-    if (_dryRun) {
-      await _simulateDownload((progress, message, bytesProcessed, totalBytes, speed) {
-        _logger.info('simulation: $message (${(progress * 100).toStringAsFixed(1)}%)');
-        updateProgress(ProgressInfo(
-          progress: progress,
-          message: message,
-          bytesProcessed: bytesProcessed,
-          totalBytes: totalBytes,
-          speed: speed,
-        ));
-      });
-    } else {
-      final downloadUrl = await _getDownloadUrl(_updateInfo!.latestRelease!, _platform!);
-      await _downloadAsset(downloadUrl, _downloadPath!, (progress, bytesProcessed, totalBytes, speed) {
-        final message = 'Downloading: ${(progress * 100).toStringAsFixed(1)}%';
-        _logger.info(message);
-        updateProgress(ProgressInfo(
-          progress: progress,
-          message: message,
-          bytesProcessed: bytesProcessed,
-          totalBytes: totalBytes,
-          speed: speed,
-        ));
-      });
-    }
+    final downloadUrl = _getDownloadUrl(_updateInfo!.latestReleaseInfo!, _platform!);
+    await _downloadAsset(downloadUrl, _downloadPath!, (progress, bytesProcessed, totalBytes, speed) {
+      final message = 'Downloading: ${(progress * 100).toStringAsFixed(1)}%';
+      _logger.info(message);
+      updateProgress(ProgressInfo(
+        progress: progress,
+        message: message,
+        bytesProcessed: bytesProcessed,
+        totalBytes: totalBytes,
+        speed: speed,
+      ));
+    });
   }
-
 
   Future<void> _verifyStep(void Function(ProgressInfo) updateProgress) async {
     _logger.info('Verifying update');
-    if (_dryRun) {
-      await Future.delayed(const Duration(seconds: 1));
-    } else {
-      // Implement actual verification logic here
-      // For example, check file integrity, signatures, etc.
-    }
+    // Implement verification logic here
+    // For example, compute SHA256 hash of the downloaded file and compare with signature
     updateProgress(ProgressInfo(progress: 1.0, message: 'Verification complete'));
   }
 
   Future<void> _installStep(void Function(ProgressInfo) updateProgress) async {
     _logger.info('Installing update');
-    if (_dryRun) {
-      await _simulateExtract((progress, message, bytesProcessed, totalBytes) {
-        _logger.info('simulation: $message (${(progress * 100).toStringAsFixed(1)}%)');
-        updateProgress(ProgressInfo(
-          progress: progress,
-          message: message,
-          bytesProcessed: bytesProcessed,
-          totalBytes: totalBytes,
-        ));
-      });
-    } else {
-      final rawData = await File(_downloadPath!).readAsBytes();
-      await _unzipAsset(rawData, _unzipPath!, (progress, bytesProcessed, totalBytes) {
-        final message = 'Extracting: ${(progress * 100).toStringAsFixed(1)}%';
-        updateProgress(ProgressInfo(
-          progress: progress,
-          message: message,
-          bytesProcessed: bytesProcessed,
-          totalBytes: totalBytes,
-        ));
-      });
-      await _createUpdateScript(_platform!, _unzipPath!);
-    }
+    final rawData = await File(_downloadPath!).readAsBytes();
+    await _unzipAsset(rawData, _unzipPath!, (progress, bytesProcessed, totalBytes) {
+      final message = 'Extracting: ${(progress * 100).toStringAsFixed(1)}%';
+      updateProgress(ProgressInfo(
+        progress: progress,
+        message: message,
+        bytesProcessed: bytesProcessed,
+        totalBytes: totalBytes,
+      ));
+    });
+    await _createUpdateScript(_platform!, _unzipPath!);
   }
 
   Future<void> _finalizeStep(void Function(ProgressInfo) updateProgress) async {
     _logger.info('Finalizing update');
-    if (_dryRun) {
-      await Future.delayed(const Duration(seconds: 1));
-      _logger.info('Dry run completed. The update would be applied now in a real scenario.');
-    } else {
-      await _applyUpdate(_platform!);
-    }
+    await _applyUpdate(_platform!);
     updateProgress(ProgressInfo(progress: 1.0, message: 'Update finalized'));
-  }
-
-  Future<void> _simulateDownload(
-      void Function(double progress, String message, int bytesProcessed, int totalBytes, double speed) updateProgress
-      ) async {
-    const totalBytes = 100 * 1024 * 1024; // 100 MB
-    int bytesProcessed = 0;
-    for (int i = 1; i <= 10; i++) {
-      await Future.delayed(const Duration(milliseconds: 500));
-      bytesProcessed = (totalBytes * i / 10).round();
-      final speed = bytesProcessed / (i * 0.5); // bytes per second
-      updateProgress(i * 0.1, 'Simulating download', bytesProcessed, totalBytes, speed);
-    }
-  }
-
-  Future<void> _simulateExtract(
-      void Function(double progress, String message, int bytesProcessed, int totalBytes) updateProgress
-      ) async {
-    const totalBytes = 200 * 1024 * 1024; // 200 MB (assuming extracted size is larger)
-    int bytesProcessed = 0;
-    for (int i = 1; i <= 5; i++) {
-      await Future.delayed(const Duration(milliseconds: 300));
-      bytesProcessed = (totalBytes * i / 5).round();
-      updateProgress(0.7 + i * 0.06, 'Simulating extraction', bytesProcessed, totalBytes);
-    }
   }
 
   /// Creates the update script based on the platform.
@@ -364,18 +320,12 @@ class AutoUpdater {
 
   String _getDownloadLocation() => Directory.systemTemp.path;
 
-  SemVer _parseVersion(String version) => SemVer.fromString(version.substring(1));
-
-  String _getPlatform() {
-    if (Platform.isWindows) return 'windows';
-    if (Platform.isLinux) return 'linux';
-    if (Platform.isMacOS) return 'macos';
-    throw UnsupportedError('Unsupported platform');
-  }
-
-  Future<Uri> _getDownloadUrl(GithubRelease release, String platform) async {
-    final asset = release.assets.firstWhere((element) => element.name == '$platform-release.zip');
-    return Uri.parse(asset.browserDownloadUrl);
+  Uri _getDownloadUrl(ReleaseInfo releaseInfo, String platform) {
+    final platformInfo = releaseInfo.platforms[platform];
+    if (platformInfo == null) {
+      throw Exception('No update available for platform $platform');
+    }
+    return Uri.parse(platformInfo.url);
   }
 
   Future<void> _downloadAsset(
@@ -410,9 +360,15 @@ class AutoUpdater {
     }
   }
 
-  String _getDownloadPath(SemVer version, String platform) =>
-      path.join(_getDownloadLocation(), 'talk-$version-$platform-release.zip');
+  String _getDownloadPath(SemVer version, String platform) {
+    final platformInfo = _updateInfo!.latestReleaseInfo!.platforms[platform]!;
+    final url = platformInfo.url;
+    final filename = path.basename(url);
+    return path.join(_getDownloadLocation(), filename);
+  }
 
-  String _getUnzipPath(SemVer version, String platform) =>
-      path.join(_getDownloadLocation(), 'talk-$version-$platform-release');
+  String _getUnzipPath(SemVer version, String platform) {
+    final filenameWithoutExtension = path.basenameWithoutExtension(_downloadPath!);
+    return path.join(_getDownloadLocation(), filenameWithoutExtension);
+  }
 }

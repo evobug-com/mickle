@@ -52,7 +52,7 @@ class _LoginRegistrationScreenState extends State<LoginRegistrationScreen> with 
     final colorScheme = Theme.of(context).colorScheme;
 
     return MyScaffold(
-      showSidebar: ConnectionManager().connections.isNotEmpty,
+      showSidebar: ConnectionManager().connections.length > 1,
       showSearchBar: false,
       body: Container(
         decoration: BoxDecoration(

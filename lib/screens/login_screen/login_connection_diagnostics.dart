@@ -11,10 +11,10 @@ class LoginConnectionDiagnostics extends StatefulWidget {
   final Connection connection;
 
   const LoginConnectionDiagnostics({
-    Key? key,
+    super.key,
     required this.serverHost,
     required this.connection,
-  }) : super(key: key);
+  });
 
   @override
   _LoginConnectionDiagnosticsState createState() => _LoginConnectionDiagnosticsState();
@@ -24,6 +24,9 @@ class _LoginConnectionDiagnosticsState extends State<LoginConnectionDiagnostics>
   List<DiagnosticStep> _steps = [];
   int _currentStepIndex = -1;
   final ScrollController _scrollController = ScrollController();
+
+  // TODO: Update the message
+  String _currentStatus = 'Checking connection to the server...';
 
   @override
   void initState() {
@@ -163,7 +166,7 @@ class _LoginConnectionDiagnosticsState extends State<LoginConnectionDiagnostics>
           ).animate().fadeIn(duration: 600.ms),
           const SizedBox(height: 16),
           Text(
-            'Checking connection to the server...',
+            _currentStatus,
             style: Theme.of(context).textTheme.bodyMedium,
           ).animate().fadeIn(delay: 300.ms, duration: 600.ms),
           const SizedBox(height: 24),

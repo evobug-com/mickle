@@ -36,6 +36,9 @@ Future<void> main() async {
   await windowManager.ensureInitialized();
   AudioManager.ensureInitialized();
 
+  // Initialize storage and load settings
+  await _initializeStorage();
+
   // Check for updates
   final updateInfo = await _checkForUpdates();
 
@@ -62,9 +65,6 @@ Future<void> main() async {
 
   // Initialize Notifications
   await _initializeLocalNotifier();
-
-  // Initialize storage and load settings
-  await _initializeStorage();
 
   // Handle Flutter errors
   _configureErrorHandling();
@@ -108,16 +108,6 @@ _configureLogging() {
 Future<UpdateInfo> _checkForUpdates() async {
   _logger.fine("Checking for updates");
   final updater = AutoUpdater();
-
-  // Set dry run with a fake version
-  final currentVersion = SemVer.fromString(version);
-  // final fakeVersion = SemVer(currentVersion.major, currentVersion.minor, currentVersion.patch + 1);
-  const SemVer? fakeVersion = null;
-
-  // Enable dry run mode
-  const bool isDryRun = kDebugMode; // You can change this to false to disable dry run
-  updater.setDryRun(isDryRun, fakeVersion: isDryRun ? fakeVersion : null);
-
   return await updater.checkForUpdates();
 }
 

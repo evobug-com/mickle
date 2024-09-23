@@ -29,4 +29,12 @@ class Preferences {
   static void setFirstTime(bool isFirstTime) {
     Storage().writeBool("isFirstTime", isFirstTime);
   }
+
+  static String get updateChannel {
+    return Storage().readString("updateChannel", defaultValue: "stable");
+  }
+
+  static set updateChannel(String channel) {
+    Storage().write("updateChannel", channel);
+  }
 }

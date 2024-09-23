@@ -69,15 +69,15 @@ class ConnectionManager extends ChangeNotifier {
       if(serverPublicKey.error != null) {
         connection.error = ConnectionError.tofuError('Failed to fetch public key: ${serverPublicKey.error}');
       } else {
-        bool isVerified = await TOFUService.verifyServerIdentity(connectionUrl, serverPublicKey.data!.publicKey, serverPublicKey.data!.signedData);
+        bool isVerified = await TOFUService.verifyServerIdentity(connectionUrl, serverPublicKey.data!);
         if(!isVerified) {
           connection.error = ConnectionError.tofuError('Server identity verification failed');
           SecurityWarningsProvider().addWarning(
               SecurityWarning(
                   connectionUrl,
-                  "The ${connectionUrl}'s identity has changed. This could indicate a security risk.\n\nExpected:\n${await TOFUService.getServerPublicKey(connectionUrl)}\nActual:\n${serverPublicKey.data!.publicKey}\n\nPlease verify the server's identity and contact the server administrator if necessary. If you are sure this is the correct server, you can proceed.\nIf you are not sure, this means that there is a security risk and you are probably connecting to a different server than you think.",
+                  "The ${connectionUrl}'s identity has changed. This could indicate a security risk.\n\nExpected:\n${await TOFUService.getStoredPublicKey(connectionUrl)}\nActual:\n${serverPublicKey.data!.publicKey}\n\nPlease verify the server's identity and contact the server administrator if necessary. If you are sure this is the correct server, you can proceed.\nIf you are not sure, this means that there is a security risk and you are probably connecting to a different server than you think.",
                   onProceed: (warning) async {
-                    await TOFUService.resetStoredKey(warning.connectionUrl);
+                    await TOFUService.resetStoredData(warning.connectionUrl);
                     SecurityWarningsProvider().removeWarning(warning.connectionUrl);
                     await connection.connect();
                     completion.complete(connection);
