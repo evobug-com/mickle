@@ -72,6 +72,9 @@ class ConnectionManager extends ChangeNotifier {
         bool isVerified = await TOFUService.verifyServerIdentity(connectionUrl, serverPublicKey.data!);
         if(!isVerified) {
           connection.error = ConnectionError.tofuError('Server identity verification failed');
+          connection.isReconnectEnabled = false;
+          connection.disconnect();
+
           SecurityWarningsProvider().addWarning(
               SecurityWarning(
                   connectionUrl,
@@ -87,6 +90,7 @@ class ConnectionManager extends ChangeNotifier {
                   }
               )
           );
+
           scheduledCompletion = true;
         }
       }

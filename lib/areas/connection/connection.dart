@@ -64,6 +64,10 @@ class Connection {
 
 
   connect() async {
+    if(_status.value != ConnectionStatus.disconnected) {
+      throw ConnectionError.fromException('Connection is not in disconnected state (${_status.value})');
+    }
+
     error = null;
     _status.value = ConnectionStatus.connecting;
 

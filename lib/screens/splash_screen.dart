@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
+import 'package:talk/core/app_state.dart';
 import 'package:talk/core/providers/global/selected_server_provider.dart';
 import 'package:talk/layout/my_scaffold.dart';
 
@@ -37,6 +38,7 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.wait(servers.map((server) => _connectToServer(connectionManager, server)));
 
     _navigateBasedOnConnections(connectionManager);
+    AppState.overSplash = true;
   }
 
   Future<void> _connectToServer(ConnectionManager connectionManager, String server) async {

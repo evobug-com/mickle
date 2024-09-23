@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:talk/components/context_menu/core/utils/extensions.dart';
 import 'package:talk/core/models/models.dart' as models;
 import 'package:talk/core/providers/scoped/connection_provider.dart';
@@ -104,8 +105,13 @@ class TextRoomMessageState extends State<TextRoomMessage> {
                         style: theme.textTheme.bodySmall),
                 ],
               ),
-              Text(widget.message.content ?? '<No message>',
-                  style: theme.textTheme.bodyMedium),
+
+              MarkdownBody(
+                data: widget.message.content ?? '<No message>',
+                styleSheet: MarkdownStyleSheet(
+                  p: theme.textTheme.bodyMedium,
+                ),
+              )
             ],
           );
   }

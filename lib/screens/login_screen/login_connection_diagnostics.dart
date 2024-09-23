@@ -110,6 +110,7 @@ class _LoginConnectionDiagnosticsState extends State<LoginConnectionDiagnostics>
   }
 
   Future<bool> _checkNetworkConnection() async {
+    // TODO: Fix the issue with the connectivity plugin (comparing List with result)
     var connectivityResult = await (Connectivity().checkConnectivity());
     return connectivityResult != ConnectivityResult.none;
   }

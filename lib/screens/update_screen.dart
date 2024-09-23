@@ -39,6 +39,10 @@ class _UpdateScreenState extends State<UpdateScreen> {
     super.dispose();
   }
 
+  skipUpdate() {
+
+  }
+
   @override
   Widget build(BuildContext context) {
     final updateProvider = context.watch<UpdateProvider>();
