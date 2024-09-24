@@ -274,20 +274,39 @@ class AutoUpdater {
 
   /// Applies the update by running the update script.
   Future<void> _applyUpdate(String platform) async {
+    const detached = false;
+
     final scriptExtension = platform == 'windows' ? '.bat' : '.sh';
     final scriptPath = path.join(_getDownloadLocation(), 'updateSiocomTalk$scriptExtension');
     final sourcePath = _unzipPath!;
     final destPath = path.dirname(Platform.resolvedExecutable);
 
-    final command = platform == 'windows'
-        ? [scriptPath, destPath, sourcePath]
-        : ['bash', scriptPath, destPath, sourcePath];
-
+    List<String> command;
+    if(platform == 'windows') {
+      if(detached) {
+        command = [scriptPath, destPath, sourcePath];
+      } else {
+        command = [
+          'cmd',
+          '/c',      // Carry out the command specified by the string
+          'start',   // Start a new window
+          '"Mickle Updater"',      // Window title (empty for default)
+          '/wait',   // Wait for the started program to finish
+          'cmd',     // Start a new instance of cmd
+          '/k',      // Run the following command and keep the window open
+          scriptPath,
+          destPath,
+          sourcePath,
+        ];
+      }
+    } else {
+      command = ['bash', scriptPath, destPath, sourcePath];
+    }
     print("Running update script: ${command.join(' ')}");
     await Process.start(
       command.first,
       command.skip(1).toList(),
-      mode: ProcessStartMode.detached,
+      mode: detached ? ProcessStartMode.detached : ProcessStartMode.normal,
       workingDirectory: _getDownloadLocation(),
     );
 
