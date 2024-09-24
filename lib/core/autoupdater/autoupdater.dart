@@ -11,7 +11,7 @@ import 'package:path/path.dart' as path;
 import 'package:talk/core/autoupdater/scripts.dart';
 import 'package:logging/logging.dart';
 
-const baseUrl = 'http://vps.sionzee.cz:9001';
+const baseUrl = 'https://updates.evobug.com';
 
 String _getPlatform() {
   if (Platform.isWindows) return 'windows';
