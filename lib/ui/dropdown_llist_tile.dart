@@ -9,14 +9,14 @@ class DropdownListTile<T> extends StatelessWidget {
   final Widget? leading;
 
   const DropdownListTile({
-    Key? key,
+    super.key,
     required this.title,
     this.subtitle,
     required this.value,
     required this.items,
     required this.onChanged,
     this.leading,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +39,7 @@ class DropdownListTile<T> extends StatelessWidget {
           const SizedBox(height: 8),
           Container(
             width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(8),

@@ -114,7 +114,7 @@ class _BehaviourSettingsTabState extends State<BehaviourSettingsTab> {
         } else if (snapshot.hasError) {
           // Handle error state
           return ListTile(
-            title: Text('Error loading autostartup setting'),
+            title: const Text('Error loading autostartup setting'),
             subtitle: Text('${snapshot.error}'),
           );
         } else {
@@ -176,7 +176,7 @@ class _BehaviourSettingsTabState extends State<BehaviourSettingsTab> {
       highlight: widget.settingsTabController.item == items['behaviour-send-message-on-enter']!.key,
       child: SwitchListTile(
         title: Text(items['behaviour-send-message-on-enter']!.name),
-        subtitle: Text('When enabled, pressing Enter will send the message. When disabled, use Shift+Enter to send.'),
+        subtitle: const Text('When enabled, pressing Enter will send the message. When disabled, use Shift+Enter to send.'),
         value: SettingsProvider().sendMessageOnEnter,
         onChanged: (value) {
           setState(() {
@@ -201,7 +201,7 @@ class _BehaviourSettingsTabState extends State<BehaviourSettingsTab> {
 }
 
 class DateFormatGuide extends StatelessWidget {
-  const DateFormatGuide({Key? key}) : super(key: key);
+  const DateFormatGuide({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -218,8 +218,8 @@ class DateFormatGuide extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: GridView.builder(
               shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 5,
                 childAspectRatio: 4,
                 crossAxisSpacing: 5,

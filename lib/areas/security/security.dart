@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'security_provider.dart';
 
 class SecurityWidget extends StatelessWidget {
-  const SecurityWidget({Key? key}) : super(key: key);
+  const SecurityWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class SecurityWidget extends StatelessWidget {
           type: MaterialType.transparency,
           child: Stack(
             children: [
-              ModalBarrier(dismissible: false, color: Colors.black54),
+              const ModalBarrier(dismissible: false, color: Colors.black54),
               Center(
                 child: Container(
                   constraints: BoxConstraints(
@@ -52,26 +52,25 @@ class SecurityWidget extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.warning, color: Colors.red),
-              SizedBox(width: 8),
+              const Icon(Icons.warning, color: Colors.red),
+              const SizedBox(width: 8),
               Text('Security Warning', style: Theme.of(context).textTheme.titleLarge),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           SelectableText(warning.message),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               TextButton(
-                child: Text('Cancel'),
+                child: const Text('Cancel'),
                 onPressed: () {
                   warning.onDismiss(warning);
                 },
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               ElevatedButton(
-                child: Text('Proceed Anyway'),
                 onPressed: () {
                   warning.onProceed(warning);
                 },
@@ -79,6 +78,7 @@ class SecurityWidget extends StatelessWidget {
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
                 ),
+                child: const Text('Proceed Anyway'),
               ),
             ],
           ),

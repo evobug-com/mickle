@@ -75,7 +75,7 @@ class _ServerListNavigatorState extends State<ServerListNavigator> with TickerPr
                       onPressed: () {
                         context.goNamed('login');
                       },
-                      child: Icon(Icons.add),
+                      child: const Icon(Icons.add),
                     ),
                   ),
                 ],

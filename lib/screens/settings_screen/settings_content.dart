@@ -12,7 +12,7 @@ import 'tabs/notifications_settings_tab.dart';
 
 class SettingsContent extends StatefulWidget {
   final SettingsTabController settingsTabController;
-  const SettingsContent({Key? key, required this.settingsTabController}) : super(key: key);
+  const SettingsContent({super.key, required this.settingsTabController});
 
   @override
   State<SettingsContent> createState() => _SettingsContentState();

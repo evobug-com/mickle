@@ -54,7 +54,7 @@ class Connection {
   }
   bool get isReconnectEnabled => _reconnectEnabled;
   set isReconnectEnabled(bool value) {
-    print('[Connection ${this.connectionUrl}] Setting reconnectEnabled to $value');
+    print('[Connection $connectionUrl] Setting reconnectEnabled to $value');
     _reconnectEnabled = value;
     if(!value) {
       reconnectAttempts = 0;

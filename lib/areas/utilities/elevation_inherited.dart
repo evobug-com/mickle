@@ -5,10 +5,10 @@ class ElevationInherited extends InheritedWidget {
   final int elevation;
 
   const ElevationInherited({
-    Key? key,
+    super.key,
     required this.elevation,
-    required Widget child,
-  }) : super(key: key, child: child);
+    required super.child,
+  });
 
   static ElevationInherited? of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<ElevationInherited>();

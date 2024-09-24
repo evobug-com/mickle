@@ -26,7 +26,7 @@ class _LoginConnectionDiagnosticsState extends State<LoginConnectionDiagnostics>
   final ScrollController _scrollController = ScrollController();
 
   // TODO: Update the message
-  String _currentStatus = 'Checking connection to the server...';
+  final String _currentStatus = 'Checking connection to the server...';
 
   @override
   void initState() {

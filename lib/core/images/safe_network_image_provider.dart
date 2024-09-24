@@ -67,7 +67,7 @@ class SafeNetworkImageProvider extends ImageProvider<SafeNetworkImageProvider> {
 
       final String? contentType = response.headers['content-type'];
       if (contentType == null || !contentType.startsWith('image/')) {
-        print('Failed to load image: wrong content-type ${contentType} ${response.reasonPhrase}');
+        print('Failed to load image: wrong content-type $contentType ${response.reasonPhrase}');
         return _loadDefaultImage(decode);
       }
 

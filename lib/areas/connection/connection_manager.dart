@@ -78,7 +78,7 @@ class ConnectionManager extends ChangeNotifier {
           SecurityWarningsProvider().addWarning(
               SecurityWarning(
                   connectionUrl,
-                  "The ${connectionUrl}'s identity has changed. This could indicate a security risk.\n\nExpected:\n${await TOFUService.getStoredPublicKey(connectionUrl)}\nActual:\n${serverPublicKey.data!.publicKey}\n\nPlease verify the server's identity and contact the server administrator if necessary. If you are sure this is the correct server, you can proceed.\nIf you are not sure, this means that there is a security risk and you are probably connecting to a different server than you think.",
+                  "The $connectionUrl's identity has changed. This could indicate a security risk.\n\nExpected:\n${await TOFUService.getStoredPublicKey(connectionUrl)}\nActual:\n${serverPublicKey.data!.publicKey}\n\nPlease verify the server's identity and contact the server administrator if necessary. If you are sure this is the correct server, you can proceed.\nIf you are not sure, this means that there is a security risk and you are probably connecting to a different server than you think.",
                   onProceed: (warning) async {
                     await TOFUService.resetStoredData(warning.connectionUrl);
                     SecurityWarningsProvider().removeWarning(warning.connectionUrl);
@@ -203,7 +203,7 @@ class ConnectionManager extends ChangeNotifier {
   }
 
   Future<String?> getToken(String connectionUrl) async {
-    return await SecureStorage().read("${connectionUrl}.token");
+    return await SecureStorage().read("$connectionUrl.token");
   }
 
   @override

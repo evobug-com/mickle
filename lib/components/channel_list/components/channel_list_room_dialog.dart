@@ -7,12 +7,12 @@ class ChannelListRoomDialog extends StatefulWidget {
   final void Function(String title, String description, bool isPrivate) onSubmitted;
 
   const ChannelListRoomDialog({
-    Key? key,
+    super.key,
     required this.onSubmitted,
     this.inputName = '',
     this.inputDescription = '',
     required this.isEdit,
-  }) : super(key: key);
+  });
 
   @override
   State<ChannelListRoomDialog> createState() => _ChannelListRoomDialogState();
@@ -121,7 +121,7 @@ class _ChannelListRoomDialogState extends State<ChannelListRoomDialog> {
           borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
         ),
         filled: true,
-        fillColor: Theme.of(context).colorScheme.surfaceVariant,
+        fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
       ),
       style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
     );

@@ -298,7 +298,7 @@ Future<void> handleResDeleteChannelPacket(ApiResponse<ResDeleteChannelPacket> pa
 
   if (packet.error == null) {
     final db = connection.database;
-    final channel = db.channels.get("${packet.data!.channelId}");
+    final channel = db.channels.get(packet.data!.channelId);
     if (channel != null) {
       db.channels.removeItem(channel);
     }
@@ -358,7 +358,7 @@ Future<void> handleResDeleteUserFromChannelPacket(ApiResponse<ResDeleteUserFromC
 
     // IF we are the user being removed, remove the channel from our list
     if (packet.data!.relation.output == connection.currentUserId) {
-      final channel = db.channels.get("${packet.data!.relation.input}");
+      final channel = db.channels.get(packet.data!.relation.input);
       if (channel != null) {
         db.channels.removeItem(channel);
         db.channelUsers.removeRelationInput(channel.id);

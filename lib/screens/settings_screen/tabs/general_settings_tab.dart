@@ -23,7 +23,7 @@ class _GeneralSettingsTabState extends State<GeneralSettingsTab> {
         SettingTitle(category: category),
         Expanded(
             child: ListView(
-              children: [],
+              children: const [],
             )
         )
 

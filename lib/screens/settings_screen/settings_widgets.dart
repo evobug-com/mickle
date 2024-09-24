@@ -19,7 +19,7 @@ class SettingTitle extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              this.category.title,
+              category.title,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             BackButton(
@@ -134,7 +134,7 @@ Widget buildSettingSwitchOption({required BuildContext context, required String 
     width: 400,
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
-      color: colorScheme.surfaceVariant.withOpacity(0.1),
+      color: colorScheme.surfaceContainerHighest.withOpacity(0.1),
       borderRadius: BorderRadius.circular(16),
       border: Border.all(color: colorScheme.onSurface.withOpacity(0.1)),
     ),

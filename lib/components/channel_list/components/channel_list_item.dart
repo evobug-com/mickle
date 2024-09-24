@@ -87,7 +87,7 @@ class ChannelListItem extends StatelessWidget {
               // color: isUnread ? scheme.onSurface : scheme.onSurfaceVariant
             ),
         ),
-        leading: Icon(Icons.tag,
+        leading: const Icon(Icons.tag,
             // color: isUnread ? scheme.onSurface : scheme.onSurfaceVariant
         ),
         selected: channel.id ==

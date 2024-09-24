@@ -18,7 +18,7 @@ class SecurityWarningsProvider with ChangeNotifier {
 
   SecurityWarningsProvider._internal();
 
-  List<SecurityWarning> _warnings = [];
+  final List<SecurityWarning> _warnings = [];
 
   List<SecurityWarning> get warnings => List.unmodifiable(_warnings);
 

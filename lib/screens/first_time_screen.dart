@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
-import 'package:mickle/components/server_list/components/server_list_navigator.dart';
 import 'package:mickle/core/storage/preferences.dart';
 import 'package:mickle/layout/my_scaffold.dart';
 import 'package:mickle/core/theme/theme_controller.dart';
@@ -12,7 +11,7 @@ import 'package:mickle/screens/settings_screen/settings_provider.dart';
 import 'settings_screen/settings_widgets.dart';
 
 class FirstTimeScreen extends StatefulWidget {
-  const FirstTimeScreen({Key? key}) : super(key: key);
+  const FirstTimeScreen({super.key});
 
   @override
   _FirstTimeScreenState createState() => _FirstTimeScreenState();
@@ -133,7 +132,7 @@ class _FirstTimeScreenState extends State<FirstTimeScreen> {
 class _ExperienceSelectionStep extends StatelessWidget {
   final Function(bool) onSelected;
 
-  const _ExperienceSelectionStep({Key? key, required this.onSelected}) : super(key: key);
+  const _ExperienceSelectionStep({super.key, required this.onSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -190,7 +189,7 @@ class _ExperienceSelectionStep extends StatelessWidget {
         width: 200,
         height: 200,
         decoration: BoxDecoration(
-          color: colorScheme.surfaceVariant.withOpacity(0.1),
+          color: colorScheme.surfaceContainerHighest.withOpacity(0.1),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: colorScheme.onSurface.withOpacity(0.1)),
         ),
@@ -217,7 +216,7 @@ class _ExperienceSelectionStep extends StatelessWidget {
 }
 
 class _WelcomeStep extends StatelessWidget {
-  const _WelcomeStep({Key? key}) : super(key: key);
+  const _WelcomeStep({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -262,7 +261,7 @@ class _WelcomeStep extends StatelessWidget {
 }
 
 class _AppearanceSelectionStep extends StatefulWidget {
-  const _AppearanceSelectionStep({Key? key}) : super(key: key);
+  const _AppearanceSelectionStep({super.key});
 
   @override
   State<_AppearanceSelectionStep> createState() => _AppearanceSelectionStepState();
@@ -347,7 +346,7 @@ class _AppearanceSelectionStepState extends State<_AppearanceSelectionStep> {
 }
 
 class _SettingsStep extends StatelessWidget {
-  const _SettingsStep({Key? key}) : super(key: key);
+  const _SettingsStep({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -419,7 +418,7 @@ class _SettingsStep extends StatelessWidget {
 }
 
 class _CompletionStep extends StatelessWidget {
-  const _CompletionStep({Key? key}) : super(key: key);
+  const _CompletionStep({super.key});
 
   @override
   Widget build(BuildContext context) {

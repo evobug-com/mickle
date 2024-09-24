@@ -128,7 +128,7 @@ class _WindowCaptionState extends State<WindowCaption> with WindowListener {
       textAlign: TextAlign.center,
       decoration: InputDecoration(
         isDense: true,
-        constraints: BoxConstraints(
+        constraints: const BoxConstraints(
           maxWidth: 400,
           maxHeight: 30,
         ),
@@ -139,7 +139,7 @@ class _WindowCaptionState extends State<WindowCaption> with WindowListener {
         contentPadding: const EdgeInsets.symmetric(horizontal: 8),
         filled: true,
         hintText: 'What are you looking for?',
-        prefixIcon: Icon(Icons.search),
+        prefixIcon: const Icon(Icons.search),
       ),
       expands: false,
       minLines: 1,

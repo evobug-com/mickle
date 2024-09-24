@@ -11,7 +11,7 @@ import '../areas/connection/connection.dart';
 import 'login_screen/login_connection_diagnostics.dart';
 
 class LoginRegistrationScreen extends StatefulWidget {
-  const LoginRegistrationScreen({Key? key}) : super(key: key);
+  const LoginRegistrationScreen({super.key});
 
   @override
   _LoginRegistrationScreenState createState() => _LoginRegistrationScreenState();
@@ -375,11 +375,9 @@ class _LoginRegistrationScreenState extends State<LoginRegistrationScreen> with 
       });
 
       try {
-        if (_currentConnection == null) {
-          _currentConnection = await ConnectionManager().connect(
+        _currentConnection ??= await ConnectionManager().connect(
             '${_serverHostController.text}:55000'
           );
-        }
 
         if (_currentConnection!.error != null) {
           setState(() {

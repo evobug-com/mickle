@@ -178,7 +178,7 @@ class TextRoomInputState extends State<TextRoomInput> with SingleTickerProviderS
           children: [
             Elevation(
               borderRadius: BorderRadius.vertical(
-                top: Radius.circular(30),
+                top: const Radius.circular(30),
                 bottom: Radius.circular(_emojiShowing ? 0 : 30),
               ),
               child: Container(
@@ -186,7 +186,7 @@ class TextRoomInputState extends State<TextRoomInput> with SingleTickerProviderS
                 child: Row(
                   children: [
                     IconButton(
-                        icon: Icon(Icons.add_circle_outline_rounded),
+                        icon: const Icon(Icons.add_circle_outline_rounded),
                         iconSize: 20,
                         onPressed: () {
                           // TODO: Implement add attachment functionality
@@ -199,7 +199,7 @@ class TextRoomInputState extends State<TextRoomInput> with SingleTickerProviderS
                           decoration: InputDecoration(
                             hintText: 'Message #${widget.channel.name}',
                             hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
-                            border: OutlineInputBorder(
+                            border: const OutlineInputBorder(
                               borderSide: BorderSide.none,
                             ),
                             isDense: true,
@@ -234,7 +234,7 @@ class TextRoomInputState extends State<TextRoomInput> with SingleTickerProviderS
             ),
             SizeTransition(
               sizeFactor: _animation,
-              child: Container(
+              child: SizedBox(
                 height: 256,
                 child: _buildEmojiPicker(colorScheme),
               ),

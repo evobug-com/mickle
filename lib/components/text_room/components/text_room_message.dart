@@ -44,7 +44,7 @@ class TextRoomMessageState extends State<TextRoomMessage> {
       onEnter: (_) => setState(() => isHovered = true),
       onExit: (_) => setState(() => isHovered = false),
       child: AnimatedContainer(
-        duration: Duration(milliseconds: 50),
+        duration: const Duration(milliseconds: 50),
         padding: EdgeInsets.only(
           left: 8,
           right: 8,
@@ -65,7 +65,7 @@ class TextRoomMessageState extends State<TextRoomMessage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             _buildInfo(theme),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Expanded(
               child: _buildContent(theme),
             ),
@@ -99,7 +99,7 @@ class TextRoomMessageState extends State<TextRoomMessage> {
                     Text(
                         widget.user?.displayName ?? '<user not found>',
                         style: theme.textTheme.titleMedium),
-                  Expanded(child: SizedBox()),
+                  const Expanded(child: SizedBox()),
                   if (widget.isFirstMessage)
                     Text(widget.message.createdAt.toLocal().formatted,
                         style: theme.textTheme.bodySmall),
@@ -119,7 +119,7 @@ class TextRoomMessageState extends State<TextRoomMessage> {
   SizedBox _buildInfo(ThemeData theme) {
     return SizedBox(
           width: 40,
-          child: AnimatedSwitcher(duration: Duration(milliseconds: 50),
+          child: AnimatedSwitcher(duration: const Duration(milliseconds: 50),
             child: widget.isFirstMessage ?
             UserAvatar(imageUrl: widget.user?.avatarUrl) :
             isHovered ? Text(widget.message.createdAt.toLocal().formatted, style: theme.textTheme.bodySmall) : null
