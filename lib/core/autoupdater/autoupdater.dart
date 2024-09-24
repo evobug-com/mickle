@@ -264,6 +264,7 @@ class AutoUpdater {
     final scriptExtension = platform == 'windows' ? '.bat' : '.sh';
     final scriptPath = path.join(_getDownloadLocation(), 'updateSiocomTalk$scriptExtension');
 
+    print("Creating update script at $scriptPath");
     await File(scriptPath).writeAsString(scriptContent);
 
     if (platform != 'windows') {
@@ -275,13 +276,14 @@ class AutoUpdater {
   Future<void> _applyUpdate(String platform) async {
     final scriptExtension = platform == 'windows' ? '.bat' : '.sh';
     final scriptPath = path.join(_getDownloadLocation(), 'updateSiocomTalk$scriptExtension');
-    final sourcePath = path.dirname(Platform.resolvedExecutable);
-    final destPath = path.dirname(sourcePath);
+    final sourcePath = _unzipPath!;
+    final destPath = path.dirname(Platform.resolvedExecutable);
 
     final command = platform == 'windows'
         ? [scriptPath, destPath, sourcePath]
         : ['bash', scriptPath, destPath, sourcePath];
 
+    print("Running update script: ${command.join(' ')}");
     await Process.start(
       command.first,
       command.skip(1).toList(),
