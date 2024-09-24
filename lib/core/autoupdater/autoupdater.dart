@@ -290,7 +290,7 @@ class AutoUpdater {
           'cmd',
           '/c',      // Carry out the command specified by the string
           'start',   // Start a new window
-          '"Mickle Updater"',      // Window title (empty for default)
+          'Mickle Updater',      // Window title (empty for default)
           '/wait',   // Wait for the started program to finish
           'cmd',     // Start a new instance of cmd
           '/k',      // Run the following command and keep the window open
