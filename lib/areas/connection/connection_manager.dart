@@ -83,6 +83,7 @@ class ConnectionManager extends ChangeNotifier {
                     await TOFUService.resetStoredData(warning.connectionUrl);
                     SecurityWarningsProvider().removeWarning(warning.connectionUrl);
                     await connection.connect();
+                    connection.isReconnectEnabled = true;
                     completion.complete(connection);
                   },
                   onDismiss: (warning) {
