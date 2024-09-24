@@ -264,7 +264,7 @@ class UnreadMessageRelation extends Relation {
 
   UnreadMessageRelation({required this.lastReadMessageId,
     required this.unreadCount,
-    required this.lastUpdate, required super.input, required super.output, required super.id});
+    required this.lastUpdate, required String input, required String output, required String id}) : super(input: input, output: output, id: id);
 
   factory UnreadMessageRelation.fromJson(Map<String, dynamic> json) => _$UnreadMessageRelationFromJson(json);
     @override
