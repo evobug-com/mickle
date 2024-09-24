@@ -108,6 +108,7 @@ flutter:
     - assets/audio/
     - assets/audio/voice/
     - assets/images/
+    - assets/scripts/
     - lib/core/providers/scoped/
 
   # An image asset can refer to one or more resolution-specific "variants", see

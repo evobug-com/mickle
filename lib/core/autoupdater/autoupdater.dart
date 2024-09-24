@@ -8,8 +8,8 @@ import 'package:talk/core/storage/preferences.dart';
 import 'package:talk/core/version.dart';
 import 'package:archive/archive_io.dart';
 import 'package:path/path.dart' as path;
-import 'package:talk/core/autoupdater/scripts.dart';
 import 'package:logging/logging.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 const baseUrl = 'https://updates.evobug.com';
 
@@ -18,6 +18,10 @@ String _getPlatform() {
   if (Platform.isLinux) return 'linux';
   if (Platform.isMacOS) return 'macos';
   throw UnsupportedError('Unsupported platform');
+}
+
+String getMickleTempDir() {
+  return path.join(Directory.systemTemp.path, 'mickle');
 }
 
 class ReleaseInfo {
@@ -260,9 +264,9 @@ class AutoUpdater {
 
   /// Creates the update script based on the platform.
   Future<void> _createUpdateScript(String platform, String sourcePath) async {
-    final scriptContent = platform == 'windows' ? windowsUpdateScript : linuxUpdateScript;
+    final scriptContent = platform == 'windows' ? await rootBundle.loadString("assets/scripts/windows_updater.bat") : await rootBundle.loadString("assets/scripts/unix_updater.sh");
     final scriptExtension = platform == 'windows' ? '.bat' : '.sh';
-    final scriptPath = path.join(_getDownloadLocation(), 'updateSiocomTalk$scriptExtension');
+    final scriptPath = path.join(getMickleTempDir(), 'update$scriptExtension');
 
     print("Creating update script at $scriptPath");
     await File(scriptPath).writeAsString(scriptContent);
@@ -277,7 +281,7 @@ class AutoUpdater {
     const detached = false;
 
     final scriptExtension = platform == 'windows' ? '.bat' : '.sh';
-    final scriptPath = path.join(_getDownloadLocation(), 'updateSiocomTalk$scriptExtension');
+    final scriptPath = path.join(getMickleTempDir(), 'update$scriptExtension');
     final sourcePath = _unzipPath!;
     final destPath = path.dirname(Platform.resolvedExecutable);
 
@@ -339,7 +343,7 @@ class AutoUpdater {
     }
   }
 
-  String _getDownloadLocation() => Directory.systemTemp.path;
+  String _getDownloadLocation() => path.join(getMickleTempDir(), 'downloads');
 
   Uri _getDownloadUrl(ReleaseInfo releaseInfo, String platform) {
     final platformInfo = releaseInfo.platforms[platform];
