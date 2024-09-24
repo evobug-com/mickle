@@ -608,12 +608,10 @@ void main() async {
 
     // Print out generated classes for debugging
     final apiTypesContent = await File(dartOutputPath).readAsString();
-    print('Generated api_types.dart content:');
-    print(apiTypesContent);
+    print('Generated api_types.dart content...');
 
     final modelsContent = await File(dartModelOutputPath).readAsString();
-    print('Generated models.dart content:');
-    print(modelsContent);
+    print('Generated models.dart content...');
   } catch (e, stackTrace) {
     print('Error during code generation: $e');
     print('Stack trace: $stackTrace');
