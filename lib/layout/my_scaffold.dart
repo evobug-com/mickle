@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:talk/areas/security/security.dart';
-import 'package:talk/core/providers/global/selected_server_provider.dart';
-import 'package:talk/core/providers/scoped/connection_provider.dart';
+import 'package:mickle/areas/security/security.dart';
+import 'package:mickle/core/providers/global/selected_server_provider.dart';
+import 'package:mickle/core/providers/scoped/connection_provider.dart';
 
 import '../areas/utilities/elevation.dart';
 import '../components/console/widgets/console_widget.dart';

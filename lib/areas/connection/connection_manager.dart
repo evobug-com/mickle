@@ -18,8 +18,8 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
-import 'package:talk/areas/connection/connection_tofu.dart';
-import 'package:talk/core/storage/secure_storage.dart';
+import 'package:mickle/areas/connection/connection_tofu.dart';
+import 'package:mickle/core/storage/secure_storage.dart';
 
 import '../security/security_provider.dart';
 import 'connection.dart';

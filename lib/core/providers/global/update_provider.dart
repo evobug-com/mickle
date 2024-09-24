@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:talk/core/autoupdater/autoupdater.dart';
-import 'package:talk/core/autoupdater/version.dart';
+import 'package:mickle/core/autoupdater/autoupdater.dart';
+import 'package:mickle/core/autoupdater/version.dart';
 
 class UpdateProvider extends ChangeNotifier {
   UpdateInfo _updateInfo;

@@ -4,10 +4,10 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:talk/core/database.dart';
-import 'package:talk/core/providers/scoped/connection_provider.dart';
-import 'package:talk/screens/chat_screen/sidebar_box.dart';
-import 'package:talk/ui/user_avatar.dart';
+import 'package:mickle/core/database.dart';
+import 'package:mickle/core/providers/scoped/connection_provider.dart';
+import 'package:mickle/screens/chat_screen/sidebar_box.dart';
+import 'package:mickle/ui/user_avatar.dart';
 
 enum AvatarUploadMethod { url, localFile }
 

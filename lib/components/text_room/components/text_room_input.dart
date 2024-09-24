@@ -5,9 +5,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:talk/areas/utilities/elevation.dart';
-import 'package:talk/core/providers/scoped/connection_provider.dart';
-import 'package:talk/screens/settings_screen/settings_provider.dart';
+import 'package:mickle/areas/utilities/elevation.dart';
+import 'package:mickle/core/providers/scoped/connection_provider.dart';
+import 'package:mickle/screens/settings_screen/settings_provider.dart';
 
 import '../../../core/models/models.dart';
 import '../core/models/text_room_scroll_controller.dart';

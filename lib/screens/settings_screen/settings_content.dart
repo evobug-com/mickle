@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:talk/screens/settings_screen/settings_provider.dart';
-import 'package:talk/screens/settings_screen/tabs/server_settings_tab.dart';
+import 'package:mickle/screens/settings_screen/settings_provider.dart';
+import 'package:mickle/screens/settings_screen/tabs/server_settings_tab.dart';
 
 import 'tabs/about_settings_tab.dart';
 import 'tabs/appearance_settings_tab.dart';

@@ -1,6 +1,6 @@
 // String with version that will be replaced by the CI/CD pipeline
 
-import 'package:talk/core/app_state.dart';
+import 'package:mickle/core/app_state.dart';
 
 /// @deprecated use AppState.version
 const String version = AppState.version;

@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'package:talk/ui/dropdown_llist_tile.dart';
+import 'package:mickle/ui/dropdown_llist_tile.dart';
 
 import '../../../core/managers/audio_manager.dart';
 import '../settings_models.dart';

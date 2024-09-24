@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:talk/components/channel_list/core/models/channel_list_selected_room.dart';
-import 'package:talk/core/models/utils.dart';
-import 'package:talk/core/providers/scoped/connection_provider.dart';
+import 'package:mickle/components/channel_list/core/models/channel_list_selected_room.dart';
+import 'package:mickle/core/models/utils.dart';
+import 'package:mickle/core/providers/scoped/connection_provider.dart';
 
 import '../../core/database.dart';
 import '../../core/models/models.dart';

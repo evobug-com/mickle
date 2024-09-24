@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:talk/generated/l10n.dart';
+import 'package:mickle/generated/l10n.dart';
 
 class Validators {
   static FormFieldValidator<String?> serverHost(BuildContext context) {

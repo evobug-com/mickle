@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
-import 'package:talk/core/storage/secure_storage.dart';
+import 'package:mickle/core/storage/secure_storage.dart';
 
 import 'storage.dart';
 

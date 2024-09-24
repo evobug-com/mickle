@@ -3,9 +3,9 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
-import 'package:talk/core/autoupdater/version.dart';
-import 'package:talk/core/storage/preferences.dart';
-import 'package:talk/core/version.dart';
+import 'package:mickle/core/autoupdater/version.dart';
+import 'package:mickle/core/storage/preferences.dart';
+import 'package:mickle/core/version.dart';
 import 'package:archive/archive_io.dart';
 import 'package:path/path.dart' as path;
 import 'package:logging/logging.dart';

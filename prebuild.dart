@@ -596,7 +596,7 @@ class PacketFactory {
 
 void main() async {
   final scriptDir = path.dirname(Platform.script.toFilePath());
-  final rustDir = path.normalize(path.join(scriptDir, '..', 'talk-server', 'src'));
+  final rustDir = path.normalize(path.join(scriptDir, '..', 'mickle-server', 'src'));
   final dartOutputPath = path.join(scriptDir, 'lib', 'core', 'network', 'api_types.dart');
   final dartModelOutputPath = path.join(scriptDir, 'lib', 'core', 'models', 'models.dart');
 

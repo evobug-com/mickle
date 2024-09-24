@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:talk/core/providers/scoped/connection_provider.dart';
+import 'package:mickle/core/providers/scoped/connection_provider.dart';
 
 
 class ConsoleDatabaseTab extends StatefulWidget {

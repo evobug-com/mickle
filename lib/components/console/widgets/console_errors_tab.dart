@@ -1,7 +1,7 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:talk/screens/settings_screen/settings_provider.dart';
+import 'package:mickle/screens/settings_screen/settings_provider.dart';
 
 import '../../../core/managers/audio_manager.dart';
 import '../core/models/error_item.dart';

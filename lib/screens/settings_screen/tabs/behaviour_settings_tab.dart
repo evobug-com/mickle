@@ -2,12 +2,12 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
-import 'package:talk/areas/utilities/elevation.dart';
-import 'package:talk/core/theme/theme_controller.dart';
-import 'package:talk/ui/text_field_list_tile.dart';
-import 'package:talk/areas/utilities/debouncer.dart';
-import 'package:talk/screens/settings_screen/settings_models.dart';
-import 'package:talk/screens/settings_screen/settings_provider.dart';
+import 'package:mickle/areas/utilities/elevation.dart';
+import 'package:mickle/core/theme/theme_controller.dart';
+import 'package:mickle/ui/text_field_list_tile.dart';
+import 'package:mickle/areas/utilities/debouncer.dart';
+import 'package:mickle/screens/settings_screen/settings_models.dart';
+import 'package:mickle/screens/settings_screen/settings_provider.dart';
 
 import '../settings_widgets.dart';
 

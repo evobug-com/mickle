@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:talk/components/console/components/console_change_password_item.dart';
-import 'package:talk/components/console/components/console_list_roles_item.dart';
+import 'package:mickle/components/console/components/console_change_password_item.dart';
+import 'package:mickle/components/console/components/console_list_roles_item.dart';
 
 class ConsoleGeneralTab extends StatefulWidget {
   const ConsoleGeneralTab({super.key});

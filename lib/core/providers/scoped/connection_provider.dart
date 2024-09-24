@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
-import 'package:talk/areas/connection/connection.dart';
-import 'package:talk/core/database.dart';
-import 'package:talk/core/managers/packet_manager.dart';
-import 'package:talk/core/models/models.dart';
+import 'package:mickle/areas/connection/connection.dart';
+import 'package:mickle/core/database.dart';
+import 'package:mickle/core/managers/packet_manager.dart';
+import 'package:mickle/core/models/models.dart';
 
 import '../../../areas/connection/connection_status.dart';
 

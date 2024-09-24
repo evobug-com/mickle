@@ -6,8 +6,8 @@ import 'package:elliptic/elliptic.dart';
 import 'package:ecdsa/ecdsa.dart' as ecdsa;
 
 import 'package:logging/logging.dart';
-import 'package:talk/core/network/api_types.dart';
-import 'package:talk/core/storage/secure_storage.dart';
+import 'package:mickle/core/network/api_types.dart';
+import 'package:mickle/core/storage/secure_storage.dart';
 
 /// Represents the Trust-On-First-Use (TOFU) data received from the server.
 class TofuData {

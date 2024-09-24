@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
-import 'package:talk/core/app_state.dart';
-import 'package:talk/core/providers/global/selected_server_provider.dart';
-import 'package:talk/layout/my_scaffold.dart';
+import 'package:mickle/core/app_state.dart';
+import 'package:mickle/core/providers/global/selected_server_provider.dart';
+import 'package:mickle/layout/my_scaffold.dart';
 
 import '../areas/connection/connection_manager.dart';
 import '../areas/connection/connection_status.dart';

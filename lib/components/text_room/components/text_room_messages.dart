@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:talk/core/models/utils.dart';
-import 'package:talk/core/network/api_types.dart';
-import 'package:talk/core/providers/scoped/connection_provider.dart';
-import 'package:talk/screens/settings_screen/settings_provider.dart';
+import 'package:mickle/core/models/utils.dart';
+import 'package:mickle/core/network/api_types.dart';
+import 'package:mickle/core/providers/scoped/connection_provider.dart';
+import 'package:mickle/screens/settings_screen/settings_provider.dart';
 
 import '../../../core/models/models.dart';
 import '../../ui/date_separator.dart';

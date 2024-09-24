@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:talk/areas/connection/connection.dart';
-import 'package:talk/areas/connection/connection_manager.dart';
-import 'package:talk/areas/connection/connection_status.dart';
+import 'package:mickle/areas/connection/connection.dart';
+import 'package:mickle/areas/connection/connection_manager.dart';
+import 'package:mickle/areas/connection/connection_status.dart';
 import '../../../core/providers/global/selected_server_provider.dart';
 import '../../context_menu/context_menu.dart' as context_menu;
 

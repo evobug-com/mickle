@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:talk/core/models/utils.dart';
-import 'package:talk/core/providers/scoped/connection_provider.dart';
-import 'package:talk/screens/chat_screen/sidebar_box.dart';
-import 'package:talk/ui/shimmer.dart';
+import 'package:mickle/core/models/utils.dart';
+import 'package:mickle/core/providers/scoped/connection_provider.dart';
+import 'package:mickle/screens/chat_screen/sidebar_box.dart';
+import 'package:mickle/ui/shimmer.dart';
 
 import '../../components/channel_list/components/channel_list_room_dialog.dart';
 import '../../components/channel_list/core/models/channel_list_selected_room.dart';

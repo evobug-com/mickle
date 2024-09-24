@@ -1,8 +1,8 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
-import 'package:talk/core/providers/scoped/connection_provider.dart';
-import 'package:talk/screens/settings_screen/settings_widgets.dart';
-import 'package:talk/ui/text_field_list_tile.dart';
+import 'package:mickle/core/providers/scoped/connection_provider.dart';
+import 'package:mickle/screens/settings_screen/settings_widgets.dart';
+import 'package:mickle/ui/text_field_list_tile.dart';
 import '../settings_models.dart';
 import '../settings_provider.dart';
 

@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:talk/components/console/widgets/console_database_tab.dart';
-import 'package:talk/components/console/widgets/console_general_tab.dart';
-import 'package:talk/core/providers/scoped/connection_provider.dart';
+import 'package:mickle/components/console/widgets/console_database_tab.dart';
+import 'package:mickle/components/console/widgets/console_general_tab.dart';
+import 'package:mickle/core/providers/scoped/connection_provider.dart';
 
 import 'console_audio_tab.dart';
 import 'console_errors_tab.dart';

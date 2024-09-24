@@ -3,8 +3,8 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:talk/areas/connection/connection.dart';
-import 'package:talk/areas/connection/connection_error.dart';
+import 'package:mickle/areas/connection/connection.dart';
+import 'package:mickle/areas/connection/connection_error.dart';
 
 class LoginConnectionDiagnostics extends StatefulWidget {
   final String serverHost;

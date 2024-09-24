@@ -1,4 +1,4 @@
-import 'package:talk/core/list_stream.dart';
+import 'package:mickle/core/list_stream.dart';
 
 import 'models/models.dart';
 

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package proto.src.talk.v1;
+package proto.src.mickle.v1;
 
 // Client sends this message to the server
 message ClientMessage {

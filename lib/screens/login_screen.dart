@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
-import 'package:talk/areas/connection/connection_manager.dart';
-import 'package:talk/areas/utilities/elevation.dart';
-import 'package:talk/core/providers/global/selected_server_provider.dart';
-import 'package:talk/layout/my_scaffold.dart';
-import 'package:talk/generated/l10n.dart';
+import 'package:mickle/areas/connection/connection_manager.dart';
+import 'package:mickle/areas/utilities/elevation.dart';
+import 'package:mickle/core/providers/global/selected_server_provider.dart';
+import 'package:mickle/layout/my_scaffold.dart';
+import 'package:mickle/generated/l10n.dart';
 
 import '../areas/connection/connection.dart';
 import 'login_screen/login_connection_diagnostics.dart';

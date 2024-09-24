@@ -5,9 +5,9 @@ import 'dart:typed_data';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:local_notifier/local_notifier.dart';
 import 'package:logging/logging.dart';
-import 'package:talk/areas/connection/connection.dart';
-import 'package:talk/core/managers/audio_manager.dart';
-import 'package:talk/core/network/api_types.dart';
+import 'package:mickle/areas/connection/connection.dart';
+import 'package:mickle/core/managers/audio_manager.dart';
+import 'package:mickle/core/network/api_types.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../../screens/settings_screen/settings_provider.dart';

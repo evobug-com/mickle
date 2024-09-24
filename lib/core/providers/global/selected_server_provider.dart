@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:talk/areas/connection/connection.dart';
-import 'package:talk/core/storage/preferences.dart';
+import 'package:mickle/areas/connection/connection.dart';
+import 'package:mickle/core/storage/preferences.dart';
 
 
 class SelectedServerProvider extends ChangeNotifier {

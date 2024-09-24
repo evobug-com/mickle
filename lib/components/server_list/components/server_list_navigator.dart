@@ -3,13 +3,13 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:talk/areas/connection/connection.dart';
-import 'package:talk/areas/connection/connection_manager.dart';
-import 'package:talk/areas/utilities/elevation.dart';
-import 'package:talk/components/context_menu/core/utils/extensions.dart';
-import 'package:talk/components/server_list/components/server_list_client_context_menu.dart';
-import 'package:talk/core/models/models.dart';
-import 'package:talk/core/providers/global/selected_server_provider.dart';
+import 'package:mickle/areas/connection/connection.dart';
+import 'package:mickle/areas/connection/connection_manager.dart';
+import 'package:mickle/areas/utilities/elevation.dart';
+import 'package:mickle/components/context_menu/core/utils/extensions.dart';
+import 'package:mickle/components/server_list/components/server_list_client_context_menu.dart';
+import 'package:mickle/core/models/models.dart';
+import 'package:mickle/core/providers/global/selected_server_provider.dart';
 
 import '../../../areas/connection/connection_status.dart';
 

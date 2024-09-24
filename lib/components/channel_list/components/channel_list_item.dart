@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:talk/core/models/models.dart';
-import 'package:talk/core/models/utils.dart';
-import 'package:talk/core/providers/scoped/connection_provider.dart';
+import 'package:mickle/core/models/models.dart';
+import 'package:mickle/core/models/utils.dart';
+import 'package:mickle/core/providers/scoped/connection_provider.dart';
 
 import '../../context_menu/components/menu_header.dart';
 import '../../context_menu/components/menu_item.dart';

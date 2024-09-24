@@ -7,11 +7,11 @@ import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:local_notifier/local_notifier.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
-import 'package:talk/components/channel_list/core/models/channel_list_selected_room.dart';
-import 'package:talk/components/voice_room/core/models/voice_room_current.dart';
-import 'package:talk/core/managers/audio_manager.dart';
-import 'package:talk/core/providers/global/selected_server_provider.dart';
-import 'package:talk/core/storage/secure_storage.dart';
+import 'package:mickle/components/channel_list/core/models/channel_list_selected_room.dart';
+import 'package:mickle/components/voice_room/core/models/voice_room_current.dart';
+import 'package:mickle/core/managers/audio_manager.dart';
+import 'package:mickle/core/providers/global/selected_server_provider.dart';
+import 'package:mickle/core/storage/secure_storage.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart' hide WindowCaption, kWindowCaptionHeight;
 

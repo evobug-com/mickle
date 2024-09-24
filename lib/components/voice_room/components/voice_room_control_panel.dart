@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:talk/components/voice_room/core/models/voice_room_current.dart';
+import 'package:mickle/components/voice_room/core/models/voice_room_current.dart';
 
 
 class VoiceRoomControlPanel extends StatefulWidget {

@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:talk/core/completer.dart';
-import 'package:talk/core/providers/scoped/connection_provider.dart';
+import 'package:mickle/core/completer.dart';
+import 'package:mickle/core/providers/scoped/connection_provider.dart';
 
 class ConsoleChangePasswordItem extends StatefulWidget {
   const ConsoleChangePasswordItem({super.key});

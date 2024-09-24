@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:talk/areas/connection/connection.dart';
-import 'package:talk/core/network/utils.dart';
+import 'package:mickle/areas/connection/connection.dart';
+import 'package:mickle/core/network/utils.dart';
 
 import '../network/api_types.dart';
 

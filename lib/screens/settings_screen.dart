@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:talk/screens/settings_screen/settings_content.dart';
-import 'package:talk/screens/settings_screen/settings_models.dart';
-import 'package:talk/screens/settings_screen/settings_provider.dart';
-import 'package:talk/screens/settings_screen/settings_sidebar.dart';
+import 'package:mickle/screens/settings_screen/settings_content.dart';
+import 'package:mickle/screens/settings_screen/settings_models.dart';
+import 'package:mickle/screens/settings_screen/settings_provider.dart';
+import 'package:mickle/screens/settings_screen/settings_sidebar.dart';
 import '../layout/my_scaffold.dart';
 
 class SettingsScreen extends StatefulWidget {

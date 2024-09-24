@@ -1,6 +1,6 @@
 // User avatar has a badge for states: Online, Away, Do not disturb, Offline
 import 'package:flutter/material.dart';
-import 'package:talk/core/images/safe_network_image_provider.dart';
+import 'package:mickle/core/images/safe_network_image_provider.dart';
 
 import '../core/database.dart';
 

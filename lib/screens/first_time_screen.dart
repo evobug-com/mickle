@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
-import 'package:talk/components/server_list/components/server_list_navigator.dart';
-import 'package:talk/core/storage/preferences.dart';
-import 'package:talk/layout/my_scaffold.dart';
-import 'package:talk/core/theme/theme_controller.dart';
-import 'package:talk/screens/settings_screen/settings_provider.dart';
+import 'package:mickle/components/server_list/components/server_list_navigator.dart';
+import 'package:mickle/core/storage/preferences.dart';
+import 'package:mickle/layout/my_scaffold.dart';
+import 'package:mickle/core/theme/theme_controller.dart';
+import 'package:mickle/screens/settings_screen/settings_provider.dart';
 
 import 'settings_screen/settings_widgets.dart';
 

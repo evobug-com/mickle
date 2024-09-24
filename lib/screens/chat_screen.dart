@@ -2,13 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:talk/areas/connection/connection_status.dart';
-import 'package:talk/components/channel_list/core/models/channel_list_selected_room.dart';
-import 'package:talk/components/text_room/widgets/text_room_widget.dart';
-import 'package:talk/components/voice_room/components/voice_room_control_panel.dart';
-import 'package:talk/components/voice_room/core/models/voice_room_current.dart';
-import 'package:talk/core/providers/scoped/connection_provider.dart';
-import 'package:talk/ui/shimmer.dart';
+import 'package:mickle/areas/connection/connection_status.dart';
+import 'package:mickle/components/channel_list/core/models/channel_list_selected_room.dart';
+import 'package:mickle/components/text_room/widgets/text_room_widget.dart';
+import 'package:mickle/components/voice_room/components/voice_room_control_panel.dart';
+import 'package:mickle/components/voice_room/core/models/voice_room_current.dart';
+import 'package:mickle/core/providers/scoped/connection_provider.dart';
+import 'package:mickle/ui/shimmer.dart';
 
 import '../core/providers/global/selected_server_provider.dart';
 import '../layout/my_scaffold.dart';

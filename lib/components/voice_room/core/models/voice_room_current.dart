@@ -4,9 +4,9 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
-import 'package:talk/areas/connection/connection.dart';
-import 'package:talk/core/managers/audio_manager.dart';
-import 'package:talk/core/models/models.dart';
+import 'package:mickle/areas/connection/connection.dart';
+import 'package:mickle/core/managers/audio_manager.dart';
+import 'package:mickle/core/models/models.dart';
 
 final _logger = Logger("VoiceRoomCurrent");
 

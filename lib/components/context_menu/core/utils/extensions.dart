@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:talk/screens/settings_screen/settings_provider.dart';
+import 'package:mickle/screens/settings_screen/settings_provider.dart';
 
 extension BuildContextExtensions on BuildContext {
   Rect? getWidgetBounds() {

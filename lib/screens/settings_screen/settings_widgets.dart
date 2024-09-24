@@ -2,8 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
-import 'package:talk/areas/utilities/elevation.dart';
-import 'package:talk/screens/settings_screen/settings_models.dart';
+import 'package:mickle/areas/utilities/elevation.dart';
+import 'package:mickle/screens/settings_screen/settings_models.dart';
 
 class SettingTitle extends StatelessWidget {
   final SettingMetadata category;
