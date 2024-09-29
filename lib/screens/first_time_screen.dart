@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:mickle/core/storage/preferences.dart';
+import 'package:mickle/core/widget_keys.dart';
 import 'package:mickle/layout/my_scaffold.dart';
 import 'package:mickle/core/theme/theme_controller.dart';
 import 'package:mickle/screens/settings_screen/settings_provider.dart';
@@ -27,6 +28,7 @@ class _FirstTimeScreenState extends State<FirstTimeScreen> {
     return MyScaffold(
       showSidebar: false,
       showSearchBar: false,
+      key: WidgetKeys.firstTimeScreen,
       body: AnimatedContainer(
         duration: const Duration(milliseconds: 100),
         decoration: BoxDecoration(
@@ -101,6 +103,7 @@ class _FirstTimeScreenState extends State<FirstTimeScreen> {
                 },
                 icon: const Icon(Icons.arrow_back),
                 label: const Text('Back'),
+                key: const ValueKey('back_button'),
                 // style: ElevatedButton.styleFrom(
                 //   backgroundColor: colorScheme.secondaryContainer,
                 //   foregroundColor: colorScheme.onSecondaryContainer,
@@ -117,6 +120,7 @@ class _FirstTimeScreenState extends State<FirstTimeScreen> {
                 },
                 icon: const Icon(Icons.arrow_forward),
                 label: const Text('Next'),
+                key: WidgetKeys.firstTimeScreenNextButton,
                 // style: ElevatedButton.styleFrom(
                 //   backgroundColor: colorScheme.primaryContainer,
                 //   foregroundColor: colorScheme.onPrimaryContainer,
@@ -165,6 +169,7 @@ class _ExperienceSelectionStep extends StatelessWidget {
                 'Embark on a new journey',
                 Icons.rocket_launch,
                     () => onSelected(true),
+                key: WidgetKeys.firstTimeScreenFreshStartButton,
               ),
               const SizedBox(width: 24),
               _buildExperienceCard(
@@ -173,6 +178,7 @@ class _ExperienceSelectionStep extends StatelessWidget {
                 'Bring your existing data',
                 Icons.cloud_download,
                     () => onSelected(false),
+                key: WidgetKeys.firstTimeScreenImportButton,
               ),
             ],
           ).animate().fadeIn(delay: 600.ms).scale(),
@@ -181,9 +187,11 @@ class _ExperienceSelectionStep extends StatelessWidget {
     );
   }
 
-  Widget _buildExperienceCard(BuildContext context, String title, String subtitle, IconData icon, VoidCallback onTap) {
+  Widget _buildExperienceCard(BuildContext context, String title, String subtitle, IconData icon, VoidCallback onTap,
+      {required Key key}) {
     final colorScheme = Theme.of(context).colorScheme;
     return InkWell(
+      key: key,
       onTap: onTap,
       child: Container(
         width: 200,
@@ -316,6 +324,7 @@ class _AppearanceSelectionStepState extends State<_AppearanceSelectionStep> {
   Widget _buildThemeOption(BuildContext context, ThemeItem theme) {
     final isSelected = ThemeController.of(context).currentThemeName == theme.name;
     return InkWell(
+      key: WidgetKeys.firstTimeScreenThemeDynamicButton(theme.name),
       onTap: () {
         ThemeController.of(context, listen: false).setTheme(theme.value);
         SettingsPreferencesProvider().setTheme(theme.name);
@@ -380,7 +389,8 @@ class _SettingsStepState extends State<_SettingsStep> {
                 title: 'Launch at startup',
                 description: 'Automatically start Mickle when your system boots up',
                 icon: Icons.power_settings_new,
-                value: value ?? false,
+                value: value,
+                key: WidgetKeys.firstTimeScreenLaunchAtStartupSwitch,
                 onChanged: (value) async {
                   if (value) {
                     launchAtStartup.enable().then((_) {
@@ -411,10 +421,11 @@ class _SettingsStepState extends State<_SettingsStep> {
                   title: 'Exit to tray',
                   description: 'Keep Mickle running in the background when you close the window',
                   icon: Icons.minimize,
-                  value: value ?? false,
+                  value: value,
                   onChanged: (value) {
                     setValue(value);
-                  }
+                  },
+                key: WidgetKeys.firstTimeScreenExitToTraySwitch
               );
             },
           ),
@@ -481,6 +492,7 @@ class _CompletionStep extends StatelessWidget {
             },
             icon: const Icon(Icons.rocket_launch),
             label: const Text('Launch Mickle'),
+            key: WidgetKeys.firstTimeScreenLaunchMickleButton,
             style: ElevatedButton.styleFrom(
               backgroundColor: colorScheme.secondaryContainer,
               foregroundColor: colorScheme.onSecondaryContainer,

@@ -10,14 +10,6 @@ class SecurityWarning {
 }
 
 class SecurityWarningsProvider with ChangeNotifier {
-  static final SecurityWarningsProvider _instance = SecurityWarningsProvider._internal();
-
-  factory SecurityWarningsProvider() {
-    return _instance;
-  }
-
-  SecurityWarningsProvider._internal();
-
   final List<SecurityWarning> _warnings = [];
 
   List<SecurityWarning> get warnings => List.unmodifiable(_warnings);

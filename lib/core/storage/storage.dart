@@ -9,10 +9,12 @@ class Storage implements SharedPreferencesAsync {
   static final Storage _instance = Storage._internal();
   factory Storage() => _instance;
   Storage._internal();
+  String _prefix = '';
 
   final SharedPreferencesAsync asyncPrefs = SharedPreferencesAsync();
 
-  static init() async {
+  static init({required String prefix}) async {
+    _instance._prefix = prefix;
   }
 
   @override
@@ -27,16 +29,19 @@ class Storage implements SharedPreferencesAsync {
 
   @override
   Future<bool?> getBool(String key) {
+    key = '$_prefix$key';
     return asyncPrefs.getBool(key);
   }
 
   @override
   Future<double?> getDouble(String key) {
+    key = '$_prefix$key';
     return asyncPrefs.getDouble(key);
   }
 
   @override
   Future<int?> getInt(String key) {
+    key = '$_prefix$key';
     return asyncPrefs.getInt(key);
   }
 
@@ -47,46 +52,55 @@ class Storage implements SharedPreferencesAsync {
 
   @override
   Future<List<String>?> getStringList(String key) {
+    key = '$_prefix$key';
     return asyncPrefs.getStringList(key);
   }
 
   @override
   Future<void> remove(String key) {
+    key = '$_prefix$key';
     return asyncPrefs.remove(key);
   }
 
   @override
   Future<void> setBool(String key, bool value) {
+    key = '$_prefix$key';
     return asyncPrefs.setBool(key, value);
   }
 
   @override
   Future<void> setDouble(String key, double value) {
+    key = '$_prefix$key';
     return asyncPrefs.setDouble(key, value);
   }
 
   @override
   Future<void> setInt(String key, int value) {
+    key = '$_prefix$key';
     return asyncPrefs.setInt(key, value);
   }
 
   @override
   Future<void> setStringList(String key, List<String> value) {
+    key = '$_prefix$key';
     return asyncPrefs.setStringList(key, value);
   }
 
   @override
   Future<bool> containsKey(String key) {
+    key = '$_prefix$key';
     return asyncPrefs.containsKey(key);
   }
 
   @override
   Future<String?> getString(String key) {
+    key = '$_prefix$key';
     return asyncPrefs.getString(key);
   }
 
   @override
   Future<void> setString(String key, String value) {
+    key = '$_prefix$key';
     return asyncPrefs.setString(key, value);
   }
 }

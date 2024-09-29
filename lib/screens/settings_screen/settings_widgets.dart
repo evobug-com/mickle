@@ -128,7 +128,7 @@ Widget buildSettingsSection(BuildContext context, String title, List<Widget> chi
   );
 }
 
-Widget buildSettingSwitchOption({required BuildContext context, required String title, required String description, required IconData icon, required bool value, required ValueChanged<bool> onChanged}) {
+Widget buildSettingSwitchOption({required BuildContext context, required String title, required String description, required IconData icon, required bool value, required ValueChanged<bool> onChanged, required Key key}) {
   final colorScheme = Theme.of(context).colorScheme;
   return Container(
     width: 400,
@@ -160,6 +160,7 @@ Widget buildSettingSwitchOption({required BuildContext context, required String 
         Switch(
           value: value,
           onChanged: onChanged,
+          key: key,
         ),
       ],
     ),

@@ -1,6 +1,5 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
-import 'package:mickle/core/storage/preferences.dart';
 import 'package:mickle/generated/l10n.dart';
 import 'package:mickle/screens/settings_screen/settings_provider.dart';
 import 'package:tray_manager/tray_manager.dart';
@@ -8,7 +7,6 @@ import 'package:window_manager/window_manager.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../core/theme/theme_controller.dart';
-import '../core/storage/storage.dart';
 import '../router.dart';
 
 class AppWidget extends StatefulWidget {

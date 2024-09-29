@@ -47,8 +47,10 @@ class EncryptedSharedPreferences implements SharedPreferencesAsync {
   }
 
   @override
-  Future<bool> containsKey(String key) =>
-      _preferences.containsKey(_encryptor.encrypt(_key, key));
+  Future<bool> containsKey(String key) {
+    return _preferences.containsKey(_encryptor.encrypt(_key, key));
+  }
+
 
   @override
   Future<bool?> getBool(String key) async {
@@ -75,7 +77,13 @@ class EncryptedSharedPreferences implements SharedPreferencesAsync {
   @override
   Future<Set<String>> getKeys({Set<String>? allowList}) async {
     final set = await _preferences.getKeys(allowList: allowList);
-    return set.map((e) => _encryptor.decrypt(_key, e)).toSet();
+    return set.map((item) {
+      try {
+        return _encryptor.decrypt(_key, item);
+      } catch (e) {
+        return item;
+      }
+    }).toSet();
   }
 
   @override

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mickle/areas/connection/connection_manager.dart';
 import 'package:mickle/areas/utilities/elevation.dart';
 import 'package:mickle/core/providers/global/selected_server_provider.dart';
+import 'package:mickle/core/widget_keys.dart';
 import 'package:mickle/layout/my_scaffold.dart';
 import 'package:mickle/generated/l10n.dart';
 
@@ -52,6 +53,7 @@ class _LoginRegistrationScreenState extends State<LoginRegistrationScreen> with 
     final colorScheme = Theme.of(context).colorScheme;
 
     return MyScaffold(
+      key: WidgetKeys.loginScreen,
       showSidebar: ConnectionManager().connections.length > 1,
       showSearchBar: false,
       body: Container(

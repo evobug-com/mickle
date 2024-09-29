@@ -32,7 +32,7 @@ Future<void> main() async {
   _configureLogging();
 
   // Initialize storage and load settings
-  await _initializeStorage();
+  await initializeStorage(prefix: "");
 
   // Ensure necessary initializations
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,7 +40,7 @@ Future<void> main() async {
   AudioManager.ensureInitialized();
 
   // Initialize settings
-  await _initializeSettings();
+  await initializeSettings();
 
   // Check for updates
   final updateInfo = await _checkForUpdates();
@@ -57,7 +57,7 @@ Future<void> main() async {
   );
 
   // Wait until the window is ready to show
-  windowManager.waitUntilReadyToShow(windowOptions, () async {
+  await windowManager.waitUntilReadyToShow(windowOptions, () async {
     await windowManager.setPreventClose(true);
     await windowManager.show();
     await windowManager.focus();
@@ -140,13 +140,13 @@ _initializeLocalNotifier() async {
   );
 }
 
-_initializeStorage() async {
+initializeStorage({required String prefix}) async {
   _logger.fine("Initializing storage");
-  await Storage.init();
-  await SecureStorage.init();
+  await Storage.init(prefix: prefix);
+  await SecureStorage.init(prefix: prefix);
 }
 
-_initializeSettings() async {
+initializeSettings() async {
   _logger.fine("Initializing settings");
 
   final masterVolume = await SettingsPreferencesProvider().getMasterVolume();
