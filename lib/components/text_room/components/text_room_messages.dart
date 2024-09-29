@@ -158,7 +158,7 @@ class TextRoomMessagesState extends State<TextRoomMessages> {
     });
 
     return ListenableBuilder(
-      listenable: SettingsProvider(),
+      listenable: SettingsPreferencesProvider(),
       builder: (context, _) {
         return SelectionArea(
           child: ListView.builder(

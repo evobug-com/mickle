@@ -32,25 +32,28 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+
+  # Localization
   intl: ^0.19.0
 
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.8
-  diff_match_patch: ^0.4.1
-  go_router: ^14.2.7
+  # Routing
+  go_router: ^14.2.8
 
-
+  # Core Mechanics
   audioplayers: ^6.1.0
-  flutter_secure_storage: ^9.2.2
-  get_storage: ^2.1.1
-  path_provider: ^2.1.4
-  provider: ^6.1.2
-  tray_manager: ^0.2.3
+  tray_manager: ^0.2.4
   window_manager: ^0.4.2
   launch_at_startup: ^0.3.1
-  bot_toast: ^4.1.3
   local_notifier: ^0.1.6
+  connectivity_plus: ^6.0.5
+
+  # Storage
+  encrypt_shared_preferences: ^0.7.6
+  shared_preferences: ^2.3.2
+
+  # Utils
+  path_provider: ^2.1.4
+  provider: ^6.1.2
   archive: ^3.6.1
   http: ^1.2.2
   collection: ^1.19.0
@@ -59,18 +62,22 @@ dependencies:
   json_annotation: ^4.9.0
   freezed_annotation: ^2.4.4
   path: ^1.9.0
-  flutter_animate: ^4.5.0
   convert: ^3.1.1
   ecdsa: ^0.1.2
   elliptic: ^0.3.11
   pem: ^2.0.5
-  file_picker: ^8.1.2
   material_color_utilities: ^0.12.0
-  google_fonts: ^6.2.1
-  emoji_picker_flutter: ^3.0.0
-  connectivity_plus: ^6.0.5
   crypto: ^3.0.5
-  flutter_markdown: ^0.7.3+1
+  encrypt: ^5.0.3
+
+  # UI
+  bot_toast: ^4.1.3
+  flutter_animate: ^4.5.0
+  file_picker: ^8.1.2
+  google_fonts: ^6.2.1
+  emoji_picker_flutter: ^3.1.0
+  flutter_markdown: ^0.7.3+2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -80,10 +87,10 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
   build_runner: ^2.4.12
   json_serializable: ^6.8.0
-  analyzer: ^6.8.0
+  analyzer: ^6.9.0
   recase: ^4.1.0
   freezed: ^2.5.7
 

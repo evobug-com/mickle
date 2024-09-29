@@ -26,47 +26,46 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _connectToAllServers();
+      _connectToAllEndpoints();
     });
   }
 
-  Future<void> _connectToAllServers() async {
-    final servers = await SecureStorage().readJSONArray("endpoints");
-    _logger.info('Connecting to ${servers.length} endpoints');
+  Future<void> _connectToAllEndpoints() async {
+    final endpoints = await Preferences.getEndpoints();
+    _logger.info('Connecting to ${endpoints.join(', ')} endpoints');
 
     final connectionManager = ConnectionManager();
-    await Future.wait(servers.map((server) => _connectToServer(connectionManager, server)));
+    await Future.wait(endpoints.map((endpoint) => _connectToEndpoint(connectionManager, endpoint)));
 
-    _navigateBasedOnConnections(connectionManager);
+    await _navigateBasedOnConnections(connectionManager);
     AppState.overSplash = true;
   }
 
-  Future<void> _connectToServer(ConnectionManager connectionManager, String server) async {
-    final connectionUrl = await SecureStorage().read("$server.connectionUrl");
-    if (connectionUrl == null) return;
+  Future<void> _connectToEndpoint(ConnectionManager connectionManager, String endpoint) async {
+    final endpointData = await Preferences.getEndpoint(endpoint);
+    if (endpointData == null) return;
 
-    final connection = await connectionManager.connect(connectionUrl, disconnectOnError: true);
+    final connection = await connectionManager.connect(endpointData.connectionUrl, disconnectOnError: true);
     if (connection.error != null) return;
 
-    final token = await SecureStorage().read("$server.token");
-    await connection.authenticate(token: token);
+    await connection.authenticate(token: endpointData.token);
     if(connection.error != null) {
       connection.isReconnectEnabled = false;
       await connection.disconnect();
     }
   }
 
-  void _navigateBasedOnConnections(ConnectionManager connectionManager) {
+  Future<void> _navigateBasedOnConnections(ConnectionManager connectionManager) async {
     if (!mounted) return;
 
-    final lastOpenedServer = Preferences.getLastVisitedServerId();
+    final lastOpenedServer = await Preferences.getLastVisitedServerId();
     final connection = connectionManager.connections.firstWhereOrNull(
             (connection) => connection.mainServerId == lastOpenedServer && _isConnectedOrAuthenticated(connection)
     ) ?? connectionManager.connections.firstWhereOrNull(
             (connection) => _isConnectedOrAuthenticated(connection)
     );
 
-    if(Preferences.isFirstTime()) {
+    if(await Preferences.getIsFirstTime()) {
       GoRouter.of(context).goNamed('first-time');
     } else if (connection != null) {
       Provider.of<SelectedServerProvider>(context, listen: false).selectServer(connection);

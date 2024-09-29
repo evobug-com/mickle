@@ -43,6 +43,8 @@ pubspec.lock
 /*/build
 cmake-build-debug/
 *.g.dart
+/releases/
+/release.ps1
 
 # Symbolication related
 app.*.symbols

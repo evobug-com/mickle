@@ -13,9 +13,9 @@ class Errors {
     if(initialized) return;
     initialized = true;
     final originalOnError = FlutterError.onError;
-    FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.onError = (FlutterErrorDetails details) async {
       errors.add(ErrorItem(details.exceptionAsString(), details.stack.toString()));
-      if(SettingsProvider().playSoundOnError) {
+      if(await SettingsPreferencesProvider().getPlaySoundOnError()) {
         AudioManager.playSingleShot("Master", AssetSource("audio/error.wav"));
       }
       if(originalOnError != null) {

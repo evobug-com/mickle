@@ -1,6 +1,8 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:mickle/core/storage/preferences.dart';
 import 'package:mickle/generated/l10n.dart';
+import 'package:mickle/screens/settings_screen/settings_provider.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -83,8 +85,7 @@ class _AppWidgetState extends State<AppWidget> with TrayListener, WindowListener
 
   @override
   Future<void> onWindowClose() async {
-    final storage = Storage();
-    if(storage.readBoolean("closeToTray", defaultValue: true)) {
+    if(await SettingsPreferencesProvider().getExitToTray()) {
       await windowManager.hide();
     } else {
       await windowManager.destroy();

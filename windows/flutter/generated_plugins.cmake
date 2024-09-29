@@ -6,7 +6,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_windows
   connectivity_plus
   emoji_picker_flutter
-  flutter_secure_storage_windows
   local_notifier
   screen_retriever
   tray_manager

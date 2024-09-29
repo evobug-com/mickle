@@ -45,7 +45,10 @@ class _MyScaffoldState extends State<MyScaffold> {
                 offset: 1,
                 child: WindowCaption(
                   showSearchBar: widget.showSearchBar,
-                  title: const Text('Mickle [$version]'),
+                  title: Text(
+                      'Mickle [$version]',
+                    style: Theme.of(context).textTheme.titleSmall
+                  ),
                   brightness: colorScheme.brightness,
                 ),
               ),

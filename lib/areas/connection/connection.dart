@@ -16,6 +16,7 @@ import 'package:mickle/core/database.dart';
 import 'package:mickle/core/managers/packet_manager.dart';
 import 'package:mickle/core/models/models.dart';
 import 'package:mickle/core/network/api_types.dart';
+import 'package:mickle/core/storage/preferences.dart';
 import '../../core/connection/message_stream_handler.dart';
 import '../../core/processor/response_processor.dart';
 import 'connection_status.dart';
@@ -159,10 +160,18 @@ class Connection {
     return authResult;
   }
 
-  onWelcome(EvtWelcomePacket packet) {
+  onWelcome(EvtWelcomePacket packet) async {
     currentUser = database.users.firstWhereOrNull((element) => element.id == currentUserId!);
     mainServer = database.servers.firstWhereOrNull((element) => element.id == mainServerId!);
     _status.value = ConnectionStatus.authenticated;
+
+    // Update entrypoint data with the new data
+    var entrypointData = await Preferences.getEndpoint(connectionUrl)!;
+    entrypointData = entrypointData!.copyWith(
+      username: currentUser!.username,
+      serverName: mainServer!.name,
+    );
+    await Preferences.setEndpoint(connectionUrl, entrypointData!);
   }
 
   void send(Uint8List data) {

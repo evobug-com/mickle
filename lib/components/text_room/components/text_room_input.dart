@@ -113,6 +113,10 @@ class TextRoomInputState extends State<TextRoomInput> with SingleTickerProviderS
   bool _emojiShowing = false;
   late AnimationController _animationController;
   late Animation<double> _animation;
+  final chatSubmitKeyController = CachedPreference(
+    settingKey: SettingsKeys.sendMessageOnEnter,
+    get: SettingsPreferencesProvider().getSendMessageOnEnter,
+  );
 
   @override
   void initState() {
@@ -120,14 +124,12 @@ class TextRoomInputState extends State<TextRoomInput> with SingleTickerProviderS
     super.initState();
     _chatTextFocus = FocusNode(
       onKeyEvent: (node, event) {
-        // sendMessageOnEnter
-
         if(event.deviceType == KeyEventDeviceType.keyboard) {
 
-          if(SettingsProvider().sendMessageOnEnter && event.logicalKey == LogicalKeyboardKey.enter && !HardwareKeyboard.instance.isShiftPressed) {
+          if(chatSubmitKeyController.value! && event.logicalKey == LogicalKeyboardKey.enter && !HardwareKeyboard.instance.isShiftPressed) {
             _sendMessage(_chatTextController.text);
             return KeyEventResult.handled;
-          } else if(!SettingsProvider().sendMessageOnEnter && event.logicalKey == LogicalKeyboardKey.enter && HardwareKeyboard.instance.isShiftPressed) {
+          } else if(!chatSubmitKeyController.value! && event.logicalKey == LogicalKeyboardKey.enter && HardwareKeyboard.instance.isShiftPressed) {
             _sendMessage(_chatTextController.text);
             return KeyEventResult.handled;
           }
@@ -207,8 +209,8 @@ class TextRoomInputState extends State<TextRoomInput> with SingleTickerProviderS
                           maxLines: null,
                           keyboardType: TextInputType.multiline,
                           textInputAction: TextInputAction.newline,
-                          onChanged: (value) {
-                            if(SettingsProvider().replaceTextEmoji) {
+                          onChanged: (value) async {
+                            if(await SettingsPreferencesProvider().getReplaceTextSymbolsWithEmoji()) {
                               // Replace emojis
                               final replacedValue = replaceEmojis(value);
                               if (value != replacedValue) {
@@ -261,7 +263,6 @@ class TextRoomInputState extends State<TextRoomInput> with SingleTickerProviderS
                       ? 1.2
                       : 1.0),
             ),
-            swapCategoryAndBottomBar: false,
             skinToneConfig: const SkinToneConfig(),
             categoryViewConfig: CategoryViewConfig(
               backgroundColor: colorScheme.surfaceContainerHigh,

@@ -36,7 +36,7 @@ extension DateTimeExtension on DateTime {
     return DateTime.fromMillisecondsSinceEpoch(millisecondsSinceEpoch, isUtc: true).toLocal();
   }
 
-  get formatted {
-    return DateFormat(SettingsProvider().messageDateFormat).format(this);
+  get formatted async {
+    return DateFormat(await SettingsPreferencesProvider().getMessageDateFormat()).format(this);
   }
 }

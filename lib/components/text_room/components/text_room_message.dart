@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:intl/intl.dart';
 import 'package:mickle/components/context_menu/core/utils/extensions.dart';
 import 'package:mickle/core/models/models.dart' as models;
 import 'package:mickle/core/providers/scoped/connection_provider.dart';
+import 'package:mickle/screens/settings_screen/settings_provider.dart';
 import 'package:mickle/ui/user_avatar.dart';
 
 // This component will render a message in a room
@@ -35,6 +37,10 @@ class TextRoomMessage extends StatefulWidget {
 class TextRoomMessageState extends State<TextRoomMessage> {
 
   bool isHovered = false;
+  static final CachedPreference _messageDateFormat = CachedPreference(
+    settingKey: SettingsKeys.messageDateFormat,
+    get: SettingsPreferencesProvider().getMessageDateFormat,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -89,6 +95,10 @@ class TextRoomMessageState extends State<TextRoomMessage> {
     : Colors.transparent;
   }
 
+  String formattedDate(DateTime date) {
+    return DateFormat(_messageDateFormat.value).format(date);
+  }
+
   Column _buildContent(ThemeData theme) {
     return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,7 +111,7 @@ class TextRoomMessageState extends State<TextRoomMessage> {
                         style: theme.textTheme.titleMedium),
                   const Expanded(child: SizedBox()),
                   if (widget.isFirstMessage)
-                    Text(widget.message.createdAt.toLocal().formatted,
+                    Text(formattedDate(widget.message.createdAt.toLocal()),
                         style: theme.textTheme.bodySmall),
                 ],
               ),
@@ -122,7 +132,7 @@ class TextRoomMessageState extends State<TextRoomMessage> {
           child: AnimatedSwitcher(duration: const Duration(milliseconds: 50),
             child: widget.isFirstMessage ?
             UserAvatar(imageUrl: widget.user?.avatarUrl) :
-            isHovered ? Text(widget.message.createdAt.toLocal().formatted, style: theme.textTheme.bodySmall) : null
+            isHovered ? Text(formattedDate(widget.message.createdAt.toLocal()), style: theme.textTheme.bodySmall) : null
           ),
         );
   }

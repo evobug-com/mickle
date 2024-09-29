@@ -1,6 +1,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:mickle/core/storage/preferences.dart';
 
 import '../settings_models.dart';
 import '../settings_provider.dart';
@@ -43,17 +44,21 @@ class _ExperimentalSettingsTabState extends State<ExperimentalSettingsTab> {
   }
 
   Widget _buildReplaceTextEmoji(Map<String, SettingItem> items) {
-    return Highlightable(
-      highlight: widget.settingsTabController.item == items['experimental-text-emoji']!.key,
-      child: SwitchListTile(
-        title: Text(items['experimental-text-emoji']!.name),
-        subtitle: const Text('Replace text-emoji with emoji, such as \':D\' or \':grinning_face:\' to 😃 and \':P\' to 😛, etc.'),
-        value: SettingsProvider().replaceTextEmoji,
-        onChanged: (value) {
-          // Save text-emoji to settings
-          SettingsProvider().replaceTextEmoji = value;
-        },
-      ),
+    return PreferenceProvider(
+      get: SettingsPreferencesProvider().getReplaceTextSymbolsWithEmoji,
+      set: SettingsPreferencesProvider().setReplaceTextSymbolsWithEmoji,
+      setState: setState,
+      builder: (context, value, setValue) {
+        return Highlightable(
+          highlight: widget.settingsTabController.item == items['experimental-text-emoji']!.key,
+          child: SwitchListTile(
+            title: Text(items['experimental-text-emoji']!.name),
+            subtitle: const Text('Replace text-emoji with emoji, such as \':D\' or \':grinning_face:\' to 😃 and \':P\' to 😛, etc.'),
+            value: value,
+            onChanged: setValue
+          ),
+        );
+      }
     );
   }
 }

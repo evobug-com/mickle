@@ -318,6 +318,7 @@ class _AppearanceSelectionStepState extends State<_AppearanceSelectionStep> {
     return InkWell(
       onTap: () {
         ThemeController.of(context, listen: false).setTheme(theme.value);
+        SettingsPreferencesProvider().setTheme(theme.name);
       },
       child: Container(
         decoration: BoxDecoration(
@@ -345,64 +346,80 @@ class _AppearanceSelectionStepState extends State<_AppearanceSelectionStep> {
   }
 }
 
-class _SettingsStep extends StatelessWidget {
+class _SettingsStep extends StatefulWidget {
   const _SettingsStep({super.key});
 
+  @override
+  State<_SettingsStep> createState() => _SettingsStepState();
+}
+
+class _SettingsStepState extends State<_SettingsStep> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Center(
-      child: ListenableBuilder(
-        listenable: SettingsProvider(),
-        builder: (context, _) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Customize your experience',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: colorScheme.onSurface,
-                  fontWeight: FontWeight.bold,
-                ),
-              ).animate().fadeIn(duration: 600.ms).slide(),
-              const SizedBox(height: 32),
-              buildSettingSwitchOption(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Customize your experience',
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+              color: colorScheme.onSurface,
+              fontWeight: FontWeight.bold,
+            ),
+          ).animate().fadeIn(duration: 600.ms).slide(),
+          const SizedBox(height: 32),
+
+          PreferenceProvider(
+            get: SettingsPreferencesProvider().getLaunchAtStartup,
+            set: SettingsPreferencesProvider().setLaunchAtStartup,
+            setState: setState,
+            builder: (context, value, setValue) {
+              return buildSettingSwitchOption(
                 context: context,
                 title: 'Launch at startup',
                 description: 'Automatically start Mickle when your system boots up',
                 icon: Icons.power_settings_new,
-                value: SettingsProvider().launchAtStartup,
+                value: value ?? false,
                 onChanged: (value) async {
                   if (value) {
                     launchAtStartup.enable().then((_) {
-                      SettingsProvider().launchAtStartup = true;
+                      setValue(true);
                     }).catchError((error) {
                       _showErrorNotification(context, 'Error enabling autostartup', error.toString());
                     });
                   } else {
                     launchAtStartup.disable().then((_) {
-                      SettingsProvider().launchAtStartup = false;
+                      setValue(false);
                     }).catchError((error) {
                       _showErrorNotification(context, 'Error disabling autostartup', error.toString());
                     });
                   }
                 },
-              ),
-              const SizedBox(height: 16),
-              buildSettingSwitchOption(
-                context: context,
-                title: 'Exit to tray',
-                description: 'Keep Mickle running in the background when you close the window',
-                icon: Icons.minimize,
-                value: SettingsProvider().exitToTray,
-                onChanged: (value) {
-                  SettingsProvider().exitToTray = value;
-                }
-              ),
-            ],
-          );
-        }
-      ),
+              );
+            },
+          ),
+          const SizedBox(height: 16),
+
+          PreferenceProvider(
+            get: SettingsPreferencesProvider().getExitToTray,
+            set: SettingsPreferencesProvider().setExitToTray,
+            setState: setState,
+            builder: (context, value, setValue) {
+              return buildSettingSwitchOption(
+                  context: context,
+                  title: 'Exit to tray',
+                  description: 'Keep Mickle running in the background when you close the window',
+                  icon: Icons.minimize,
+                  value: value ?? false,
+                  onChanged: (value) {
+                    setValue(value);
+                  }
+              );
+            },
+          ),
+        ],
+      )
     );
   }
 
@@ -459,7 +476,7 @@ class _CompletionStep extends StatelessWidget {
           const SizedBox(height: 48),
           ElevatedButton.icon(
             onPressed: () {
-              Preferences.setFirstTime(false);
+              Preferences.setIsFirstTime(false);
               context.goNamed('login');
             },
             icon: const Icon(Icons.rocket_launch),

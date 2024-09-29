@@ -1,93 +1,285 @@
 
 import 'package:flutter/material.dart';
 
-import '../../core/theme/theme_controller.dart';
+import '../../core/storage/secure_storage.dart';
 import '../../core/storage/storage.dart';
 import 'settings_models.dart';
 
-class SettingsProvider extends ChangeNotifier {
-  static final SettingsProvider _singleton = SettingsProvider._internal();
-  factory SettingsProvider() => _singleton;
-  SettingsProvider._internal();
+enum SettingsKeys {
+  replaceTextEmoji,
+  autostartup,
+  exitToTray,
+  microphonePreferredDevice,
+  speakerPreferredDevice,
+  cameraPreferredDevice,
+  theme,
+  locale,
+  playSoundOnIncomingMessage,
+  playSoundOnOutgoingMessage,
+  playSoundOnMention,
+  playSoundOnError,
+  showDesktopNotifications,
+  sendMessageOnEnter,
+  messageDateFormat,
+  masterVolume,
+}
 
-  bool get replaceTextEmoji => Storage().readBoolean('replaceTextEmoji', defaultValue: false);
-  set replaceTextEmoji(bool value) {
-    Storage().write('replaceTextEmoji', value.toString());
-    notifyListeners();
+const defaultValues = {
+  SettingsKeys.replaceTextEmoji: false,
+  SettingsKeys.autostartup: false,
+  SettingsKeys.exitToTray: true,
+  SettingsKeys.microphonePreferredDevice: '',
+  SettingsKeys.speakerPreferredDevice: '',
+  SettingsKeys.cameraPreferredDevice: '',
+  SettingsKeys.theme: 'Dark',
+  SettingsKeys.locale: 'en-us',
+  SettingsKeys.playSoundOnIncomingMessage: true,
+  SettingsKeys.playSoundOnOutgoingMessage: true,
+  SettingsKeys.playSoundOnMention: true,
+  SettingsKeys.playSoundOnError: false,
+  SettingsKeys.showDesktopNotifications: true,
+  SettingsKeys.sendMessageOnEnter: true,
+  SettingsKeys.messageDateFormat: 'HH:mm',
+  SettingsKeys.masterVolume: 1.0,
+};
+
+class SettingsPreferencesProvider extends ChangeNotifier {
+  static final SettingsPreferencesProvider _singleton = SettingsPreferencesProvider._internal();
+  factory SettingsPreferencesProvider() => _singleton;
+  SettingsPreferencesProvider._internal();
+
+  static final Storage _storage = Storage();
+  static final SecureStorage _secureStorage = SecureStorage();
+  static final Map<SettingsKeys, List<Function>> _notifiers = {};
+
+  void addPropertyListener(SettingsKeys key, Function listener) {
+    if(!_notifiers.containsKey(key)) {
+      _notifiers[key] = [];
+    }
+    if(!_notifiers[key]!.contains(listener)) {
+      _notifiers[key]!.add(listener);
+    }
   }
 
-  bool get launchAtStartup => Storage().readBoolean('autostartup', defaultValue: false);
-  set launchAtStartup(bool value) {
-    Storage().write('autostartup', value.toString());
-    notifyListeners();
+  void removePropertyListener(SettingsKeys key, Function listener) {
+    if(_notifiers.containsKey(key)) {
+      _notifiers[key]!.remove(listener);
+    }
   }
 
-  bool get exitToTray => Storage().readBoolean('exitToTray', defaultValue: true);
-  set exitToTray(bool value) {
-    Storage().write('exitToTray', value.toString());
-    notifyListeners();
+  void notify(SettingsKeys key) {
+    super.notifyListeners();
+    if(_notifiers.containsKey(key)) {
+      for(final listener in _notifiers[key]!) {
+        listener();
+      }
+    }
   }
 
-  String? get microphoneDevice => Storage().read('microphoneDevice');
-  set microphoneDevice(value) {
-    Storage().write('microphoneDevice', value);
-    notifyListeners();
+  Future<bool> getReplaceTextSymbolsWithEmoji() async {
+    return (await _storage.getBool(SettingsKeys.replaceTextEmoji.name)) ?? defaultValues[SettingsKeys.replaceTextEmoji] as bool;
   }
 
-  String get theme => Storage().readString('theme', defaultValue: ThemeController().currentThemeName);
-  set theme(String value) {
-    Storage().write('theme', value);
-    notifyListeners();
+  Future<void> setReplaceTextSymbolsWithEmoji(bool value) async {
+    final result = _storage.setBool(SettingsKeys.replaceTextEmoji.name, value);
+    await result;
+    notify(SettingsKeys.replaceTextEmoji);
+    return result;
   }
 
-  String get language => Storage().readString('locale', defaultValue: 'en-us');
-  set language(String value) {
-    Storage().write('locale', value);
-    notifyListeners();
+  Future<bool> getLaunchAtStartup() async {
+    return (await _storage.getBool(SettingsKeys.autostartup.name)) ?? defaultValues[SettingsKeys.autostartup] as bool;
+  }
+
+  Future<void> setLaunchAtStartup(bool value) async {
+    final result = _storage.setBool(SettingsKeys.autostartup.name, value);
+    await result;
+    notify(SettingsKeys.autostartup);
+    return result;
+  }
+
+  Future<bool> getExitToTray() async {
+    return (await _storage.getBool(SettingsKeys.exitToTray.name)) ?? defaultValues[SettingsKeys.exitToTray] as bool;
+  }
+
+  Future<void> setExitToTray(bool value) async {
+    final result = _storage.setBool(SettingsKeys.exitToTray.name, value);
+    await result;
+    notify(SettingsKeys.exitToTray);
+    return result;
+  }
+
+  Future<String> getTheme() async {
+    return (await _storage.getString(SettingsKeys.theme.name)) ?? defaultValues[SettingsKeys.theme] as String;
+  }
+
+  Future<void> setTheme(String value) async {
+    final result = _storage.setString(SettingsKeys.theme.name, value);
+    await result;
+    notify(SettingsKeys.theme);
+    return result;
+  }
+
+  Future<String> getLanguage() async {
+    return (await _storage.getString(SettingsKeys.locale.name)) ?? defaultValues[SettingsKeys.locale] as String;
+  }
+
+  Future<void> setLanguage(String value) async {
+    final result = _storage.setString(SettingsKeys.locale.name, value);
+    await result;
+    notify(SettingsKeys.locale);
+    return result;
+  }
+
+  // Audio
+
+  Future<String> getMicrophonePreferredDevice() async {
+    return (await _storage.getString(SettingsKeys.microphonePreferredDevice.name)) ?? defaultValues[SettingsKeys.microphonePreferredDevice] as String;
+  }
+
+  Future<void> setMicrophonePreferredDevice(String value) async {
+    final result = _storage.setString(SettingsKeys.microphonePreferredDevice.name, value);
+    await result;
+    notify(SettingsKeys.microphonePreferredDevice);
+    return result;
+  }
+
+  Future<String> getSpeakerPreferredDevice() async {
+    return (await _storage.getString(SettingsKeys.speakerPreferredDevice.name)) ?? defaultValues[SettingsKeys.speakerPreferredDevice] as String;
+  }
+
+  Future<void> setSpeakerPreferredDevice(String value) async {
+    final result = _storage.setString(SettingsKeys.speakerPreferredDevice.name, value);
+    await result;
+    notify(SettingsKeys.speakerPreferredDevice);
+    return result;
+  }
+
+  Future<String> getCameraPreferredDevice() async {
+    return (await _storage.getString(SettingsKeys.cameraPreferredDevice.name)) ?? defaultValues[SettingsKeys.cameraPreferredDevice] as String;
+  }
+
+  Future<void> setCameraPreferredDevice(String value) async {
+    final result = _storage.setString(SettingsKeys.cameraPreferredDevice.name, value);
+    await result;
+    notify(SettingsKeys.cameraPreferredDevice);
+    return result;
+  }
+
+  Future<double> getMasterVolume() async {
+    return (await _storage.getDouble(SettingsKeys.masterVolume.name)) ?? defaultValues[SettingsKeys.masterVolume] as double;
+  }
+
+  Future<void> setMasterVolume(double value) async {
+    final result = _storage.setDouble(SettingsKeys.masterVolume.name, value);
+    await result;
+    notify(SettingsKeys.masterVolume);
+    return result;
   }
 
   // Notification settings
-  bool get playSoundOnIncomingMessage => Storage().readBoolean('playSoundOnIncomingMessage', defaultValue: true);
-  set playSoundOnIncomingMessage(bool value) {
-    Storage().write('playSoundOnIncomingMessage', value.toString());
-    notifyListeners();
+
+  Future<bool> getPlaySoundOnIncomingMessage() async {
+    return (await _storage.getBool(SettingsKeys.playSoundOnIncomingMessage.name)) ?? defaultValues[SettingsKeys.playSoundOnIncomingMessage] as bool;
   }
 
-  bool get playSoundOnOutgoingMessage => Storage().readBoolean('playSoundOnOutgoingMessage', defaultValue: true);
-  set playSoundOnOutgoingMessage(bool value) {
-    Storage().write('playSoundOnOutgoingMessage', value.toString());
-    notifyListeners();
+  Future<void> setPlaySoundOnIncomingMessage(bool value) async {
+    final result = _storage.setBool(SettingsKeys.playSoundOnIncomingMessage.name, value);
+    await result;
+    notify(SettingsKeys.playSoundOnIncomingMessage);
+    return result;
   }
 
-  bool get playSoundOnMention => Storage().readBoolean('playSoundOnMention', defaultValue: true);
-  set playSoundOnMention(bool value) {
-    Storage().write('playSoundOnMention', value.toString());
-    notifyListeners();
+  Future<bool> getPlaySoundOnOutgoingMessage() async {
+    return (await _storage.getBool(SettingsKeys.playSoundOnOutgoingMessage.name)) ?? defaultValues[SettingsKeys.playSoundOnOutgoingMessage] as bool;
   }
 
-  bool get playSoundOnError => Storage().readBoolean('playSoundOnError', defaultValue: true);
-  set playSoundOnError(bool value) {
-    Storage().write('playSoundOnError', value.toString());
-    notifyListeners();
+  Future<void> setPlaySoundOnOutgoingMessage(bool value) async {
+    final result = _storage.setBool(SettingsKeys.playSoundOnOutgoingMessage.name, value);
+    await result;
+    notify(SettingsKeys.playSoundOnOutgoingMessage);
+    return result;
   }
 
-  bool get showDesktopNotifications => Storage().readBoolean('showDesktopNotifications', defaultValue: true);
-  set showDesktopNotifications(bool value) {
-    Storage().write('showDesktopNotifications', value.toString());
-    notifyListeners();
+  Future<bool> getPlaySoundOnMention() async {
+    return (await _storage.getBool(SettingsKeys.playSoundOnMention.name)) ?? defaultValues[SettingsKeys.playSoundOnMention] as bool;
+  }
+
+  Future<void> setPlaySoundOnMention(bool value) async {
+    final result = _storage.setBool(SettingsKeys.playSoundOnMention.name, value);
+    await result;
+    notify(SettingsKeys.playSoundOnMention);
+    return result;
+  }
+
+  Future<bool> getPlaySoundOnError() async {
+    return (await _storage.getBool(SettingsKeys.playSoundOnError.name)) ?? defaultValues[SettingsKeys.playSoundOnError] as bool;
+  }
+
+  Future<void> setPlaySoundOnError(bool value) async {
+    final result = _storage.setBool(SettingsKeys.playSoundOnError.name, value);
+    await result;
+    notify(SettingsKeys.playSoundOnError);
+    return result;
+  }
+
+  Future<bool> getShowDesktopNotifications() async {
+    return (await _storage.getBool(SettingsKeys.showDesktopNotifications.name)) ?? defaultValues[SettingsKeys.showDesktopNotifications] as bool;
+  }
+
+  Future<void> setShowDesktopNotifications(bool value) async {
+    final result = _storage.setBool(SettingsKeys.showDesktopNotifications.name, value);
+    await result;
+    notify(SettingsKeys.showDesktopNotifications);
+    return result;
   }
 
   // Behaviour settings
-  bool get sendMessageOnEnter => Storage().readBoolean('sendMessageOnEnter', defaultValue: true);
-  set sendMessageOnEnter(bool value) {
-    Storage().write('sendMessageOnEnter', value.toString());
+  Future<bool> getSendMessageOnEnter() async {
+    return (await _storage.getBool(SettingsKeys.sendMessageOnEnter.name)) ?? defaultValues[SettingsKeys.sendMessageOnEnter] as bool;
+  }
+
+  Future<void> setSendMessageOnEnter(bool value) async {
+    final result = _storage.setBool(SettingsKeys.sendMessageOnEnter.name, value);
+    await result;
+    notify(SettingsKeys.sendMessageOnEnter);
+    return result;
+  }
+
+  Future<String> getMessageDateFormat() async {
+    return (await _storage.getString(SettingsKeys.messageDateFormat.name)) ?? defaultValues[SettingsKeys.messageDateFormat] as String;
+  }
+
+  Future<void> setMessageDateFormat(String value) async {
+    final result = _storage.setString(SettingsKeys.messageDateFormat.name, value);
+    await result;
+    notify(SettingsKeys.messageDateFormat);
+    return result;
+  }
+}
+
+class CachedPreference<TGet> extends ChangeNotifier {
+  final Future<TGet> Function() get;
+  CachedPreference({required SettingsKeys settingKey, required this.get}) {
+    SettingsPreferencesProvider().addPropertyListener(settingKey, notifyListeners);
     notifyListeners();
   }
 
-  String get messageDateFormat => Storage().readString('messageDateFormat', defaultValue: 'HH:mm');
-  set messageDateFormat(String value) {
-    Storage().write('messageDateFormat', value);
-    notifyListeners();
+  TGet? _value;
+  TGet? get value => _value;
+
+  @override
+  void dispose() {
+    SettingsPreferencesProvider().removePropertyListener(SettingsKeys.replaceTextEmoji, notifyListeners);
+    super.dispose();
+  }
+
+  @override
+  void notifyListeners() {
+    get().then((value) {
+      _value = value;
+      super.notifyListeners();
+    });
   }
 }
 

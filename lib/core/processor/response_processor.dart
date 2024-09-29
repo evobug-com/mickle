@@ -147,7 +147,7 @@ Future<void> handleResCreateChannelMessagePacket(ApiResponse<ResCreateChannelMes
     connection.packetManager.runResolve(packet.requestId!, packet);
 
     // If requestId is null, it means we didn't send the message, so it's incoming
-    if(SettingsProvider().playSoundOnOutgoingMessage) {
+    if(await SettingsPreferencesProvider().getPlaySoundOnOutgoingMessage()) {
       AudioManager.playSingleShot("Message", AssetSource("audio/new_message_sent.wav"));
     }
   }
@@ -161,19 +161,19 @@ Future<void> handleResCreateChannelMessagePacket(ApiResponse<ResCreateChannelMes
     _logger.info("Message added: ${packet.data!.message.content}");
 
     if (packet.data!.mentions != null && packet.data!.mentions!.contains(connection.currentUserId!)) {
-      if(SettingsProvider().playSoundOnMention) {
+      if(await SettingsPreferencesProvider().getPlaySoundOnMention()) {
         AudioManager.playSingleShot("Message", AssetSource("audio/mention.wav"));
       }
 
       final user = db.users.firstWhereOrNull((element) => element.id == packet.data!.message.user);
-      if (user != null && !await windowManager.isFocused() && SettingsProvider().showDesktopNotifications) {
+      if (user != null && !await windowManager.isFocused() && await SettingsPreferencesProvider().getShowDesktopNotifications()) {
         LocalNotification notification = LocalNotification(
           title: "Mention from ${user.displayName}",
           body: packet.data!.message.content,
         );
         notification.show();
       }
-    } else if(packet.requestId == null && SettingsProvider().playSoundOnOutgoingMessage) {
+    } else if(packet.requestId == null && await SettingsPreferencesProvider().getPlaySoundOnOutgoingMessage()) {
       AudioManager.playSingleShot("Message", AssetSource("audio/new_message_received.wav"));
     }
 

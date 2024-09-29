@@ -604,6 +604,7 @@ List<Map<String, String>> _parsePermissions(String content) {
   final lines = content.split('\n');
   String currentCategory = "";
   String currentDescription = "";
+  bool implemented = false;
   List<Map<String, String>> permissions = [];
 
   for (String line in lines) {
@@ -613,7 +614,15 @@ List<Map<String, String>> _parsePermissions(String content) {
       currentCategory = line.substring(5, line.length - 2).trim();
     } else if (line.startsWith('-- ')) {
       // This is a description
-      currentDescription = line.substring(3).split('|')[0].trim();
+      final args = line.substring(3).split('|');
+      currentDescription = args[0].trim();
+      if(args[1].trim() == "IMPLEMENTED") {
+        implemented = true;
+      } else if(args[1].trim() == "TODO: NOT IMPLEMENTED") {
+        implemented = false;
+      } else {
+        throw Exception("Invalid permission implementation status: ${args[1].trim()}");
+      }
     } else if (line.startsWith('CREATE permission:')) {
       // This is a permission
       String name = line.substring('CREATE permission:'.length, line.length - 1);
@@ -622,6 +631,7 @@ List<Map<String, String>> _parsePermissions(String content) {
         'category': currentCategory,
         'title': name.split('_').map((word) => word.capitalize()).join(' '),
         'description': currentDescription,
+        'implemented': implemented.toString()
       });
       currentDescription = ""; // Reset description for next permission
     }
@@ -644,6 +654,7 @@ String _generatePermissionsFile(List<Map<String, String>> permissions) {
     buffer.writeln("    \"${permission['name']}\",");
     buffer.writeln("    \"${permission['title']}\",");
     buffer.writeln("    \"${permission['description']}\",");
+    buffer.writeln("    ${permission['implemented']},");
     buffer.writeln("  ),");
   }
 

@@ -88,7 +88,7 @@ class _AppearanceSettingsTabState extends State<AppearanceSettingsTab> {
                       child: TextButton.icon(
                         onPressed: () {
                           ThemeController.of(context, listen: false).setTheme(_selectedTheme);
-                          SettingsProvider().theme = ThemeController.of(context, listen: false).currentThemeName;
+                          SettingsPreferencesProvider().setTheme(ThemeController.of(context, listen: false).currentThemeName);
                         },
                         icon: const Icon(Icons.check, size: 18),
                         label: const Text('Apply Theme'),

@@ -84,7 +84,7 @@ class _SettingsScreenState extends State<SettingsScreen> with TickerProviderStat
                 if (!isSearching) ...[
                   Expanded(
                     child: ListenableBuilder(
-                      listenable: SettingsProvider(),
+                      listenable: SettingsPreferencesProvider(),
                       builder: (context, child) {
                         return ClipRect(
                           clipBehavior: Clip.antiAlias,

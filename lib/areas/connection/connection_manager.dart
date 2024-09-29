@@ -1,7 +1,7 @@
 // # Connection Manager
 //
 // The Connection Manager is responsible for handling multiple WebSocket connections
-// in the Talk application. It provides an interface for creating, managing, and
+// in the Mickle application. It provides an interface for creating, managing, and
 // closing connections, as well as reconnecting. Each server is identified by hostname or IP address and port.
 //
 // On successful connection, the connection status is set to connected and
@@ -19,6 +19,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:mickle/areas/connection/connection_tofu.dart';
+import 'package:mickle/core/storage/data/endpoint.dart';
+import 'package:mickle/core/storage/preferences.dart';
 import 'package:mickle/core/storage/secure_storage.dart';
 
 import '../security/security_provider.dart';
@@ -75,22 +77,22 @@ class ConnectionManager extends ChangeNotifier {
           connection.isReconnectEnabled = false;
           connection.disconnect();
 
-          SecurityWarningsProvider().addWarning(
-              SecurityWarning(
-                  connectionUrl,
-                  "The $connectionUrl's identity has changed. This could indicate a security risk.\n\nExpected:\n${await TOFUService.getStoredPublicKey(connectionUrl)}\nActual:\n${serverPublicKey.data!.publicKey}\n\nPlease verify the server's identity and contact the server administrator if necessary. If you are sure this is the correct server, you can proceed.\nIf you are not sure, this means that there is a security risk and you are probably connecting to a different server than you think.",
-                  onProceed: (warning) async {
-                    await TOFUService.resetStoredData(warning.connectionUrl);
-                    SecurityWarningsProvider().removeWarning(warning.connectionUrl);
-                    await connection.connect();
-                    connection.isReconnectEnabled = true;
-                    completion.complete(connection);
-                  },
-                  onDismiss: (warning) {
-                    SecurityWarningsProvider().removeWarning(warning.connectionUrl);
-                  }
-              )
-          );
+          // SecurityWarningsProvider().addWarning(
+          //     SecurityWarning(
+          //         connectionUrl,
+          //         "The $connectionUrl's identity has changed. This could indicate a security risk.\n\nExpected:\n${await TOFUService.getStoredPublicKey(connectionUrl)}\nActual:\n${serverPublicKey.data!.publicKey}\n\nPlease verify the server's identity and contact the server administrator if necessary. If you are sure this is the correct server, you can proceed.\nIf you are not sure, this means that there is a security risk and you are probably connecting to a different server than you think.",
+          //         onProceed: (warning) async {
+          //           await TOFUService.resetStoredData(warning.connectionUrl);
+          //           SecurityWarningsProvider().removeWarning(warning.connectionUrl);
+          //           await connection.connect();
+          //           connection.isReconnectEnabled = true;
+          //           completion.complete(connection);
+          //         },
+          //         onDismiss: (warning) {
+          //           SecurityWarningsProvider().removeWarning(warning.connectionUrl);
+          //         }
+          //     )
+          // );
 
           scheduledCompletion = true;
         }
@@ -116,12 +118,15 @@ class ConnectionManager extends ChangeNotifier {
     connection.isReconnectEnabled = false;
     await connection.disconnect();
     _connections.remove(connection.connectionUrl);
-    await SecureStorage().delete("${connection.connectionUrl}.token");
-    await SecureStorage().delete("${connection.connectionUrl}.serverId");
-    await SecureStorage().delete("${connection.connectionUrl}.connectionUrl");
-    final endpoints = await SecureStorage().readJSONArray("endpoints");
-    endpoints.remove(connection.connectionUrl);
-    await SecureStorage().writeJSONArray("endpoints", endpoints);
+
+    // Remove endpoint
+    final endpoints = await Preferences.getEndpoints();
+    endpoints.removeWhere((element) => element == connection.connectionUrl);
+    await Preferences.setEndpoints(endpoints);
+
+    // Remove EndpointData
+    await Preferences.removeEndpoint(connection.connectionUrl);
+
     notifyListeners();
   }
 
@@ -130,15 +135,22 @@ class ConnectionManager extends ChangeNotifier {
       throw ConnectionError.fromException('Connection token or main server ID is null');
     }
 
-    await SecureStorage().write("${connection.connectionUrl}.token", connection.token!);
-    await SecureStorage().write("${connection.connectionUrl}.serverId", connection.mainServerId!);
-    await SecureStorage().write("${connection.connectionUrl}.connectionUrl", connection.connectionUrl);
-    final endpoints = await SecureStorage().readJSONArray("endpoints");
+    // Create endpoint data
+    final endpoint = PreferenceEndpoint(
+      connectionUrl: connection.connectionUrl,
+      token: connection.token!,
+      serverName: connection.mainServer?.name ?? '',
+      username: connection.currentUser?.username ?? '',
+    );
+
+    await Preferences.setEndpoint(connection.connectionUrl, endpoint);
+
+    // Add endpoint to list
+    final endpoints = await Preferences.getEndpoints();
     if (!endpoints.contains(connection.connectionUrl)) {
       endpoints.add(connection.connectionUrl);
-      await SecureStorage().writeJSONArray("endpoints", endpoints);
     }
-
+    await Preferences.setEndpoints(endpoints);
     return true;
   }
 
@@ -172,14 +184,14 @@ class ConnectionManager extends ChangeNotifier {
       _logger.info('Connection(${connection.connectionUrl}) reconnected');
       connection.isReconnectEnabled = false;
 
-      final token = await getToken(connection.connectionUrl);
-      if(token == null) {
+      final endpoint = await Preferences.getEndpoint(connection.connectionUrl);
+      if(endpoint == null || endpoint.token.isEmpty) {
         _logger.warning('Connection(${connection.connectionUrl}) token not found');
         // TODO: Require re-authentication, notify user somehow
         return;
       }
 
-      await connection.authenticate(username: null, password: null, token: token);
+      await connection.authenticate(username: null, password: null, token: endpoint.token);
       if(connection.error != null) {
         _logger.warning('Connection(${connection
             .connectionUrl}) re-authentication failed: ${connection.error}');
@@ -200,10 +212,6 @@ class ConnectionManager extends ChangeNotifier {
         _scheduleReconnect(connection);
       }
     }
-  }
-
-  Future<String?> getToken(String connectionUrl) async {
-    return await SecureStorage().read("$connectionUrl.token");
   }
 
   @override

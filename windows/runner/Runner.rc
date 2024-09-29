@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "SIOCOM" "\0"
-            VALUE "FileDescription", "Talk" "\0"
+            VALUE "FileDescription", "Mickle" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "Talk" "\0"
+            VALUE "InternalName", "Mickle" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2024 SIOCOM. All rights reserved." "\0"
             VALUE "OriginalFilename", "mickle.exe" "\0"
-            VALUE "ProductName", "Talk" "\0"
+            VALUE "ProductName", "Mickle" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

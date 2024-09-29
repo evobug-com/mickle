@@ -137,7 +137,7 @@ class AutoUpdater {
       ReleaseInfo? latestReleaseInfo;
       SemVer? latestVersion;
 
-      latestReleaseInfo = await _fetchLatestReleaseInfo(Preferences.updateChannel);
+      latestReleaseInfo = await _fetchLatestReleaseInfo(await Preferences.getUpdateChannel());
       latestVersion = SemVer.fromString(latestReleaseInfo.version);
 
       if (latestVersion > currentVersion) {

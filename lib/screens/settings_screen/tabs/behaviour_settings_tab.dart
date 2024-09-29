@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:mickle/areas/utilities/elevation.dart';
+import 'package:mickle/core/storage/preferences.dart';
 import 'package:mickle/core/theme/theme_controller.dart';
 import 'package:mickle/ui/text_field_list_tile.dart';
 import 'package:mickle/areas/utilities/debouncer.dart';
@@ -22,19 +23,25 @@ class BehaviourSettingsTab extends StatefulWidget {
 }
 
 class _BehaviourSettingsTabState extends State<BehaviourSettingsTab> {
-  late final TextEditingController _dateFormatController;
+  final TextEditingController _dateFormatController = TextEditingController();
   final _dateFormatDebounce = Debouncer(delay: const Duration(seconds: 2));
 
   @override
   void initState() {
     super.initState();
-    _dateFormatController = TextEditingController(text: SettingsProvider().messageDateFormat);
+    init();
+  }
+
+  void init() async {
+    _dateFormatController.text = await SettingsPreferencesProvider().getMessageDateFormat();
     _dateFormatController.addListener(_onDateFormatChanged);
   }
 
   void _onDateFormatChanged() {
     _dateFormatDebounce.run(() {
-      SettingsProvider().messageDateFormat = _dateFormatController.text;
+      setState(() {
+        SettingsPreferencesProvider().setMessageDateFormat(_dateFormatController.text);
+      });
     });
   }
 
@@ -82,55 +89,62 @@ class _BehaviourSettingsTabState extends State<BehaviourSettingsTab> {
   }
 
   Widget _buildAutostartup(Map<String, SettingItem> items) {
-    return FutureBuilder<bool>(
-      future: launchAtStartup.isEnabled(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          // Data is loaded, show the actual SwitchListTile
-          return Highlightable(
-            highlight: widget.settingsTabController.item == items['behaviour-autostartup']!.key,
-            child: SwitchListTile(
-              key: items['behaviour-autostartup']!.keyRef,
-              title: Text(items['behaviour-autostartup']!.name),
-              subtitle: const Text('Automatically start Mickle when your system boots up'),
-              value: snapshot.data!,
-              onChanged: (value) {
-                if (value) {
-                  launchAtStartup.enable().then((_) {
-                    SettingsProvider().launchAtStartup = true;
-                  }).catchError((error) {
-                    _showErrorNotification(context, 'Error enabling autostartup', error.toString());
-                  });
-                } else {
-                  launchAtStartup.disable().then((_) {
-                    SettingsProvider().launchAtStartup = false;
-                  }).catchError((error) {
-                    _showErrorNotification(context, 'Error disabling autostartup', error.toString());
-                  });
-                }
-              },
-            ),
-          );
-        } else if (snapshot.hasError) {
-          // Handle error state
-          return ListTile(
-            title: const Text('Error loading autostartup setting'),
-            subtitle: Text('${snapshot.error}'),
-          );
-        } else {
-          // While loading, show a disabled SwitchListTile
-          return Highlightable(
-            highlight: widget.settingsTabController.item == items['behaviour-autostartup']!.key,
-            child: SwitchListTile(
-              key: items['behaviour-autostartup']!.keyRef,
-              title: Text(items['behaviour-autostartup']!.name),
-              subtitle: const Text('Loading...'),
-              value: false,
-              onChanged: null, // Disable the switch
-            ),
-          );
-        }
-      },
+    return PreferenceProvider(
+      get: SettingsPreferencesProvider().getLaunchAtStartup,
+      set: SettingsPreferencesProvider().setLaunchAtStartup,
+      setState: setState,
+      builder: (context, value, setValue) {
+        return FutureBuilder<bool>(
+          future: launchAtStartup.isEnabled(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              // Data is loaded, show the actual SwitchListTile
+              return Highlightable(
+                highlight: widget.settingsTabController.item == items['behaviour-autostartup']!.key,
+                child: SwitchListTile(
+                  key: items['behaviour-autostartup']!.keyRef,
+                  title: Text(items['behaviour-autostartup']!.name),
+                  subtitle: const Text('Automatically start Mickle when your system boots up'),
+                  value: snapshot.data!,
+                  onChanged: (value) {
+                    if (value) {
+                      launchAtStartup.enable().then((_) {
+                        setValue(true);
+                      }).catchError((error) {
+                        _showErrorNotification(context, 'Error enabling autostartup', error.toString());
+                      });
+                    } else {
+                      launchAtStartup.disable().then((_) {
+                        setValue(false);
+                      }).catchError((error) {
+                        _showErrorNotification(context, 'Error disabling autostartup', error.toString());
+                      });
+                    }
+                  },
+                ),
+              );
+            } else if (snapshot.hasError) {
+              // Handle error state
+              return ListTile(
+                title: const Text('Error loading autostartup setting'),
+                subtitle: Text('${snapshot.error}'),
+              );
+            } else {
+              // While loading, show a disabled SwitchListTile
+              return Highlightable(
+                highlight: widget.settingsTabController.item == items['behaviour-autostartup']!.key,
+                child: SwitchListTile(
+                  key: items['behaviour-autostartup']!.keyRef,
+                  title: Text(items['behaviour-autostartup']!.name),
+                  subtitle: const Text('Loading...'),
+                  value: false,
+                  onChanged: null, // Disable the switch
+                ),
+              );
+            }
+          },
+        );
+      }
     );
   }
 
@@ -145,45 +159,52 @@ class _BehaviourSettingsTabState extends State<BehaviourSettingsTab> {
   }
 
   Widget _buildExitToTray(Map<String, SettingItem> items) {
-    return Highlightable(
-      highlight: widget.settingsTabController.item == items['behaviour-exit-to-tray']!.key,
-      child:
-      // buildSettingSwitchOption(
-      //   context: context,
-      //   title: items['behaviour-exit-to-tray']!.name,
-      //   description: 'Keep Mickle running in the background when you close the window',
-      //   icon: Icons.minimize,
-      //   value: SettingsProvider().exitToTray,
-      //   onChanged: (value) {
-      //     SettingsProvider().exitToTray = value;
-      //   }
-      // )
-      SwitchListTile(
-        key: items['behaviour-exit-to-tray']!.keyRef,
-        title: Text(items['behaviour-exit-to-tray']!.name),
-        subtitle: const Text('Keep Mickle running in the background when you close the window'),
-        value: SettingsProvider().exitToTray,
-        onChanged: (value) {
-          // Save exit to tray to settings
-          SettingsProvider().exitToTray = value;
-        },
-      ),
+    return PreferenceProvider(
+      get: SettingsPreferencesProvider().getExitToTray,
+      set: SettingsPreferencesProvider().setExitToTray,
+      setState: setState,
+      builder: (context, value, setValue) {
+        return Highlightable(
+          highlight: widget.settingsTabController.item == items['behaviour-exit-to-tray']!.key,
+          child:
+          // buildSettingSwitchOption(
+          //   context: context,
+          //   title: items['behaviour-exit-to-tray']!.name,
+          //   description: 'Keep Mickle running in the background when you close the window',
+          //   icon: Icons.minimize,
+          //   value: SettingsProvider().exitToTray,
+          //   onChanged: (value) {
+          //     SettingsProvider().exitToTray = value;
+          //   }
+          // )
+          SwitchListTile(
+            key: items['behaviour-exit-to-tray']!.keyRef,
+            title: Text(items['behaviour-exit-to-tray']!.name),
+            subtitle: const Text('Keep Mickle running in the background when you close the window'),
+            value: value,
+            onChanged: setValue
+          ),
+        );
+      }
     );
   }
 
   Widget _buildSendMessageOnEnterTile(Map<String, SettingItem> items) {
-    return Highlightable(
-      highlight: widget.settingsTabController.item == items['behaviour-send-message-on-enter']!.key,
-      child: SwitchListTile(
-        title: Text(items['behaviour-send-message-on-enter']!.name),
-        subtitle: const Text('When enabled, pressing Enter will send the message. When disabled, use Shift+Enter to send.'),
-        value: SettingsProvider().sendMessageOnEnter,
-        onChanged: (value) {
-          setState(() {
-            SettingsProvider().sendMessageOnEnter = value;
-          });
-        },
-      ),
+    return PreferenceProvider(
+      get: SettingsPreferencesProvider().getSendMessageOnEnter,
+      set: SettingsPreferencesProvider().setSendMessageOnEnter,
+      setState: setState,
+      builder: (context, value, setValue) {
+        return Highlightable(
+          highlight: widget.settingsTabController.item == items['behaviour-send-message-on-enter']!.key,
+          child: SwitchListTile(
+            title: Text(items['behaviour-send-message-on-enter']!.name),
+            subtitle: const Text('When enabled, pressing Enter will send the message. When disabled, use Shift+Enter to send.'),
+            value: value,
+            onChanged: setValue,
+          ),
+        );
+      }
     );
   }
 

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:local_notifier/local_notifier.dart';
 import 'package:logging/logging.dart';
+import 'package:mickle/screens/settings_screen/settings_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:mickle/components/channel_list/core/models/channel_list_selected_room.dart';
 import 'package:mickle/components/voice_room/core/models/voice_room_current.dart';
@@ -30,13 +31,16 @@ Future<void> main() async {
   // Configure logging
   _configureLogging();
 
+  // Initialize storage and load settings
+  await _initializeStorage();
+
   // Ensure necessary initializations
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
   AudioManager.ensureInitialized();
 
-  // Initialize storage and load settings
-  await _initializeStorage();
+  // Initialize settings
+  await _initializeSettings();
 
   // Check for updates
   final updateInfo = await _checkForUpdates();
@@ -138,23 +142,21 @@ _initializeLocalNotifier() async {
 
 _initializeStorage() async {
   _logger.fine("Initializing storage");
-  await SecureStorage.init();
   await Storage.init();
+  await SecureStorage.init();
+}
 
-  final masterVolume = Storage().read('masterVolume');
-  if(masterVolume != null) {
-    AudioManager().masterVolume.value = double.parse(masterVolume);
-  }
+_initializeSettings() async {
+  _logger.fine("Initializing settings");
+
+  final masterVolume = await SettingsPreferencesProvider().getMasterVolume();
+  AudioManager().masterVolume.value = masterVolume;
 }
 
 Future<ThemeData> _loadThemeFromStorage() async {
   // Load the theme from storage
-  final scheme = Storage().read('theme');
-  if(scheme != null) {
-    return ThemeController.themes.firstWhere((element) => element.name == scheme).value;
-  }
-
-  return ThemeController.themes.firstWhere((theme) => theme.name == "Dark").value;
+  final theme = await SettingsPreferencesProvider().getTheme();
+  return ThemeController.themes.firstWhere((element) => element.name == theme).value;
 }
 
 _configureErrorHandling() {

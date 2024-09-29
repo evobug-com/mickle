@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:mickle/core/storage/preferences.dart';
 import 'package:mickle/ui/dropdown_llist_tile.dart';
 
 import '../../../core/managers/audio_manager.dart';
@@ -67,18 +68,25 @@ class _AudioSettingsTabState extends State<AudioSettingsTab> {
 
             final defaultMicrophone = snapshot.data!.firstWhere((element) => element.isDefault);
 
-            return DropdownListTile(
-              title: 'Microphone',
-              key: const Key('audio-microphone'),
-              value: SettingsProvider().microphoneDevice ?? defaultMicrophone.id,
-              items: snapshot.data!.map((device) {
-                return DropdownMenuItem<String>(
-                  value: device.id,
-                  child: Text(device.name),
+            return PreferenceProvider(
+              get: SettingsPreferencesProvider().getMicrophonePreferredDevice,
+              set: SettingsPreferencesProvider().setMicrophonePreferredDevice,
+              setState: setState,
+              builder: (context, preferredDevice, setPreferredDevice) {
+                return DropdownListTile(
+                  title: 'Microphone',
+                  key: const Key('audio-microphone'),
+                  value: preferredDevice.isEmpty ? 'automatic' : preferredDevice,
+                  items: [...snapshot.data!, Device("automatic", "Automatic", false)].map((device) {
+                    return DropdownMenuItem<String>(
+                      value: device.id,
+                      child: Text(device.name),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setPreferredDevice(value ?? defaultMicrophone.id ?? '');
+                  },
                 );
-              }).toList(),
-              onChanged: (value) {
-                // Save microphone device to settings
               },
             );
           }
