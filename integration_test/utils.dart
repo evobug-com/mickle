@@ -70,7 +70,9 @@ Future<void> pumpUntilFound(
 }
 
 Future<MultiProvider Function()> initTestEnvironment() async {
+  // Ensure necessary initializations
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize app core before running tests.
   initializeStorage(prefix: KEY_PREFIX);
