@@ -26,7 +26,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          channel: main
           cache: true
           # optional parameters follow
           cache-key: "flutter-:os:-:channel:-:version:-:arch:" # optional, change this to force refresh cache
@@ -49,7 +49,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          channel: main
           cache: true
           # optional parameters follow
           cache-key: "flutter-:os:-:channel:-:version:-:arch:" # optional, change this to force refresh cache
