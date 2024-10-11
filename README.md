@@ -1,37 +1,148 @@
-# Mickle — The Next-Gen Communication Platform
+# Mickle
 
-Welcome to the Mickle project, an innovative communication application designed to be a superior alternative to Discord, Guilded, and TeamSpeak 5. Talk aims to address the shortcomings of these platforms by offering a comprehensive, low-resource, and self-hosted communication solution that encompasses advanced features for voice and video calls, chat, and group management.
+Mickle is a next-generation chat application that allows you to communicate securely and privately with friends, family, and co-workers. Built with Flutter, it offers a cross-platform experience with a focus on security, privacy, and user-friendly features.
 
-Actually, this project is maintained by Czech people and it's not a commercial project. We are developing this project for fun and to learn new things. A lot of resources are written in Czech language, but we are trying to translate them to English.
+## Features
 
-We plan to monetize the project by offering premium features, such as server hosting, premium support, security, and other services. However, the ALL functionality of Mickle will always be free and open-source for everyone to use.
+- Secure and private messaging
+- Multi-server support
+- Voice chat capabilities
+- Customizable user interface
+- Cross-platform support (Windows, macOS, Linux, Android, iOS)
+- Automatic updates
+- Rich text formatting and emoji support
+- Localization support
+- Tray icon and window management
+- Launch at startup option
+- Local notifications
+- Connectivity status monitoring
+- Encrypted shared preferences for secure storage
 
-## Key Features
+## Installation
 
-This list is a subject to change as the project progresses. The following features are planned for the 1.0 release:
+### Prerequisites
 
-- **Low Resource Consumption**: Minimal CPU and RAM usage.
-- **High-Quality Audio and Video**: Support for XLR microphones, high-quality sound and video with low latency.
-- **Secure Communication**: AES encryption and each server has a unique encryption key.
-- **Self-Hosted**: Users can run their servers.
-- **Advanced User and Group Management**: Permissions system, password-protected rooms, and customizable user roles.
-- **Extensive Communication Features**:
-    - Text chat, voice and video calls.
-    - Fully formatted messages using custom built-in editor.
-    - Multi-device output for audio.
-- **Rich Interaction Tools**:
-    - Forums, event system, notifications for events and new posts.
-    - Voice activity detection, sound adjustments for individual users.
-    - Custom emojis and a versatile notification system.
-- **Compatibility and Integration**:
-    - Compatibility with older client versions.
-    - Potential integration with OBS Studio and other applications.
-- **File Management and Data Transfer**: Nearly no limit on the size of messages or uploaded files, utilizing HEVC (x265) codecs and SRT protocol.
+- Flutter SDK (version 3.3.2 or higher)
+- Dart SDK (version 3.3.2 or higher)
 
-## Why Mickle?
+### Development Environment Setup
 
-### Problems with Current Platforms
-- **Discord**: Crashes, performance issues, features behind a paywall.
-- **Guilded**: Cluttered interface, lacks webcam support for voice calls, high latency.
-- **TeamSpeak 5**: Underdeveloped, lacking features, and uncertain future.
-- Note: Both Discord and Guilded use Electron which leads to high resource usage.
+1. Clone the repository:
+   ```
+   git clone https://github.com/yourusername/mickle.git
+   ```
+2. Navigate to the project directory:
+   ```
+   cd mickle
+   ```
+3. Install dependencies:
+   ```
+   flutter pub get
+   ```
+4. Run the app in debug mode:
+   ```
+   flutter run
+   ```
+
+## Project Structure
+
+- `lib/`: Contains the main Dart source code
+  - `areas/`: Core functionality areas (e.g., connection, security)
+  - `components/`: Reusable UI components
+  - `core/`: Core application logic and utilities
+  - `generated/`: Generated localization files
+  - `l10n/`: Localization resources
+  - `layout/`: Layout-related widgets
+  - `screens/`: Main application screens
+  - `ui/`: Custom UI widgets
+- `assets/`: Contains static assets (images, audio, scripts)
+- `test/`: Unit and widget tests
+- `integration_test/`: Integration tests
+- `windows/`, `macos/`, `linux/`, `android/`, `ios/`: Platform-specific code
+
+## Key Dependencies
+
+- `go_router`: For application routing
+- `audioplayers`: For audio playback
+- `tray_manager` and `window_manager`: For system tray and window management
+- `connectivity_plus`: For network connectivity monitoring
+- `encrypt_shared_preferences`: For secure local storage
+- `provider`: For state management
+- `freezed`: For code generation of data classes
+- `bot_toast`: For toast notifications
+- `flutter_animate`: For animations
+- `emoji_picker_flutter`: For emoji support
+- `flutter_markdown`: For markdown rendering
+
+For a complete list of dependencies, refer to the `pubspec.yaml` file.
+
+## Building and Running
+
+### Debug Mode
+
+To run the app in debug mode:
+
+```
+flutter run
+```
+
+### Release Mode
+
+To build the application for different platforms in release mode:
+
+- Windows:
+  ```
+  flutter build windows
+  ```
+- macOS:
+  ```
+  flutter build macos
+  ```
+- Linux:
+  ```
+  flutter build linux
+  ```
+- Android:
+  ```
+  flutter build apk
+  ```
+- iOS:
+  ```
+  flutter build ios
+  ```
+
+## Testing
+
+To run the tests, use the following commands:
+
+- Unit and widget tests:
+  ```
+  flutter test
+  ```
+- Integration tests:
+  ```
+  flutter test integration_test
+  ```
+
+## Contributing
+
+Contributions to Mickle are welcome! Here are some ways you can contribute:
+
+1. Report bugs or suggest features by opening issues.
+2. Submit pull requests for bug fixes or new features.
+3. Improve documentation or add translations.
+
+Please ensure that your code adheres to the project's coding standards and includes appropriate tests.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Contact
+
+- GitHub: [sionzee](https://github.com/sionzee)
+- Email: [mickle.support@evobug.com](mailto:mickle.support@evobug.com)
+- Website: https://evobug.com
+- Twitter: [@MickleApp](https://twitter.com/MickleApp)
+
+For more information about the project roadmap, visit: https://roadmap.siocom.dev/
