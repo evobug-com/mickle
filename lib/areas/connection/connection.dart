@@ -166,7 +166,7 @@ class Connection {
     _status.value = ConnectionStatus.authenticated;
 
     // Update entrypoint data with the new data
-    var entrypointData = await Preferences.getEndpoint(connectionUrl)!;
+    var entrypointData = await Preferences.getEndpoint(connectionUrl);
     entrypointData = entrypointData!.copyWith(
       username: currentUser!.username,
       serverName: mainServer!.name,

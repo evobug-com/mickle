@@ -21,9 +21,7 @@ import 'package:logging/logging.dart';
 import 'package:mickle/areas/connection/connection_tofu.dart';
 import 'package:mickle/core/storage/data/endpoint.dart';
 import 'package:mickle/core/storage/preferences.dart';
-import 'package:mickle/core/storage/secure_storage.dart';
 
-import '../security/security_provider.dart';
 import 'connection.dart';
 import 'connection_error.dart';
 import 'connection_status.dart';

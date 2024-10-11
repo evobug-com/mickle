@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mickle/core/storage/secure_storage.dart';
 
 import 'data/endpoint.dart';

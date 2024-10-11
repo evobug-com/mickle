@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:intl/intl.dart';
-import 'package:mickle/components/context_menu/core/utils/extensions.dart';
 import 'package:mickle/core/models/models.dart' as models;
 import 'package:mickle/core/providers/scoped/connection_provider.dart';
 import 'package:mickle/screens/settings_screen/settings_provider.dart';

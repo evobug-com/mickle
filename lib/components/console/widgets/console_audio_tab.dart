@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mickle/screens/settings_screen/settings_provider.dart';
 
 import '../../../core/managers/audio_manager.dart';
-import '../../../core/storage/storage.dart';
 
 class ConsoleAudioTab extends StatefulWidget {
   const ConsoleAudioTab({super.key});

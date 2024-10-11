@@ -10,7 +10,6 @@ import 'package:mickle/layout/my_scaffold.dart';
 import '../areas/connection/connection_manager.dart';
 import '../areas/connection/connection_status.dart';
 import '../core/storage/preferences.dart';
-import '../core/storage/secure_storage.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
