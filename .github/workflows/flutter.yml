@@ -60,5 +60,11 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Run prebuild
+        run: dart run prebuild.dart
+
+      - name: Run build_runner
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
       - name: Run integration tests
         run: flutter test -r github -d windows integration_test

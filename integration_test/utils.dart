@@ -104,7 +104,7 @@ Future<MultiProvider Function()> initTestEnvironment() async {
   // Initialize lunch at startup
   launchAtStartup.setup(
     appName: appName,
-    packageName: 'SIOCOM',
+    packageName: 'EVOBUG',
     appPath: Platform.resolvedExecutable,
   );
 

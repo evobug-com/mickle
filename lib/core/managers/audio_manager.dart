@@ -40,7 +40,7 @@ class _AudioPlatform {
   static late MethodChannel audioManagerPlatform;
 
   void ensureInitialized() {
-    audioManagerPlatform = const MethodChannel('siocom.mickle/audio_manager');
+    audioManagerPlatform = const MethodChannel('evobug.mickle/audio_manager');
   }
 
   static Future<List<Device>> getInputDevices() async {

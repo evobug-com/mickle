@@ -34,7 +34,7 @@ bool FlutterWindow::OnCreate() {
   // Audio Manager
     auto audio_manager_channel =
     std::make_shared<flutter::MethodChannel<>>(
-        flutter_controller_->engine()->messenger(), "siocom.mickle/audio_manager",
+        flutter_controller_->engine()->messenger(), "evobug.mickle/audio_manager",
         &flutter::StandardMethodCodec::GetInstance());
 
   audio_manager_channel->SetMethodCallHandler(

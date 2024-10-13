@@ -5,6 +5,10 @@ release/
 keylog.txt
 release.ps1
 
+# Claude Sync
+.claudeignore
+.claudesync/
+
 # Miscellaneous
 *.class
 *.log

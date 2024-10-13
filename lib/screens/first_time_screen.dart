@@ -260,6 +260,7 @@ class _WelcomeStep extends StatelessWidget {
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
               color: colorScheme.onSurface.withOpacity(0.7),
+              
             ),
           ).animate().fadeIn(delay: 600.ms, duration: 600.ms).slide(),
         ],

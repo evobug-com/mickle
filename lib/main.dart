@@ -75,7 +75,7 @@ Future<void> main() async {
   // Initialize lunch at startup
   launchAtStartup.setup(
     appName: appName,
-    packageName: 'SIOCOM',
+    packageName: 'evobug',
     appPath: Platform.resolvedExecutable,
   );
 
