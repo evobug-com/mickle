@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mickle/screens/settings_screen/settings_provider.dart';
 
-import '../../../core/audio/audio_manager.dart';
-import '../../../core/storage/storage.dart';
+import '../../../core/managers/audio_manager.dart';
 
 class ConsoleAudioTab extends StatefulWidget {
   const ConsoleAudioTab({super.key});
@@ -30,7 +30,7 @@ class ConsoleAudioTabState extends State<ConsoleAudioTab> {
                           value: audioManager.masterVolume.value,
                           onChanged: (value) {
                             audioManager.masterVolume.value = value;
-                            Storage().write("masterVolume", value.toString());
+                            SettingsPreferencesProvider().setMasterVolume(value);
                           },
                           max: 1.0,
                           min: 0.0,

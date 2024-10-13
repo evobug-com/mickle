@@ -6,21 +6,24 @@ import 'package:flutter/material.dart';
 import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:local_notifier/local_notifier.dart';
 import 'package:logging/logging.dart';
+import 'package:mickle/screens/settings_screen/settings_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:talk/components/voice_room/core/models/voice_room_current.dart';
-import 'package:talk/core/audio/audio_manager.dart';
-import 'package:talk/core/connection/client_manager.dart';
-import 'package:talk/core/storage/secure_storage.dart';
+import 'package:mickle/components/channel_list/core/models/channel_list_selected_room.dart';
+import 'package:mickle/components/voice_room/core/models/voice_room_current.dart';
+import 'package:mickle/core/managers/audio_manager.dart';
+import 'package:mickle/core/providers/global/selected_server_provider.dart';
+import 'package:mickle/core/storage/secure_storage.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart' hide WindowCaption, kWindowCaptionHeight;
 
+import 'areas/security/security_provider.dart';
 import 'components/console/widgets/console_errors_tab.dart';
-import 'core/notifiers/current_client_provider.dart';
-import 'core/notifiers/theme_controller.dart';
+import 'core/autoupdater/autoupdater.dart';
+import 'core/theme/theme_controller.dart';
+import 'core/providers/global/update_provider.dart';
 import 'core/storage/storage.dart';
 import 'core/version.dart';
 import 'layout/app_widget.dart';
-import 'utils.dart';
 
 final _logger = Logger('Main');
 
@@ -28,10 +31,19 @@ Future<void> main() async {
   // Configure logging
   _configureLogging();
 
+  // Initialize storage and load settings
+  await initializeStorage(prefix: "");
+
   // Ensure necessary initializations
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
   AudioManager.ensureInitialized();
+
+  // Initialize settings
+  await initializeSettings();
+
+  // Check for updates
+  final updateInfo = await _checkForUpdates();
 
   // Initialize window options
   WindowOptions windowOptions = const WindowOptions(
@@ -44,10 +56,8 @@ Future<void> main() async {
     windowButtonVisibility: false,
   );
 
-  updateWindowStyle();
-
   // Wait until the window is ready to show
-  windowManager.waitUntilReadyToShow(windowOptions, () async {
+  await windowManager.waitUntilReadyToShow(windowOptions, () async {
     await windowManager.setPreventClose(true);
     await windowManager.show();
     await windowManager.focus();
@@ -59,16 +69,13 @@ Future<void> main() async {
   // Initialize Notifications
   await _initializeLocalNotifier();
 
-  // Initialize storage and load settings
-  await _initializeStorage();
-
   // Handle Flutter errors
   _configureErrorHandling();
 
   // Initialize lunch at startup
   launchAtStartup.setup(
     appName: appName,
-    packageName: 'SIOCOM',
+    packageName: 'evobug',
     appPath: Platform.resolvedExecutable,
   );
 
@@ -78,10 +85,16 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: [
+
+        // Deprecated below
         ChangeNotifierProvider(create: (context) => ThemeController(theme: theme), lazy: false),
-        ChangeNotifierProvider(create: (context) => ClientManager(), lazy: false),
-        ChangeNotifierProvider(create: (context) => CurrentClientProvider(), lazy: false),
-        ChangeNotifierProvider(create: (context) => VoiceRoomCurrent())
+        ChangeNotifierProvider(create: (context) => VoiceRoomCurrent()),
+        ChangeNotifierProvider(create: (context) => ChannelListSelectedChannel()),
+        ChangeNotifierProvider(create: (context) => UpdateProvider(updateInfo: updateInfo)),
+
+        // Global providers
+        ChangeNotifierProvider(create: (context) => SelectedServerProvider()),
+        ChangeNotifierProvider(create: (context) => SecurityWarningsProvider()),
       ],
       child: const AppWidget(),
     ),
@@ -93,6 +106,12 @@ _configureLogging() {
   Logger.root.onRecord.listen((record) {
     print('${record.level.name}: ${record.time}: ${record.loggerName}: ${record.message}');
   });
+}
+
+Future<UpdateInfo> _checkForUpdates() async {
+  _logger.fine("Checking for updates");
+  final updater = AutoUpdater();
+  return await updater.checkForUpdates();
 }
 
 _initSystemTray() async {
@@ -121,25 +140,23 @@ _initializeLocalNotifier() async {
   );
 }
 
-_initializeStorage() async {
+initializeStorage({required String prefix}) async {
   _logger.fine("Initializing storage");
-  await SecureStorage.init();
-  await Storage.init();
+  await Storage.init(prefix: prefix);
+  await SecureStorage.init(prefix: prefix);
+}
 
-  final masterVolume = Storage().read('masterVolume');
-  if(masterVolume != null) {
-    AudioManager().masterVolume.value = double.parse(masterVolume);
-  }
+initializeSettings() async {
+  _logger.fine("Initializing settings");
+
+  final masterVolume = await SettingsPreferencesProvider().getMasterVolume();
+  AudioManager().masterVolume.value = masterVolume;
 }
 
 Future<ThemeData> _loadThemeFromStorage() async {
   // Load the theme from storage
-  final scheme = Storage().read('theme');
-  if(scheme != null) {
-    return ThemeController.themes.firstWhere((element) => element.name == scheme).value;
-  }
-
-  return ThemeController.themes.firstWhere((theme) => theme.name == "Dark").value;
+  final theme = await SettingsPreferencesProvider().getTheme();
+  return ThemeController.themes.firstWhere((element) => element.name == theme).value;
 }
 
 _configureErrorHandling() {
@@ -160,95 +177,3 @@ _configureErrorHandling() {
   Errors.initialize();
 }
 
-// _autologin() async {
-//   List<dynamic> servers = await SecureStorage().readJSONArray("servers");
-//   if(servers.isEmpty) {
-//     _logger.fine("No servers to autologin");
-//     return;
-//   }
-//
-//   _logger.fine("Autologin to servers: $servers");
-//   final futures = <Completer<String?>>[];
-//
-//   for (var server in servers) {
-//
-//     if(server == null || server.toString().isEmpty) {
-//       continue;
-//     }
-//
-//     final [host, token] = await Future.wait([
-//       SecureStorage().read("$server.host"),
-//       SecureStorage().read("$server.token"),
-//     ], eagerError: true);
-//
-//     if(host == null || token == null) {
-//       continue;
-//     }
-//
-//     _logger.fine("Connecting to server $server");
-//     final completer = Completer<String?>();
-//
-//     ((Completer<String?> completer) async {
-//       final client = Client(
-//           address: ClientAddress(
-//               host: host,
-//               port: 55000
-//           ),
-//           onError: (error) {
-//             completer.completeError(error);
-//           }
-//       );
-//
-//       SecureStorage storage = SecureStorage();
-//
-//       try {
-//         // Throws an error if connection fails
-//         await client.connect();
-//
-//         final loginResult = await client.login(token: token);
-//
-//         // Throws an error if login fails
-//         if(loginResult.error != null) {
-//           throw loginResult.error!;
-//         }
-//
-//         await storage.write("${loginResult.serverId}.token", loginResult.token!);
-//         await storage.write("${loginResult.serverId}.userId", loginResult.userId!);
-//         await storage.write("${loginResult.serverId}.host", client.address.host);
-//         await storage.write("${loginResult.serverId}.port", client.address.port.toString());
-//
-//         ClientManager().addClient(client);
-//         completer.complete(null);
-//       } catch (e, stacktrace) {
-//         completer.completeError(e, stacktrace);
-//         ClientManager().onConnectionLost(client);
-//       }
-//     })(completer);
-//     futures.add(completer);
-//   }
-//
-//   // Wait for all connections to be established
-//   List<String?> results = await Future.wait(futures.map((e) => e.future));
-//   _logger.fine("Connection results: $results");
-//   if(results.any((element) => element == null)) {
-//     final successClient = ClientManager().clients.firstWhereOrNull((element) => element.connection.state == ClientConnectionState.connected && element.userId != null);
-//     if(successClient != null) {
-//       CurrentClientProvider().selectClient(successClient);
-//     } else {
-//       _logger.warning("No client was successfully connected.");
-//     }
-//   }
-// }
-
-// // RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
-// // Isolate.spawn((rootIsolateToken) async {
-// //   BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
-// //
-//   AudioManager.setAudioDataHandler((deviceId, data) {
-//     print('AudioData: $deviceId, $data');
-//   });
-//   final deviceId = (await AudioManager.getInputDevices()).firstWhere((item) => item.isDefault).id;
-//   print('Default Device: $deviceId');
-//   dynamic result = await AudioManager.startCaptureStream(deviceId);
-//   print('StartCaptureStream: $result');
-// // }, rootIsolateToken);

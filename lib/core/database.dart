@@ -1,4 +1,4 @@
-import 'package:talk/core/list_stream.dart';
+import 'package:mickle/core/list_stream.dart';
 
 import 'models/models.dart';
 
@@ -40,29 +40,17 @@ extension UserPresenceExtension on UserPresence {
 }
 
 class Database {
-  // Map of server id to Databases
-  static final Map<String, Database> _servers = {};
-
-  factory Database(String serverId) {
-    if (!_servers.containsKey(serverId)) {
-      _servers[serverId] = Database._internal();
-    }
-
-    return _servers[serverId]!;
-  }
-
-  Database._internal();
-
   final ListStream<Server> servers = ListStream<Server>();
   final ListStream<User> users = ListStream<User>();
   final ListStream<Channel> channels = ListStream<Channel>();
   final ListStream<Message> messages = ListStream<Message>();
   final ListStream<Role> roles = ListStream<Role>();
   final ListStream<Permission> permissions = ListStream<Permission>();
-  final RelationListStream serverUsers = RelationListStream();
-  final RelationListStream serverChannels = RelationListStream();
-  final RelationListStream channelUsers = RelationListStream();
-  final RelationListStream channelMessages = RelationListStream();
-  final RelationListStream roleUsers = RelationListStream();
-  final RelationListStream rolePermissions = RelationListStream();
+  final RelationListStream<Relation> serverUsers = RelationListStream();
+  final RelationListStream<Relation> serverChannels = RelationListStream();
+  final RelationListStream<Relation> channelUsers = RelationListStream();
+  final RelationListStream<Relation> channelMessages = RelationListStream();
+  final RelationListStream<Relation> roleUsers = RelationListStream();
+  final RelationListStream<Relation> rolePermissions = RelationListStream();
+  final RelationListStream<UnreadMessageRelation> unreadMessages = RelationListStream();
 }

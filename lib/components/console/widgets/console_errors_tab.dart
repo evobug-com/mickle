@@ -1,8 +1,9 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mickle/screens/settings_screen/settings_provider.dart';
 
-import '../../../core/audio/audio_manager.dart';
+import '../../../core/managers/audio_manager.dart';
 import '../core/models/error_item.dart';
 
 class Errors {
@@ -12,9 +13,11 @@ class Errors {
     if(initialized) return;
     initialized = true;
     final originalOnError = FlutterError.onError;
-    FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.onError = (FlutterErrorDetails details) async {
       errors.add(ErrorItem(details.exceptionAsString(), details.stack.toString()));
-      AudioManager.playSingleShot("Master", AssetSource("audio/error.wav"));
+      if(await SettingsPreferencesProvider().getPlaySoundOnError()) {
+        AudioManager.playSingleShot("Master", AssetSource("audio/error.wav"));
+      }
       if(originalOnError != null) {
         originalOnError(details);
       }

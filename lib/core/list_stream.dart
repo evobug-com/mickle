@@ -6,7 +6,8 @@ import 'models/models.dart';
 
 
 // Function to prepare a string of id based on runtimeType
-String idFromType<T>(T item) => '${item.runtimeType}:${(item as dynamic)?.id}';
+String idFromType<T>(T item) => (item as dynamic).id!;
+    // '${item.runtimeType.toString().toLowerCase()}:${(item as dynamic)?.id}';
 
 class ListStream<T> {
   final Map<String, T> _items = {};
@@ -67,18 +68,18 @@ addIfAbsent(List<dynamic> list, dynamic item) {
   }
 }
 
-class RelationListStream {
-  final Map<String, Relation> _relations = {};
-  final Map<String, List<Relation>> _inputIndex = {};
-  final Map<String, List<Relation>> _outputIndex = {};
+class RelationListStream<T extends Relation> {
+  final Map<String, T> _relations = {};
+  final Map<String, List<T>> _inputIndex = {};
+  final Map<String, List<T>> _outputIndex = {};
 
-  final _controller = StreamController<Relation>.broadcast();
+  final _controller = StreamController<T>.broadcast();
 
-  Stream<Relation> get stream => _controller.stream;
+  Stream<T> get stream => _controller.stream;
 
   get items => _relations.values;
 
-  void addRelation(Relation relation) {
+  void addRelation(T relation) {
     if(_relations.containsKey(relation.id)) {
       return;
     }
@@ -89,7 +90,7 @@ class RelationListStream {
     _controller.add(relation);
   }
 
-  void removeRelation(Relation relation) {
+  void removeRelation(T relation) {
     final removedRelation = _relations.remove(relation.id);
     _inputIndex[relation.input]?.remove(removedRelation);
     _outputIndex[relation.output]?.remove(removedRelation);
@@ -107,17 +108,17 @@ class RelationListStream {
     }
   }
 
-  void addRelations(List<Relation> relations) {
+  void addRelations(List<T> relations) {
     for (var relation in relations) {
       addRelation(relation);
     }
   }
 
-  List<Relation> inputs(String id) {
+  List<T> inputs(String id) {
     return _inputIndex[id] ?? [];
   }
 
-  List<Relation> outputs(String id) {
+  List<T> outputs(String id) {
     return _outputIndex[id] ?? [];
   }
 

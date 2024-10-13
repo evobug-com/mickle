@@ -1,4 +1,4 @@
-import 'package:diff_match_patch/diff_match_patch.dart';
+// import 'package:diff_match_patch/diff_match_patch.dart';
 import 'package:flutter/material.dart';
 
 class EditorMessage {
@@ -79,28 +79,28 @@ class EditorContentController extends TextEditingController {
 
   @override
   set value(TextEditingValue newValue) {
-    // We need to make diff between the old value and the new value
-    // and then update the message
-
-    final oldText = super.value.text;
-    final newText = newValue.text;
-    final cursorAt = newValue.selection.baseOffset;
-    final iter = EditorMessageIterator(message);
-    final textDiff = diff(oldText, newText);
-
-    while(iter.hasNext()) {
-      for(var diff in textDiff) {
-        if (diff.operation == DIFF_EQUAL) {
-          iter.next(diff.text.length);
-        } else if (diff.operation == DIFF_INSERT) {
-          final data = iter.current.data;
-          final text = iter.next(diff.text.length).text;
-          message.data.insert(iter.index, EditorMessageData(text, data));
-        } else if (diff.operation == DIFF_DELETE) {
-          message.data.removeAt(iter.index);
-        }
-      }
-    }
+    // // We need to make diff between the old value and the new value
+    // // and then update the message
+    //
+    // final oldText = super.value.text;
+    // final newText = newValue.text;
+    // final cursorAt = newValue.selection.baseOffset;
+    // final iter = EditorMessageIterator(message);
+    // final textDiff = diff(oldText, newText);
+    //
+    // while(iter.hasNext()) {
+    //   for(var diff in textDiff) {
+    //     if (diff.operation == DIFF_EQUAL) {
+    //       iter.next(diff.text.length);
+    //     } else if (diff.operation == DIFF_INSERT) {
+    //       final data = iter.current.data;
+    //       final text = iter.next(diff.text.length).text;
+    //       message.data.insert(iter.index, EditorMessageData(text, data));
+    //     } else if (diff.operation == DIFF_DELETE) {
+    //       message.data.removeAt(iter.index);
+    //     }
+    //   }
+    // }
 
 
     super.value = newValue;

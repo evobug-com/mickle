@@ -3,6 +3,11 @@ target/
 debug/
 release/
 keylog.txt
+release.ps1
+
+# Claude Sync
+.claudeignore
+.claudesync/
 
 # Miscellaneous
 *.class
@@ -31,12 +36,19 @@ migrate_working_dir/
 **/doc/api/
 **/ios/Flutter/.last_build_id
 .dart_tool/
+.packages
+doc/
+pubspec.lock
 .flutter-plugins
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
 /build/
+/*/build
 cmake-build-debug/
+*.g.dart
+/releases/
+/release.ps1
 
 # Symbolication related
 app.*.symbols

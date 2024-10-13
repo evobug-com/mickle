@@ -1,4 +1,4 @@
-package cz.siocom.talk
+package cz.evobug.mickle
 
 import io.flutter.embedding.android.FlutterActivity
 

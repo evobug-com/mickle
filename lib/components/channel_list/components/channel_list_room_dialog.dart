@@ -1,104 +1,139 @@
 import 'package:flutter/material.dart';
-import 'package:talk/core/notifiers/theme_controller.dart';
 
 class ChannelListRoomDialog extends StatefulWidget {
-
   final bool isEdit;
   final String inputName;
   final String inputDescription;
+  final void Function(String title, String description, bool isPrivate) onSubmitted;
 
-  final void Function(String title, String description, bool? isPrivate) onSubmitted;
-
-  const ChannelListRoomDialog({super.key, required this.onSubmitted, this.inputName = '', this.inputDescription = '', required this.isEdit});
+  const ChannelListRoomDialog({
+    super.key,
+    required this.onSubmitted,
+    this.inputName = '',
+    this.inputDescription = '',
+    required this.isEdit,
+  });
 
   @override
-  State<StatefulWidget> createState() => _ChannelListRoomDialogState();
+  State<ChannelListRoomDialog> createState() => _ChannelListRoomDialogState();
 }
 
 class _ChannelListRoomDialogState extends State<ChannelListRoomDialog> {
-  final TextEditingController _createChannelNameController =
-  TextEditingController();
-  final TextEditingController _createChannelDescriptionController =
-  TextEditingController();
+  late TextEditingController _nameController;
+  late TextEditingController _descriptionController;
   bool _isPrivateRoom = false;
 
   @override
   void initState() {
     super.initState();
-    _createChannelNameController.text = widget.inputName;
-    _createChannelDescriptionController.text = widget.inputDescription;
+    _nameController = TextEditingController(text: widget.inputName);
+    _descriptionController = TextEditingController(text: widget.inputDescription);
   }
 
   @override
   void dispose() {
-    _createChannelNameController.dispose();
-    _createChannelDescriptionController.dispose();
+    _nameController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
-  String get dialogLabelTitle {
-    return widget.isEdit ? 'Editace místnosti' : 'Vytvoření nové místnosti';
-  }
-
-  String get confirmButtonLabel {
-    return widget.isEdit ? 'Upravit' : 'Create';
-  }
+  String get dialogTitle => widget.isEdit ? 'Edit Room' : 'Create New Room';
+  String get confirmButtonLabel => widget.isEdit ? 'Update' : 'Create';
 
   @override
   Widget build(BuildContext context) {
-    final theme = ThemeController.theme(context);
-    return SimpleDialog(
-      title: Text(dialogLabelTitle),
-      contentPadding: const EdgeInsets.all(16),
-      children: <Widget>[
-        TextField(
-          decoration: const InputDecoration(
-            labelText: 'Název',
-          ),
-          controller: _createChannelNameController,
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          decoration: const InputDecoration(
-            labelText: 'Popis',
-          ),
-          controller: _createChannelDescriptionController,
-        ),
-        if(!widget.isEdit) ...[
-          const SizedBox(height: 8),
-          SwitchListTile(
-            value: _isPrivateRoom,
-            onChanged: (value) {
-              setState(() {
-                _isPrivateRoom = value;
-              });
-            },
-            title: const Text('Soukromá místnost'),
-            subtitle: const Text('Pokud je zaškrtnuto, místnost bude viditelná pouze pro Vás. Ostatní uživatelé musíte pozvat ručně.'),
-            contentPadding: const EdgeInsets.all(0),
-            hoverColor: Colors.transparent,
-            overlayColor: WidgetStateProperty.all(Colors.transparent),
-            tileColor: Colors.transparent,
-            splashRadius: 0.0,
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    final colorScheme = Theme.of(context).colorScheme;
 
-          ),
-        ],
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        width: 400,
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            FilledButton(child: Text(confirmButtonLabel), onPressed: () {
-              widget.onSubmitted(
-                  _createChannelNameController.text,
-                  _createChannelDescriptionController.text,
-                  _isPrivateRoom
-              );
-              Navigator.of(context).pop();
-            }),
+            Text(
+              dialogTitle,
+              style: TextStyle(color: colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 24),
+            _buildTextField(_nameController, 'Name', Icons.label),
+            const SizedBox(height: 16),
+            _buildTextField(_descriptionController, 'Description', Icons.description, maxLines: 3),
+            if (!widget.isEdit) ...[
+              const SizedBox(height: 16),
+              _buildPrivateRoomSwitch(),
+            ],
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  child: Text('Cancel', style: TextStyle(color: colorScheme.onSurfaceVariant)),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: colorScheme.primaryContainer,
+                    foregroundColor: colorScheme.onPrimaryContainer,
+                  ),
+                  child: Text(confirmButtonLabel),
+                  onPressed: () {
+                    widget.onSubmitted(
+                      _nameController.text,
+                      _descriptionController.text,
+                      _isPrivateRoom,
+                    );
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
           ],
-        )
-      ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label, IconData icon, {int maxLines = 1}) {
+    return TextField(
+      controller: controller,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, color: Theme.of(context).colorScheme.onSurfaceVariant),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+        ),
+        filled: true,
+        fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+      ),
+      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+    );
+  }
+
+  Widget _buildPrivateRoomSwitch() {
+    return SwitchListTile(
+      title: const Text('Private Room'),
+      subtitle: const Text('Only visible to you. Invite others manually.'),
+      value: _isPrivateRoom,
+      onChanged: (value) => setState(() => _isPrivateRoom = value),
+      secondary: const Icon(Icons.lock_outline),
     );
   }
 }

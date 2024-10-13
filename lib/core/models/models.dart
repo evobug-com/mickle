@@ -1,139 +1,282 @@
-import 'package:flat_buffers/flex_buffers.dart' as flex_buffers;
-import 'package:flutter/foundation.dart';
-import 'package:talk/core/notifiers/current_client_provider.dart';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: unused_element, unused_field, unused_import, unnecessary_this, prefer_const_constructors
 
-import '../database.dart';
+
+import 'package:json_annotation/json_annotation.dart';
+import 'package:flutter/foundation.dart';
+
 part 'models.g.dart';
 
-class RoomPermissions {
-  bool canSendMessages = false;
-  bool canReadMessages = false;
-  bool canEditMessages = false;
-  bool canDeleteMessages = false;
-  bool canManageRoom = false;
 
-  RoomPermissions({
-    required this.canSendMessages,
-    required this.canReadMessages,
-    required this.canEditMessages,
-    required this.canDeleteMessages,
-    required this.canManageRoom,
-  });
-}
+@JsonSerializable()
+class Relation with ChangeNotifier {
+  @JsonKey(name: "id")
+  String id;
+  @JsonKey(name: "input")
+  String input;
+  @JsonKey(name: "output")
+  String output;
 
+  Relation({required this.id,
+    required this.input,
+    required this.output,});
 
-extension UserExtension on User {
-  List<Role> getRoles() {
-    CurrentClientProvider clientProvider = CurrentClientProvider();
-    assert(clientProvider.selectedClient != null);
-    Database database = Database(clientProvider.selectedClient!.serverId!);
+  factory Relation.fromJson(Map<String, dynamic> json) => _$RelationFromJson(json);
+  Map<String, dynamic> toJson() => _$RelationToJson(this);
 
-    final roles = database.roleUsers.outputs(id);
-    return roles.map((relation) => database.roles.get("Role:${relation.input}")!).toList();
-  }
+  void notify() => notifyListeners();
 
-  getPermissionsForChannel(String roomId) {
-    final roles = getRoles();
-    final permissions = roles.map((role) => role.getPermissions()).expand((element) => element).toList();
-
-    return RoomPermissions(
-      canSendMessages: permissions.any((permission) => permission.id == 'channel_send_message'),
-      canReadMessages: permissions.any((permission) => permission.id == 'channel_read_message'),
-      canEditMessages: permissions.any((permission) => permission.id == 'channel_edit_message'),
-      canDeleteMessages: permissions.any((permission) => permission.id == 'channel_delete_message'),
-      canManageRoom: permissions.any((permission) => permission.id == 'channel_update'),
-    );
+  @override
+  String toString() {
+    return 'Relation{id: $id, input: $input, output: $output}';
   }
 }
 
-extension RoleExtension on Role {
-  List<Permission> getPermissions() {
-    CurrentClientProvider clientProvider = CurrentClientProvider();
-    assert(clientProvider.selectedClient != null);
-    Database database = Database(clientProvider.selectedClient!.serverId!);
 
-    final permissions = database.rolePermissions.inputs(id);
-    return permissions.map((relation) => database.permissions.get("Permission:${relation.output}")!).toList();
-  }
+@JsonSerializable()
+class Token with ChangeNotifier {
+  @JsonKey(name: "id")
+  String id;
+  @JsonKey(name: "user")
+  String user;
+  @JsonKey(name: "token")
+  String token;
+  @JsonKey(name: "created_at")
+  DateTime createdAt;
+  @JsonKey(name: "expires_at")
+  DateTime expiresAt;
 
-  List<User> getUsers() {
-    CurrentClientProvider clientProvider = CurrentClientProvider();
-    assert(clientProvider.selectedClient != null);
-    Database database = Database(clientProvider.selectedClient!.serverId!);
+  Token({required this.id,
+    required this.user,
+    required this.token,
+    required this.createdAt,
+    required this.expiresAt,});
 
-    final users = database.roleUsers.inputs(id);
-    return users.map((relation) => database.users.get("User:${relation.output}")!).toList();
-  }
-}
+  factory Token.fromJson(Map<String, dynamic> json) => _$TokenFromJson(json);
+  Map<String, dynamic> toJson() => _$TokenToJson(this);
 
-extension ChannelExtension on Channel {
-  List<Message> getMessages() {
-    CurrentClientProvider clientProvider = CurrentClientProvider();
-    assert(clientProvider.selectedClient != null);
-    Database database = Database(clientProvider.selectedClient!.serverId!);
+  void notify() => notifyListeners();
 
-    final channelMessagesRelations = database.channelMessages.inputs(id);
-
-    // Get all messages for channelMessagesRelations by id
-    final channelMessages = channelMessagesRelations.map((relation) => database.messages.get("Message:${relation.output}")!).toList();
-    channelMessages.sort((a, b) => a.createdAt!.compareTo(b.createdAt!));
-    return channelMessages;
-  }
-
-  containsMessage(Message message) {
-    CurrentClientProvider clientProvider = CurrentClientProvider();
-    assert(clientProvider.selectedClient != null);
-    Database database = Database(clientProvider.selectedClient!.serverId!);
-
-    final channelMessagesRelations = database.channelMessages.outputs(message.id);
-    return channelMessagesRelations.any((relation) => relation.input == id);
+  @override
+  String toString() {
+    return 'Token{id: $id, user: $user, token: $token, createdAt: $createdAt, expiresAt: $expiresAt}';
   }
 }
 
-extension ServerExtension on Server {
-  List<Channel> getChannels() {
-    CurrentClientProvider clientProvider = CurrentClientProvider();
-    assert(clientProvider.selectedClient != null);
-    final database = clientProvider.database!;
 
-    final serverChannelsRelations = database.serverChannels.inputs(id);
+@JsonSerializable()
+class Server with ChangeNotifier {
+  @JsonKey(name: "id")
+  String id;
+  @JsonKey(name: "name")
+  String name;
+  @JsonKey(name: "main")
+  bool main;
+  @JsonKey(name: "parent", includeIfNull: false)
+  String? parent;
 
-    // Get all channels for serverChannelsRelations by id
-    final serverChannels = serverChannelsRelations.map((relation) => database.channels.get("Channel:${relation.output}")).toList();
-    return serverChannels.where((channel) => channel != null).map((channel) => channel!).toList();
-  }
+  Server({required this.id,
+    required this.name,
+    required this.main,
+    this.parent,});
 
-  /// Get all channels that the user is a member of
-  List<Channel> getChannelsForUser(User user) {
-    CurrentClientProvider clientProvider = CurrentClientProvider();
-    assert(clientProvider.selectedClient != null);
-    final database = clientProvider.database!;
+  factory Server.fromJson(Map<String, dynamic> json) => _$ServerFromJson(json);
+  Map<String, dynamic> toJson() => _$ServerToJson(this);
 
-    final serverChannelsRelations = database.serverChannels.inputs(id);
+  void notify() => notifyListeners();
 
-    // Get all channels for serverChannelsRelations by id
-    final channels = serverChannelsRelations.map((relation) => database.channels.get("Channel:${relation.output}")).toList();
-
-    return channels.where((channel) {
-      if(channel == null) {
-        return false;
-      }
-      // Filter channels with channelUsers relation
-
-      // Get relations for channel;
-      final channelUsersRelations = database.channelUsers.inputs(channel.id);
-
-      // return true if user is a member of the channel
-      return channelUsersRelations.any((relation) => relation.output == user.id);
-    }).map((channel) => channel!).toList();
-  }
-
-  containsChannel(Channel channel) {
-    CurrentClientProvider clientProvider = CurrentClientProvider();
-    assert(clientProvider.selectedClient != null);
-    Database database = Database(clientProvider.selectedClient!.serverId!);
-
-    final serverChannelsRelations = database.serverChannels.outputs(channel.id);
-    return serverChannelsRelations.any((relation) => relation.input == id);
+  @override
+  String toString() {
+    return 'Server{id: $id, name: $name, main: $main, parent: $parent}';
   }
 }
+
+
+@JsonSerializable()
+class Permission with ChangeNotifier {
+  @JsonKey(name: "id")
+  String id;
+
+  Permission({required this.id,});
+
+  factory Permission.fromJson(Map<String, dynamic> json) => _$PermissionFromJson(json);
+  Map<String, dynamic> toJson() => _$PermissionToJson(this);
+
+  void notify() => notifyListeners();
+
+  @override
+  String toString() {
+    return 'Permission{id: $id}';
+  }
+}
+
+
+@JsonSerializable()
+class Role with ChangeNotifier {
+  @JsonKey(name: "id")
+  String id;
+  @JsonKey(name: "name")
+  String name;
+  @JsonKey(name: "rank")
+  int rank;
+  @JsonKey(name: "created_at")
+  DateTime createdAt;
+
+  Role({required this.id,
+    required this.name,
+    required this.rank,
+    required this.createdAt,});
+
+  factory Role.fromJson(Map<String, dynamic> json) => _$RoleFromJson(json);
+  Map<String, dynamic> toJson() => _$RoleToJson(this);
+
+  void notify() => notifyListeners();
+
+  @override
+  String toString() {
+    return 'Role{id: $id, name: $name, rank: $rank, createdAt: $createdAt}';
+  }
+}
+
+
+@JsonSerializable()
+class Message with ChangeNotifier {
+  @JsonKey(name: "id")
+  String id;
+  @JsonKey(name: "user")
+  String user;
+  @JsonKey(name: "content")
+  String content;
+  @JsonKey(name: "created_at")
+  DateTime createdAt;
+  @JsonKey(name: "mentions", includeIfNull: false)
+  List<String>? mentions;
+
+  Message({required this.id,
+    required this.user,
+    required this.content,
+    required this.createdAt,
+    this.mentions,});
+
+  factory Message.fromJson(Map<String, dynamic> json) => _$MessageFromJson(json);
+  Map<String, dynamic> toJson() => _$MessageToJson(this);
+
+  void notify() => notifyListeners();
+
+  @override
+  String toString() {
+    return 'Message{id: $id, user: $user, content: $content, createdAt: $createdAt, mentions: $mentions}';
+  }
+}
+
+
+@JsonSerializable()
+class Channel with ChangeNotifier {
+  @JsonKey(name: "id")
+  String id;
+  @JsonKey(name: "name")
+  String name;
+  @JsonKey(name: "description", includeIfNull: false)
+  String? description;
+  @JsonKey(name: "created_at")
+  DateTime createdAt;
+  @JsonKey(name: "archived")
+  bool archived;
+
+  Channel({required this.id,
+    required this.name,
+    this.description,
+    required this.createdAt,
+    required this.archived,});
+
+  factory Channel.fromJson(Map<String, dynamic> json) => _$ChannelFromJson(json);
+  Map<String, dynamic> toJson() => _$ChannelToJson(this);
+
+  void notify() => notifyListeners();
+
+  @override
+  String toString() {
+    return 'Channel{id: $id, name: $name, description: $description, createdAt: $createdAt, archived: $archived}';
+  }
+}
+
+
+@JsonSerializable()
+class User with ChangeNotifier {
+  @JsonKey(name: "id")
+  String id;
+  @JsonKey(name: "username", includeIfNull: false)
+  String? username;
+  @JsonKey(name: "display_name", includeIfNull: false)
+  String? displayName;
+  @JsonKey(name: "first_name", includeIfNull: false)
+  String? firstName;
+  @JsonKey(name: "last_name", includeIfNull: false)
+  String? lastName;
+  @JsonKey(name: "email", includeIfNull: false)
+  String? email;
+  @JsonKey(name: "created_at")
+  DateTime createdAt;
+  @JsonKey(name: "last_seen", includeIfNull: false)
+  DateTime? lastSeen;
+  @JsonKey(name: "status", includeIfNull: false)
+  String? status;
+  @JsonKey(name: "avatar", includeIfNull: false)
+  String? avatar;
+  @JsonKey(name: "avatar_url", includeIfNull: false)
+  String? avatarUrl;
+  @JsonKey(name: "presence")
+  String presence;
+
+  User({required this.id,
+    this.username,
+    this.displayName,
+    this.firstName,
+    this.lastName,
+    this.email,
+    required this.createdAt,
+    this.lastSeen,
+    this.status,
+    this.avatar,
+    this.avatarUrl,
+    required this.presence,});
+
+  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
+  Map<String, dynamic> toJson() => _$UserToJson(this);
+
+  void notify() => notifyListeners();
+
+  @override
+  String toString() {
+    return 'User{id: $id, username: $username, displayName: $displayName, firstName: $firstName, lastName: $lastName, email: $email, createdAt: $createdAt, lastSeen: $lastSeen, status: $status, avatar: $avatar, avatarUrl: $avatarUrl, presence: $presence}';
+  }
+}
+
+
+@JsonSerializable()
+class UnreadMessageRelation extends Relation {
+  @JsonKey(name: "last_read_message_id", includeIfNull: false)
+  final String? lastReadMessageId;
+  @JsonKey(name: "unread_count")
+  final int unreadCount;
+  @JsonKey(name: "last_update")
+  final DateTime lastUpdate;
+
+  UnreadMessageRelation({required this.lastReadMessageId,
+    required this.unreadCount,
+    required this.lastUpdate, required super.input, required super.output, required super.id});
+
+  factory UnreadMessageRelation.fromJson(Map<String, dynamic> json) => _$UnreadMessageRelationFromJson(json);
+    @override
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> json = _$UnreadMessageRelationToJson(this);
+    json.addAll(super.toJson());
+    return json;
+  }
+
+  @override
+  String toString() {
+    return 'UnreadMessageRelation{id: $id, input: $input, output: $output, lastReadMessageId: $lastReadMessageId, unreadCount: $unreadCount, lastUpdate: $lastUpdate}';
+  }
+}
+

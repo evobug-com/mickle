@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:talk/core/completer.dart';
-import 'package:talk/core/notifiers/current_client_provider.dart';
+import 'package:mickle/core/completer.dart';
+import 'package:mickle/core/providers/scoped/connection_provider.dart';
 
 class ConsoleChangePasswordItem extends StatefulWidget {
   const ConsoleChangePasswordItem({super.key});
@@ -32,8 +32,8 @@ class ConsoleChangePasswordItemState extends State<ConsoleChangePasswordItem> {
 
   @override
   Widget build(BuildContext context) {
-    final clientProvider = CurrentClientProvider.of(context);
-    final packetManager = clientProvider.packetManager!;
+    final connectionProvider = ConnectionProvider.of(context);
+    final packetManager = connectionProvider.packetManager;
     return ListTile(
       leading: const Icon(Icons.lock),
       title: const Text("Změnit heslo"),
@@ -115,7 +115,7 @@ class ConsoleChangePasswordItemState extends State<ConsoleChangePasswordItem> {
                           }
 
                           setState(() {
-                            _futureResponse = packetManager.sendUserChangePassword(oldPassword: _oldPasswordController.text, newPassword: _newPasswordController.text).wrapInCompleter();
+                            _futureResponse = packetManager.sendSetUserPassword(oldPassword: _oldPasswordController.text, newPassword: _newPasswordController.text).wrapInCompleter();
                             _futureResponse!.future.whenComplete(() => setState(() {}));
                           });
                         },

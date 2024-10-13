@@ -1,49 +1,15 @@
-import 'dart:typed_data';
 
-import 'package:flat_buffers/flex_buffers.dart' as flex_buffers;
+import '../database.dart';
 
-extension FlexBufferExt on flex_buffers.Builder {
-  addStringWKey(String key, String value) {
-    addKey(key);
-    addString(value);
-  }
+List<String> parseMessageMentions(String message, {required Database database}) {
+  // Parse message mentions
+  List<String> rawMentions = RegExp(r'@(\w+)').allMatches(message).map((e) => e.group(1)).where((e) => e != null).toList().cast();
 
-  addNullWKey(String key) {
-    addKey(key);
-    addNull();
-  }
+  // Replace mention with user id
+  List<String> mentions = rawMentions.map((e) {
+    return database.users.firstWhereOrNull((element) => element.displayName == e)?.id;
+  }).where((e) => e != null).toList().cast();
 
-  addIntWKey(String key, int value) {
-    addKey(key);
-    addInt(value);
-  }
 
-  addMapWKey(String key, Function callback) {
-    startMap();
-    addKey(key);
-    startMap();
-    callback();
-    end();
-    end();
-  }
-
-  addArrayWKey(String key, Function callback) {
-    addKey(key);
-    startVector();
-    callback();
-    end();
-  }
-}
-
-int _requestId = 0;
-getNewRequestId() {
-  if(_requestId >= 65535) {
-    _requestId = 0;
-    return _requestId;
-  }
-  return _requestId++;
-}
-
-abstract class Request {
-  Uint8List serialize();
+  return mentions;
 }

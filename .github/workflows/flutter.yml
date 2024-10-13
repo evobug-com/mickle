@@ -14,17 +14,6 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  workflow_dispatch:
-    inputs:
-      releaseType:
-          description: 'The type of release to create'
-          required: true
-          default: 'patch'
-          type: choice
-          options:
-          - major
-          - minor
-          - patch
 
 jobs:
   prepare-and-test:
@@ -37,7 +26,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          channel: main
           cache: true
           # optional parameters follow
           cache-key: "flutter-:os:-:channel:-:version:-:arch:" # optional, change this to force refresh cache
@@ -50,84 +39,19 @@ jobs:
 
       - name: Run tests
         run: flutter test
-
-  release:
-    if: github.event_name == 'workflow_dispatch'
-    needs: prepare-and-test
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v4
-
-      - name: Bump version and update files
-        id: bump
-        run: |
-          # Extract current version
-          CURRENT_VERSION=$(grep 'version: ' pubspec.yaml | sed 's/version: //')
-          echo "Current Version: $CURRENT_VERSION"
-
-          # Increment the patch part
-          IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
-          case ${{ github.event.inputs.releaseType }} in
-            major)
-              NEW_VERSION="$((major + 1)).0.0"
-              ;;
-            minor)
-              NEW_VERSION="$major.$((minor + 1)).0"
-              ;;
-            patch)
-              NEW_VERSION="$major.$minor.$((patch + 1))"
-              ;;
-          esac
-          echo "New Version: $NEW_VERSION"
-
-          # Update pubspec.yml
-          sed -i "s/^version: .*$/version: $NEW_VERSION/g" pubspec.yaml
-
-          # Update version.dart
-          sed -i "s/const String version = '.*'/const String version = '$NEW_VERSION'/g" lib/core/version.dart
-
-          # Export the new version to be used by other steps
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_OUTPUT
-
-      - name: Commit and Tag Release
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add pubspec.yaml lib/core/version.dart
-          git commit -m "release: ${{ env.NEW_VERSION }}"
-          git tag "v${{ env.NEW_VERSION }}"
-          git push --follow-tags
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          body: "Release ${{ env.NEW_VERSION }}"
-          draft: false
-          prerelease: false
-          generate_release_notes: true
-          tag_name: v${{ env.NEW_VERSION }}
-    outputs:
-        NEW_VERSION: ${{ steps.bump.outputs.NEW_VERSION }}
-
-  build-windows:
-    needs: [ prepare-and-test, release ]
+  integration-test:
     runs-on: windows-latest
 
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
-        with:
-          ref: v${{ needs.release.outputs.NEW_VERSION }}
 
       - name: Set up Flutter
-        uses: subosito/flutter-action@v2.16.0
+        uses: subosito/flutter-action@v2
         with:
-          channel: beta
+          channel: main
           cache: true
-           # optional parameters follow
+          # optional parameters follow
           cache-key: "flutter-:os:-:channel:-:version:-:arch:" # optional, change this to force refresh cache
           cache-path: "${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:" # optional, change this to specify the cache path
           pub-cache-key: "flutter-pub:os:-:channel:-:version:-:arch:" # optional, change this to force refresh cache of dart pub get dependencies
@@ -136,36 +60,11 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build for Windows
-        run: flutter build windows --release
+      - name: Run prebuild
+        run: dart run prebuild.dart
 
-      - name: Upload Windows Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Windows Release
-          path: build/windows/x64/runner/Release/
-          retention-days: 1
+      - name: Run build_runner
+        run: flutter pub run build_runner build --delete-conflicting-outputs
 
-  attach-artifacts:
-    needs: [ build-windows, release ]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download Windows Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: Windows Release
-          path: build/windows
-
-      - uses: montudor/action-zip@v1
-        with:
-          args: zip -qq -r windows-release.zip build/windows
-
-      - name: Display structure of downloaded and zipped files
-        run: ls -R build/windows windows-release.zip
-
-      - name: Attach Windows Artifact to Release
-        if: github.event_name == 'workflow_dispatch'
-        uses: softprops/action-gh-release@v2
-        with:
-          files: windows-release.zip
-          tag_name: v${{ needs.release.outputs.NEW_VERSION }}
+      - name: Run integration tests
+        run: flutter test -r github -d windows integration_test

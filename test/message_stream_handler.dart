@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'dart:typed_data';
 
-import 'package:talk/core/connection/message_stream_handler.dart';
+import 'package:mickle/core/connection/message_stream_handler.dart';
 
 void main() {
   group('MessageStreamHandler', () {

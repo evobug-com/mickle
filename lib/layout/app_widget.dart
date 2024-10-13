@@ -1,12 +1,12 @@
-
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
+import 'package:mickle/generated/l10n.dart';
+import 'package:mickle/screens/settings_screen/settings_provider.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
-
-import '../core/notifiers/theme_controller.dart';
-import '../core/storage/storage.dart';
+import '../core/theme/theme_controller.dart';
 import '../router.dart';
 
 class AppWidget extends StatefulWidget {
@@ -38,11 +38,18 @@ class _AppWidgetState extends State<AppWidget> with TrayListener, WindowListener
     final botToastBuilder = BotToastInit();
 
     return MaterialApp.router(
-      title: 'TALK 2024 Demo',
+      title: 'Mickle',
       debugShowCheckedModeBanner: false,
       routerConfig: router,
       theme: ThemeController.of(context).currentTheme,
-      builder: (context, child) {
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.delegate.supportedLocales,
+        builder: (context, child) {
         child = virtualWindowFrameBuilder(context, child);
         child = botToastBuilder(context, child);
         return child;
@@ -76,8 +83,7 @@ class _AppWidgetState extends State<AppWidget> with TrayListener, WindowListener
 
   @override
   Future<void> onWindowClose() async {
-    final storage = Storage();
-    if(storage.readBoolean("closeToTray", defaultValue: true)) {
+    if(await SettingsPreferencesProvider().getExitToTray()) {
       await windowManager.hide();
     } else {
       await windowManager.destroy();
